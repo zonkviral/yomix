@@ -17,15 +17,15 @@ export default [
             ...nextPlugin.configs["core-web-vitals"].rules,
 
             // TypeScript
-            "@typescript-eslint/no-explicit-any": "warn",
-            "@typescript-eslint/no-unused-vars": "warn",
+            "@typescript-eslint/no-explicit-any": "error",
+            "@typescript-eslint/no-unused-vars": "error",
 
             // React
-            "react/self-closing-comp": "warn",
+            "react/self-closing-comp": "error",
             "react/jsx-curly-brace-presence": ["warn", "never"],
 
             // General
-            "no-console": "warn",
+            "no-console": "error",
             "prefer-const": "error",
         },
     },
