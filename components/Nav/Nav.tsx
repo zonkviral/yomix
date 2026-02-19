@@ -1,20 +1,30 @@
 import { Bookmark, HomeIcon } from "lucide-react"
+import Link from "next/link"
 
-export const Nav = () => (
-    <nav className="bg-surface border-primary border-r pl-2">
-        <ul className="list-none items-center text-xl">
-            <li className="flex p-3">
-                <HomeIcon />
-                <a className="pl-3" href="/discover">
-                    Discover
-                </a>
-            </li>
-            <li className="flex p-3">
-                <Bookmark />
-                <a className="pl-3" href="/bookmarks">
-                    Bookmarks
-                </a>
-            </li>
-        </ul>
-    </nav>
-)
+const navItems = [
+    { title: "Discover", icon: HomeIcon, href: "/discover" },
+    { title: "Bookmarks", icon: Bookmark, href: "/bookmarks" },
+]
+
+export const Nav = () => {
+    const navRender = () =>
+        navItems.map((item, id) => {
+            const Icon = item.icon
+            return (
+                <li key={id}>
+                    <Link
+                        className="hover:bg-secondary flex items-center gap-3 p-3 pl-6"
+                        href={item.href}
+                    >
+                        <Icon />
+                        <span>{item.title}</span>
+                    </Link>
+                </li>
+            )
+        })
+    return (
+        <nav className="bg-surface border-primary border-r pt-7">
+            <ul className="list-none items-center text-xl">{navRender()}</ul>
+        </nav>
+    )
+}
