@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PopularList } from "@/components/PopularList/PopularList"
 import { getCoverUrl } from "@/lib/MangaDex/getCoverUrl"
-import { getMangaById } from "@/lib/MangaDex/getMangaById"
 import { getMangaList } from "@/lib/MangaDex/getMangaList"
 import Image from "next/image"
 
