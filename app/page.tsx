@@ -1,65 +1,86 @@
-import Image from "next/image";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { PopularList } from "@/components/PopularList/PopularList"
+import { getCoverUrl } from "@/lib/MangaDex/getCoverUrl"
+import { getMangaById } from "@/lib/MangaDex/getMangaById"
+import { getMangaList } from "@/lib/MangaDex/getMangaList"
+import Image from "next/image"
 
-export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+const HomePage = async () => {
+    const getTitleFromAlt = (
+        altTitles: Record<string, string>[],
+        lang: string,
+    ): string | undefined => {
+        return altTitles.find((t) => t[lang])?.[lang]
+    }
+
+    const getTitle = (
+        title: Record<string, string>,
+        altTitles: Record<string, string>[],
+    ): string => {
+        return (
+            getTitleFromAlt(altTitles, "ru") ??
+            title["ru"] ??
+            getTitleFromAlt(altTitles, "en") ??
+            title["en"] ??
+            getTitleFromAlt(altTitles, "ja-ro") ??
+            title["ja-ro"] ??
+            Object.values(altTitles[0] ?? {})[0] ??
+            Object.values(title)[0] ??
+            "No title"
+        )
+    }
+    const mangaById = await getMangaById("cf923481-1e96-4959-b3c1-9518718a4cc2")
+    console.log(mangaById)
+    const mangalist = await getMangaList()
+    const mangaListRender = () => {
+        return mangalist.data.map(async (manga: any) => {
+            const coverUrl = getCoverUrl(manga, 512)
+            console.log(manga)
+            return (
+                <li key={manga.id}>
+                    <a
+                        href="#"
+                        className="flex gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors"
+                    >
+                        <div className="relative w-50 h-75">
+                            <Image
+                                src={coverUrl!}
+                                alt="manga cover"
+                                sizes="200px"
+                                fill
+                                className="rounded object-cover shrink-0"
+                            />
+                        </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                            <h3 className="font-semibold truncate">
+                                {getTitle(
+                                    manga.attributes.title,
+                                    manga.attributes.altTitles,
+                                )}
+                            </h3>
+                            <p className=" text-gray-400">Ch. {}</p>
+                        </div>
+                        <p className=" text-yellow-400 font-medium shrink-0">
+                            rating
+                        </p>
+                    </a>
+                </li>
+            )
+        })
+    }
+
+    return (
+        <>
+            <section className="overflow-hidden">
+                <h2 className="text-4xl font-bold mb-3">Popular Now</h2>
+                <PopularList />
+            </section>
+            <section className="mt-8.75 w-max">
+                <h2 className="text-4xl font-bold">Discover Manga</h2>
+                <ul className="list-none pl-4">{mangaListRender()}</ul>
+            </section>
+        </>
+    )
 }
+
+export default HomePage
