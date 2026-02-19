@@ -29,38 +29,35 @@ const HomePage = async () => {
             "No title"
         )
     }
-    const mangaById = await getMangaById("cf923481-1e96-4959-b3c1-9518718a4cc2")
-    console.log(mangaById)
     const mangalist = await getMangaList()
     const mangaListRender = () => {
         return mangalist.data.map(async (manga: any) => {
             const coverUrl = getCoverUrl(manga, 512)
-            console.log(manga)
             return (
                 <li key={manga.id}>
                     <a
                         href="#"
-                        className="flex gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-white/10"
                     >
-                        <div className="relative w-50 h-75">
+                        <div className="relative h-75 w-50">
                             <Image
                                 src={coverUrl!}
                                 alt="manga cover"
                                 sizes="200px"
                                 fill
-                                className="rounded object-cover shrink-0"
+                                className="shrink-0 rounded object-cover"
                             />
                         </div>
-                        <div className="flex flex-col flex-1 min-w-0">
-                            <h3 className="font-semibold truncate">
+                        <div className="flex min-w-0 flex-1 flex-col">
+                            <h3 className="truncate font-semibold">
                                 {getTitle(
                                     manga.attributes.title,
                                     manga.attributes.altTitles,
                                 )}
                             </h3>
-                            <p className=" text-gray-400">Ch. {}</p>
+                            <p className="text-gray-400">Ch. {}</p>
                         </div>
-                        <p className=" text-yellow-400 font-medium shrink-0">
+                        <p className="shrink-0 font-medium text-yellow-400">
                             rating
                         </p>
                     </a>
@@ -72,7 +69,7 @@ const HomePage = async () => {
     return (
         <>
             <section className="overflow-hidden">
-                <h2 className="text-4xl font-bold mb-3">Popular Now</h2>
+                <h2 className="mb-3 text-4xl font-bold">Popular Now</h2>
                 <PopularList />
             </section>
             <section className="mt-8.75 w-max">

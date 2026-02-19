@@ -13,8 +13,8 @@ export const CarouselWrapper: React.FC<ModalProps> = ({ children }) => {
     ])
 
     return (
-        <div className="relative group w-full">
-            <div ref={emblaRef} className="overflow-hidden scrollbar-none">
+        <div className="group relative w-full">
+            <div ref={emblaRef} className="scrollbar-none overflow-hidden">
                 {children}
             </div>
         </div>

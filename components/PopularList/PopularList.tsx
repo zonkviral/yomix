@@ -32,9 +32,9 @@ export const PopularList = async () => {
         return data.data.map((manga: any) => {
             const coverUrl = getCoverUrl(manga, 512)
             return (
-                <li key={manga.id} className="p-2 first:pl-0 ">
+                <li key={manga.id} className="p-2 first:pl-0">
                     <a href="/*">
-                        <div className="relative w-32 h-48 sm:w-40 sm:h-60 md:w-48 md:h-72 lg:w-50 lg:h-75 rounded-xl overflow-hidden isolate shadow-lg shadow-black/50 hover:scale-105 hover:shadow-xl hover:shadow-black/70 transition-all duration-200">
+                        <div className="relative isolate h-48 w-32 overflow-hidden rounded-xl shadow-lg shadow-black/50 transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-black/70 sm:h-60 sm:w-40 md:h-72 md:w-48 lg:h-75 lg:w-50">
                             <Image
                                 className="object-cover"
                                 src={coverUrl!}
@@ -43,7 +43,7 @@ export const PopularList = async () => {
                                 loading="eager"
                                 fill
                             />
-                            <h3 className="absolute bottom-0 left-0 w-full bg-linear-to-t from-black/60 to-[#0000007d] font-semibold text-sm line-clamp-3 px-2 py-1">
+                            <h3 className="absolute bottom-0 left-0 line-clamp-3 w-full bg-linear-to-t from-black/60 to-[#0000007d] px-2 py-1 text-sm font-semibold">
                                 {getTitle(
                                     manga.attributes.title,
                                     manga.attributes.altTitles,
@@ -57,7 +57,7 @@ export const PopularList = async () => {
     }
     return (
         <CarouselWrapper>
-            <ul className="list-none flex flex-row">{popularListRender()}</ul>
+            <ul className="flex list-none flex-row">{popularListRender()}</ul>
         </CarouselWrapper>
     )
 }

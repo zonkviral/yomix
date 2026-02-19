@@ -1,11 +1,11 @@
-import { Bookmark, HomeIcon } from "lucide-react";
+import { Bookmark, HomeIcon } from "lucide-react"
 
 export const Nav = () => (
-    <nav className="bg-surface pl-2 border-r border-primary">
-        <ul className="list-none text-xl items-center">
+    <nav className="bg-surface border-primary border-r pl-2">
+        <ul className="list-none items-center text-xl">
             <li className="flex p-3">
                 <HomeIcon />
-                <a className="pl-3" href="/bookmarks">
+                <a className="pl-3" href="/discover">
                     Discover
                 </a>
             </li>
@@ -17,4 +17,4 @@ export const Nav = () => (
             </li>
         </ul>
     </nav>
-);
+)
