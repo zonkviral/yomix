@@ -1,10 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const getCoverUrl = (manga: any, size?: 256 | 512) => {
-    const cover = manga.relationships.find(
-        (rel: any) => rel.type === "cover_art",
-    )
+import { Manga, MangaCoverArt, MangaRelationship } from "./types"
 
-    if (!cover) return null
+export const getCoverUrl = (manga: Manga, size?: 256 | 512) => {
+    if (!manga) return null
+    const cover = manga.relationships.find(
+        (rel: MangaRelationship) => rel.type === "cover_art",
+    ) as MangaCoverArt
+
+    if (!cover?.attributes?.fileName) return null
 
     const fileName = cover.attributes.fileName
     if (!size) {

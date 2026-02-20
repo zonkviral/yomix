@@ -1,4 +1,5 @@
-const BASE_URL = "https://api.mangadex.org"
+import { BASE_URL } from "./constants"
+
 export const getMangaList = async (limit = 5) => {
     if (!BASE_URL) return []
     const res = await fetch(
