@@ -1,0 +1,93 @@
+import { getCoverUrl } from "@/lib/MangaDex/getCoverUrl"
+import { getMangaList } from "@/lib/MangaDex/getMangaList"
+import { getMangaStatistics } from "@/lib/MangaDex/getMangaStatistics"
+import { Manga, MangaStatistics } from "@/lib/MangaDex/types"
+import { formatNumber } from "@/utils/formatNumber"
+import { getTitle } from "@/utils/getTitle"
+import { removeLinks } from "@/utils/removeLinks"
+import { Users } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+
+const mocktags = ["action", "adventure", "supernatural"]
+const status = {
+    ongoing: "bg-blue-500",
+    completed: "bg-emerald-600",
+    hiatus: "bg-amber-500",
+    cancelled: "bg-red-600",
+}
+
+export const Discover = () => {
+    const mangaListRender = async () => {
+        const mangalist = await getMangaList()
+        return mangalist.data.map(async (manga: Manga) => {
+            const mangaStat: MangaStatistics = await getMangaStatistics(
+                manga.id,
+            )
+            const coverUrl = getCoverUrl(manga, 512)
+            return (
+                <li key={manga.id}>
+                    <Link
+                        href="#"
+                        className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-white/10"
+                    >
+                        <div className="relative h-75 w-50">
+                            <Image
+                                src={coverUrl!}
+                                alt="manga cover"
+                                sizes="200px"
+                                fill
+                                className="shrink-0 rounded object-cover"
+                            />
+                        </div>
+                        <div className="flex min-w-0 flex-1 flex-col">
+                            <h3 className="truncate text-xl font-bold">
+                                {getTitle(
+                                    manga.attributes.title,
+                                    manga.attributes.altTitles,
+                                )}
+                            </h3>
+                            <span className="mt-3 text-gray-400">Ch. {}</span>
+                            <ul className="mt-3 flex list-none">
+                                {mocktags.map((tag, id) => (
+                                    <li
+                                        className="bg-secondary rounded-sm px-4 capitalize not-first:ml-2"
+                                        key={id}
+                                    >
+                                        {tag}
+                                    </li>
+                                ))}
+                            </ul>
+                            <span
+                                className={`mt-2 w-fit rounded-sm ${status[manga.attributes.status]} px-4 py-0.5 capitalize`}
+                            >
+                                {manga.attributes.status}
+                            </span>
+                            <div className="mt-4 flex capitalize">
+                                <Users width={20} />
+                                <span className="pl-1">
+                                    {formatNumber(mangaStat.follows)} Followers
+                                </span>
+                            </div>
+                            <p className="mb-3 line-clamp-4 grow content-end">
+                                {removeLinks(
+                                    manga.attributes.description["ru"] ??
+                                        manga.attributes.description["en"],
+                                )}
+                            </p>
+                        </div>
+                        <p className="shrink-0 font-medium text-yellow-400">
+                            {mangaStat.rating.average.toFixed(2)}
+                        </p>
+                    </Link>
+                </li>
+            )
+        })
+    }
+    return (
+        <section className="mt-8.75">
+            <h2 className="mb-6 text-4xl font-bold">Discover Manga</h2>
+            <ul className="list-none">{mangaListRender()}</ul>
+        </section>
+    )
+}
