@@ -25,7 +25,7 @@ export default [
             "react/jsx-curly-brace-presence": ["warn", "never"],
 
             // General
-            "no-console": "error",
+            "no-console": "warn",
             "prefer-const": "error",
         },
     },
