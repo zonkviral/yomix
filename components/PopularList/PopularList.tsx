@@ -2,34 +2,14 @@ import { getCoverUrl } from "@/lib/MangaDex/getCoverUrl"
 import { getPopularManga } from "@/lib/MangaDex/getPopularManga"
 import Image from "next/image"
 import { CarouselWrapper } from "../CarouselWrapper/CarouselWrapper"
+import { Manga } from "@/lib/MangaDex/types"
+import { getTitle } from "@/utils/getTitle"
+// import { getMangaById } from "@/lib/MangaDex/getMangaById"
 
 export const PopularList = async () => {
-    const getTitleFromAlt = (
-        altTitles: Record<string, string>[],
-        lang: string,
-    ): string | undefined => {
-        return altTitles.find((t) => t[lang])?.[lang]
-    }
-    const getTitle = (
-        title: Record<string, string>,
-        altTitles: Record<string, string>[],
-    ): string => {
-        return (
-            getTitleFromAlt(altTitles, "ru") ??
-            title["ru"] ??
-            getTitleFromAlt(altTitles, "en") ??
-            title["en"] ??
-            getTitleFromAlt(altTitles, "ja-ro") ??
-            title["ja-ro"] ??
-            Object.values(altTitles[0] ?? {})[0] ??
-            Object.values(title)[0] ??
-            "No title"
-        )
-    }
     const data = await getPopularManga()
     const popularListRender = () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return data.data.map((manga: any) => {
+        return data.data.map((manga: Manga) => {
             const coverUrl = getCoverUrl(manga, 512)
             return (
                 <li key={manga.id} className="p-2 first:pl-0">
@@ -43,7 +23,7 @@ export const PopularList = async () => {
                                 loading="eager"
                                 fill
                             />
-                            <h3 className="absolute bottom-0 left-0 line-clamp-3 w-full bg-linear-to-t from-black/60 to-[#0000007d] px-2 py-1 text-sm font-semibold">
+                            <h3 className="absolute bottom-0 left-0 line-clamp-3 w-full bg-linear-to-t from-black/60 to-[#0000007d] px-2 py-1 text-[1.1rem] font-semibold text-shadow-[1px_1px_black]">
                                 {getTitle(
                                     manga.attributes.title,
                                     manga.attributes.altTitles,
