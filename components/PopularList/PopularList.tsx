@@ -36,8 +36,13 @@ export const PopularList = async () => {
         })
     }
     return (
-        <CarouselWrapper>
-            <ul className="flex list-none flex-row">{popularListRender()}</ul>
-        </CarouselWrapper>
+        <section className="overflow-hidden">
+            <h2 className="mb-3 text-4xl font-bold">Popular Now</h2>
+            <CarouselWrapper>
+                <ul className="flex list-none flex-row">
+                    {popularListRender()}
+                </ul>
+            </CarouselWrapper>
+        </section>
     )
 }
