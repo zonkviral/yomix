@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
             },
             {
                 protocol: "https",
-                hostname: "external-content.duckduckgo.com",
+                hostname: "api.remanga.org",
             },
         ],
     },
