@@ -1,19 +1,22 @@
 import { getCoverUrl } from "@/lib/MangaDex/getCoverUrl"
 import { getPopularManga } from "@/lib/MangaDex/getPopularManga"
-import Image from "next/image"
-import { CarouselWrapper } from "../CarouselWrapper/CarouselWrapper"
 import { Manga } from "@/lib/MangaDex/types"
+
+import { CarouselWrapper } from "../CarouselWrapper/CarouselWrapper"
+
 import { getTitle } from "@/utils/getTitle"
-// import { getMangaById } from "@/lib/MangaDex/getMangaById"
+
+import Link from "next/link"
+import Image from "next/image"
 
 export const PopularList = async () => {
     const data = await getPopularManga()
     const popularListRender = () => {
         return data.data.map((manga: Manga) => {
-            const coverUrl = getCoverUrl(manga, 512)
+            const coverUrl = getCoverUrl(manga, 256)
             return (
                 <li key={manga.id} className="p-2 first:pl-0">
-                    <a href="/*">
+                    <Link href={`manga/${manga.id}`}>
                         <div className="relative isolate h-48 w-32 overflow-hidden rounded-xl shadow-lg shadow-black/50 transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-black/70 sm:h-60 sm:w-40 md:h-72 md:w-48 lg:h-75 lg:w-50">
                             <Image
                                 className="object-cover"
@@ -30,7 +33,7 @@ export const PopularList = async () => {
                                 )}
                             </h3>
                         </div>
-                    </a>
+                    </Link>
                 </li>
             )
         })
