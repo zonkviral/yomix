@@ -23,7 +23,7 @@ export const Nav = () => {
             )
         })
     return (
-        <nav className="bg-surface border-primary border-r pt-7">
+        <nav className="bg-surface border-primary col-start-1 row-start-2 border-r pt-7">
             <ul className="list-none items-center text-xl">{navRender()}</ul>
         </nav>
     )

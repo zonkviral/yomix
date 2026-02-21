@@ -9,7 +9,7 @@ const permanentMarker = Permanent_Marker({
 })
 
 export const Header = () => (
-    <header className="bg-surface border-primary col-span-2 flex rounded-t-sm border-b-[0.5px] px-5 py-1">
+    <header className="bg-surface border-primary col-span-2 row-start-1 flex rounded-t-sm border-b-[0.5px] px-5 py-1">
         <div className="w-[150px].5 mt-1 mr-10 h-10">
             <Link href="/" className="relative">
                 <Image
