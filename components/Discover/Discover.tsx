@@ -108,7 +108,9 @@ export const Discover = () => {
     return (
         <section className="mt-8.75">
             <h2 className="mb-6 text-4xl font-bold">Discover Manga</h2>
-            <ul className="list-none">{mangaListRender()}</ul>
+            <ul className="grid list-none grid-cols-1 gap-4 2xl:grid-cols-3">
+                {mangaListRender()}
+            </ul>
         </section>
     )
 }
