@@ -16,19 +16,27 @@ const status = {
     hiatus: "bg-amber-500",
     cancelled: "bg-red-600",
 }
+const contentRating = {
+    safe: ["12+", "bg-green-500/70"],
+    suggestive: ["16+", "bg-yellow-500/70"],
+    erotica: ["18+", "bg-orange-500/70"],
+    pornographic: ["18+", "bg-red-500/70"],
+}
 
 export const Discover = () => {
     const mangaListRender = async () => {
         const mangalist = await getMangaList()
+
         return mangalist.data.map(async (manga: Manga) => {
             const mangaStat: MangaStatistics = await getMangaStatistics(
                 manga.id,
             )
+
             const coverUrl = getCoverUrl(manga, 512)
             return (
-                <li key={manga.id}>
+                <li key={manga.id} className="relative">
                     <Link
-                        href="#"
+                        href={`manga/${manga.id}`}
                         className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-white/10"
                     >
                         <div className="relative h-75 w-50">
@@ -47,7 +55,9 @@ export const Discover = () => {
                                     manga.attributes.altTitles,
                                 )}
                             </h3>
-                            <span className="mt-3 text-gray-400">Ch. {}</span>
+                            <span className="mt-3 text-gray-400">
+                                Ch. {manga.attributes.lastChapter}
+                            </span>
                             <ul className="mt-3 flex list-none">
                                 {mocktags.map((tag, id) => (
                                     <li
@@ -63,18 +73,29 @@ export const Discover = () => {
                             >
                                 {manga.attributes.status}
                             </span>
+                            <span
+                                className={`absolute left-2 w-fit rounded-sm px-4 text-black text-shadow-[0px_0px_0px_black] ${contentRating[manga.attributes.contentRating][1]}`}
+                            >
+                                {
+                                    contentRating[
+                                        manga.attributes.contentRating
+                                    ][0]
+                                }
+                            </span>
                             <div className="mt-4 flex capitalize">
                                 <Users width={20} />
                                 <span className="pl-1">
                                     {formatNumber(mangaStat.follows)} Followers
                                 </span>
                             </div>
-                            <p className="mb-3 line-clamp-4 grow content-end">
-                                {removeLinks(
-                                    manga.attributes.description["ru"] ??
-                                        manga.attributes.description["en"],
-                                )}
-                            </p>
+                            {manga.attributes.description && (
+                                <p className="mb-3 line-clamp-4 grow content-end">
+                                    {removeLinks(
+                                        manga.attributes.description["ru"] ??
+                                            manga.attributes.description["en"],
+                                    )}
+                                </p>
+                            )}
                         </div>
                         <p className="shrink-0 font-medium text-yellow-400">
                             {mangaStat.rating.average.toFixed(2)}
