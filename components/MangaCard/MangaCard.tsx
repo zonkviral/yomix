@@ -1,31 +1,95 @@
 import { getCoverUrl } from "@/lib/MangaDex/getCoverUrl"
+import { getMangaStatistics } from "@/lib/MangaDex/getMangaStatistics"
 import { Manga } from "@/lib/MangaDex/types"
 
+import { formatNumber } from "@/utils/formatNumber"
 import { getTitle } from "@/utils/getTitle"
+import { removeLinks } from "@/utils/removeLinks"
+
+import { NoDragLink } from "../NoDragLink/NoDragLink"
 
 import Image from "next/image"
-import Link from "next/link"
 
-export const MangaCard = ({ manga }: { manga: Manga }) => {
-    const coverUrl = getCoverUrl(manga, 256)
+import { Users } from "lucide-react"
+
+const status = {
+    ongoing: "bg-blue-500",
+    completed: "bg-emerald-600",
+    hiatus: "bg-amber-500",
+    cancelled: "bg-red-600",
+}
+const contentRating = {
+    safe: ["12+", "bg-green-500/70"],
+    suggestive: ["16+", "bg-yellow-500/70"],
+    erotica: ["18+", "bg-orange-500/70"],
+    pornographic: ["18+", "bg-red-500/70"],
+}
+
+export const MangaCard = async ({ manga }: { manga: Manga }) => {
+    const coverUrl = getCoverUrl(manga, 512)
+    const mangaStat = await getMangaStatistics(manga.id)
     return (
-        <Link href={`manga/${manga.id}`}>
-            <div className="relative isolate h-48 w-32 overflow-hidden rounded-xl shadow-lg shadow-black/50 transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-black/70 sm:h-60 sm:w-40 md:h-72 md:w-48 lg:h-75 lg:w-50">
+        <NoDragLink
+            href={`manga/${manga.id}`}
+            className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-white/10"
+        >
+            <div className="relative h-75 w-50">
                 <Image
-                    className="object-cover"
                     src={coverUrl!}
-                    alt="cover"
+                    alt="manga cover"
                     sizes="200px"
-                    loading="eager"
                     fill
+                    className="shrink-0 rounded object-cover"
                 />
-                <h3 className="absolute bottom-0 left-0 line-clamp-3 w-full bg-linear-to-t from-black/60 to-[#0000007d] px-2 py-1 text-[1.1rem] font-semibold text-shadow-[1px_1px_black]">
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col">
+                <h3 className="truncate text-xl font-bold whitespace-pre-wrap">
                     {getTitle(
                         manga.attributes.title,
                         manga.attributes.altTitles,
                     )}
                 </h3>
+                <span className="mt-3 text-gray-400">
+                    Ch. {manga.attributes.lastChapter}
+                </span>
+                <ul className="mt-3 flex list-none flex-wrap gap-1">
+                    {manga.attributes.tags.map((tag, id) => (
+                        <li
+                            className="bg-secondary rounded-sm px-4 capitalize"
+                            key={id}
+                        >
+                            {tag.attributes.name["en"]}
+                        </li>
+                    ))}
+                </ul>
+                <span
+                    className={`mt-2 w-fit rounded-sm ${status[manga.attributes.status]} px-4 py-0.5 capitalize`}
+                >
+                    {manga.attributes.status}
+                </span>
+                <span
+                    className={`absolute left-2 w-fit rounded-sm px-4 text-black text-shadow-[0px_0px_0px_black] ${contentRating[manga.attributes.contentRating][1]}`}
+                >
+                    {contentRating[manga.attributes.contentRating][0]}
+                </span>
+                <div className="mt-4 flex capitalize">
+                    <Users width={20} />
+                    <span className="pl-1">
+                        {formatNumber(mangaStat.follows)} Followers
+                    </span>
+                </div>
+                {manga.attributes.description && (
+                    <p className="mb-3 line-clamp-3 grow content-end">
+                        {removeLinks(
+                            manga.attributes.description["ru"] ??
+                                manga.attributes.description["en"],
+                        )}
+                    </p>
+                )}
             </div>
-        </Link>
+            <p className="shrink-0 font-medium text-yellow-400">
+                {mangaStat.rating.average.toFixed(2)}
+            </p>
+        </NoDragLink>
     )
 }
