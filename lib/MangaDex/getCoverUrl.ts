@@ -1,3 +1,5 @@
+import { UPLOADS_BASE_URL } from "./constants"
+
 import { Manga, MangaCoverArt, MangaRelationship } from "./types"
 
 export const getCoverUrl = (manga: Manga, size?: 256 | 512) => {
@@ -10,7 +12,7 @@ export const getCoverUrl = (manga: Manga, size?: 256 | 512) => {
 
     const fileName = cover.attributes.fileName
     if (!size) {
-        return `https://uploads.mangadex.org/covers/${manga.id}/${fileName}`
+        return `${UPLOADS_BASE_URL}/covers/${manga.id}/${fileName}`
     }
-    return `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.${size}.jpg`
+    return `${UPLOADS_BASE_URL}/covers/${manga.id}/${fileName}.${size}.jpg`
 }

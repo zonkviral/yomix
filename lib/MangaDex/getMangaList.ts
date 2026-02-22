@@ -1,16 +1,12 @@
 import { BASE_URL } from "./constants"
-import { Manga } from "./types"
+
+import { apiFetchHandler } from "@/utils/apiFetchHandler"
+
+import { Manga, MangaListResponse } from "./types"
 
 export const getMangaList = async (limit = 10): Promise<Manga[] | []> => {
-    if (!BASE_URL) return []
-    const res = await fetch(
+    const data = await apiFetchHandler<MangaListResponse>(
         `${BASE_URL}/manga?limit=${limit}&includes[]=cover_art&availableTranslatedLanguage[]=ru`,
     )
-
-    if (!res.ok) {
-        throw new Error("Failed to fetch manga")
-    }
-
-    const data = await res.json()
     return data.data
 }

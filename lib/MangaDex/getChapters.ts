@@ -1,9 +1,10 @@
 import { BASE_URL } from "./constants"
 
+import { apiFetchHandler } from "@/utils/apiFetchHandler"
+
 export const getMangaChapters = async (id: string) => {
-    const res = await fetch(
+    const data = await apiFetchHandler(
         `${BASE_URL}/chapter?manga=${id}&order[chapter]=desc&limit=500`,
     )
-    const data = await res.json()
     return data
 }

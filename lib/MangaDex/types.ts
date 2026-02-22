@@ -70,6 +70,12 @@ export interface MangaTag {
     }
 }
 
+export interface MangaResponse {
+    data: Manga
+    limit: number
+    offset: number
+    total: number
+}
 export interface MangaListResponse {
     data: Manga[]
     limit: number
