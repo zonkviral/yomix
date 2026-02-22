@@ -1,6 +1,6 @@
 import { BASE_URL } from "./constants"
 
-export const getMangaList = async (limit = 5) => {
+export const getMangaList = async (limit = 10) => {
     if (!BASE_URL) return []
     const res = await fetch(
         `${BASE_URL}/manga?limit=${limit}&includes[]=cover_art&availableTranslatedLanguage[]=ru`,
