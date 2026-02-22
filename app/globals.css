@@ -18,6 +18,7 @@
     --color-surface: var(--color-surface);
     --color-primary: var(--color-primary);
     --color-secondary: var(--color-secondary);
+    --breakpoint-3xl: 150rem;
     --color-text: #ffffff;
 }
 
@@ -52,6 +53,6 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    color: var(--foreground);
+    color: #ffff;
     font-family: var(--font-inter);
 }
