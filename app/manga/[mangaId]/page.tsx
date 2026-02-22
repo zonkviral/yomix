@@ -6,7 +6,7 @@ import { getArtist, getAuthor, getTags } from "@/lib/MangaDex/helpers"
 import { searchMangaByName } from "@/lib/Remanga/searchMangaByName"
 import { getMangaByName } from "@/lib/Remanga/getMangabyName"
 
-import { InfoItemList } from "@/components/InfoItem/InfoItem"
+import { InfoItemList } from "@/components/InfoItemList/InfoItemList"
 
 import { getTitleFromAlt } from "@/utils/getTitleFromAlt"
 import { getTitle } from "@/utils/getTitle"

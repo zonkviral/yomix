@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
                 protocol: "https",
                 hostname: "api.remanga.org",
             },
+            { hostname: "uploads.mangadex.org" },
         ],
     },
 }

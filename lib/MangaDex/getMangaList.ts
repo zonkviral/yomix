@@ -1,6 +1,7 @@
 import { BASE_URL } from "./constants"
+import { Manga } from "./types"
 
-export const getMangaList = async (limit = 10) => {
+export const getMangaList = async (limit = 10): Promise<Manga[] | []> => {
     if (!BASE_URL) return []
     const res = await fetch(
         `${BASE_URL}/manga?limit=${limit}&includes[]=cover_art&availableTranslatedLanguage[]=ru`,
@@ -11,5 +12,5 @@ export const getMangaList = async (limit = 10) => {
     }
 
     const data = await res.json()
-    return data
+    return data.data
 }

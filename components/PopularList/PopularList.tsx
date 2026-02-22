@@ -13,6 +13,7 @@ export const PopularList = async () => {
             <h2 className="mb-3 text-4xl font-bold">Popular Now</h2>
             <CarouselWrapper>
                 <List
+                    keyExtractor={(data: Manga) => data.id}
                     className="flex list-none flex-row"
                     listClassName="p-2 first:pl-0"
                     list={data}
