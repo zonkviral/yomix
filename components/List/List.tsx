@@ -3,6 +3,7 @@ interface ListProps<T> {
     renderItem: (item: T, index: number) => React.ReactNode
     className?: string
     listClassName?: string
+    keyExtractor: (item: T) => string
 }
 
 export const List = <T,>({
@@ -10,11 +11,12 @@ export const List = <T,>({
     list,
     renderItem,
     listClassName,
+    keyExtractor,
 }: ListProps<T>) => {
     return (
         <ul className={className}>
             {list.map((item, index) => (
-                <li key={index} className={listClassName}>
+                <li key={keyExtractor(item)} className={listClassName}>
                     {renderItem(item, index)}
                 </li>
             ))}
