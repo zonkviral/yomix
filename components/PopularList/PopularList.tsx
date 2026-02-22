@@ -2,9 +2,9 @@ import { getPopularManga } from "@/lib/MangaDex/getPopularManga"
 import { Manga } from "@/lib/MangaDex/types"
 
 import { CarouselWrapper } from "../CarouselWrapper/CarouselWrapper"
+import { MangaFullInfo } from "../MangaFullInfo/MangaFullInfo"
 
 import { List } from "../List/List"
-import { MangaCard } from "../MangaCard/MangaCard"
 
 export const PopularList = async () => {
     const data = await getPopularManga()
@@ -17,7 +17,9 @@ export const PopularList = async () => {
                     className="flex list-none flex-row"
                     listClassName="p-2 first:pl-0"
                     list={data}
-                    renderItem={(manga: Manga) => <MangaCard manga={manga} />}
+                    renderItem={(manga: Manga) => (
+                        <MangaFullInfo manga={manga} />
+                    )}
                 />
             </CarouselWrapper>
         </section>
