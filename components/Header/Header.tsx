@@ -2,6 +2,7 @@ import { Permanent_Marker } from "next/font/google"
 
 import Image from "next/image"
 import Link from "next/link"
+import SearchBar from "../SearchBar/SearchBar"
 
 const permanentMarker = Permanent_Marker({
     subsets: ["latin"],
@@ -10,7 +11,7 @@ const permanentMarker = Permanent_Marker({
 
 export const Header = () => (
     <header className="bg-surface border-primary col-span-2 row-start-1 flex rounded-t-sm border-b-[0.5px] px-5 py-1">
-        <div className="w-[150px].5 mt-1 mr-10 h-10">
+        <div className="mt-1 mr-10 h-10 w-37.5">
             <Link href="/" className="relative">
                 <Image
                     src="/logo.svg"
@@ -26,14 +27,6 @@ export const Header = () => (
                 </h1>
             </Link>
         </div>
-        <form className="self-center pl-3">
-            <input
-                placeholder="Search manga..."
-                className="border-primary rounded-sm border p-2"
-                type="search"
-                name="search-manga"
-                id="search-manga"
-            />
-        </form>
+        <SearchBar />
     </header>
 )
