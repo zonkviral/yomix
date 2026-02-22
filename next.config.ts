@@ -1,18 +1,16 @@
 import type { NextConfig } from "next"
 
+const uploadUrl = new URL(process.env.MANGADEX_UPLOADS_URL!)
+const baseUrl = new URL(process.env.MANGADEX_BASE_URL!)
+
 const nextConfig: NextConfig = {
     /* config options here */
     images: {
         remotePatterns: [
             {
-                protocol: "https",
-                hostname: "uploads.mangadex.org",
+                hostname: baseUrl.hostname,
             },
-            {
-                protocol: "https",
-                hostname: "api.remanga.org",
-            },
-            { hostname: "uploads.mangadex.org" },
+            { hostname: uploadUrl.hostname },
         ],
     },
 }
