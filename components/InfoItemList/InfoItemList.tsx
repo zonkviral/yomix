@@ -16,7 +16,9 @@ export const InfoItemList = ({ className, data }: InfoItemListProps) => {
                     <dt className="min-w-28 text-gray-400 capitalize">
                         {item.label}
                     </dt>
-                    <dd className="capitalize">{item.value}</dd>
+                    <dd className="flex flex-wrap items-center gap-2 capitalize">
+                        {item.value}
+                    </dd>
                 </div>
             ))}
         </dl>
