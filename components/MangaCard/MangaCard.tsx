@@ -1,16 +1,19 @@
 import { getCoverUrl } from "@/lib/MangaDex/getCoverUrl"
 import { getMangaStatistics } from "@/lib/MangaDex/getMangaStatistics"
+import { searchMangaByName } from "@/lib/Remanga/searchMangaByName"
+import { getMangaByName } from "@/lib/Remanga/getMangabyName"
+
+import { IReManga } from "@/lib/Remanga/types"
 import { Manga } from "@/lib/MangaDex/types"
 
 import { formatNumber } from "@/utils/formatNumber"
 import { getTitle } from "@/utils/getTitle"
-import { removeLinks } from "@/utils/removeLinks"
+import { htmlTagsRemover } from "@/utils/htmlTagsRemover"
 
-import { NoDragLink } from "../NoDragLink/NoDragLink"
+import { NoDragLink } from "@/components/NoDragLink/NoDragLink"
 
+import { Star, Users } from "lucide-react"
 import Image from "next/image"
-
-import { Users } from "lucide-react"
 
 const status = {
     ongoing: "bg-blue-500",
@@ -28,6 +31,28 @@ const contentRating = {
 export const MangaCard = async ({ manga }: { manga: Manga }) => {
     const coverUrl = getCoverUrl(manga, 512)
     const mangaStat = await getMangaStatistics(manga.id)
+    const titleRu = getTitle(
+        manga.attributes.title,
+        manga.attributes.altTitles,
+        "ru",
+    )
+    let mangaRu: IReManga | null = null
+    const titleEn = getTitle(
+        manga.attributes.title,
+        manga.attributes.altTitles,
+        "en",
+    )
+    if (!titleRu || !manga.attributes.description["ru"]) {
+        const searchResults = await searchMangaByName(titleEn?.[0] ?? "")
+        if (searchResults?.[0]?.dir) {
+            mangaRu = await getMangaByName(searchResults[0].dir)
+        }
+    }
+    const description = htmlTagsRemover(
+        manga.attributes.description["ru"] ??
+            mangaRu?.description ??
+            manga.attributes.description["en"],
+    )
     return (
         <NoDragLink
             href={`manga/${manga.id}`}
@@ -44,10 +69,9 @@ export const MangaCard = async ({ manga }: { manga: Manga }) => {
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
                 <h3 className="truncate text-xl font-bold whitespace-pre-wrap">
-                    {getTitle(
-                        manga.attributes.title,
-                        manga.attributes.altTitles,
-                    )}
+                    {titleRu?.[0] ??
+                        mangaRu?.rus_name ??
+                        manga.attributes.title[0]}
                 </h3>
                 <span className="mt-3 text-gray-400">
                     Ch. {manga.attributes.lastChapter}
@@ -79,17 +103,15 @@ export const MangaCard = async ({ manga }: { manga: Manga }) => {
                     </span>
                 </div>
                 {manga.attributes.description && (
-                    <p className="mb-3 line-clamp-3 grow content-end">
-                        {removeLinks(
-                            manga.attributes.description["ru"] ??
-                                manga.attributes.description["en"],
-                        )}
+                    <p className="mb-3 line-clamp-2 grow content-end">
+                        {description}
                     </p>
                 )}
             </div>
-            <p className="shrink-0 font-medium text-yellow-400">
+            <span className="flex shrink-0 font-medium text-yellow-400">
+                <Star className="fill-amber-400 stroke-0 pr-1" />
                 {mangaStat.rating.average.toFixed(2)}
-            </p>
+            </span>
         </NoDragLink>
     )
 }
