@@ -12,6 +12,7 @@
     --color-secondary-text: gray;
 
     --foreground: #171717;
+    --reader-filter: none;
 }
 
 @theme {
@@ -55,4 +56,15 @@ body {
     background-attachment: fixed;
     color: #ffff;
     font-family: var(--font-inter);
+}
+.reader {
+    filter: var(--reader-filter, none);
+}
+
+.dark {
+    --reader-filter: brightness(0.75) contrast(1.1);
+}
+
+.sepia {
+    --reader-filter: sepia(0.6) contrast(1.1) brightness(0.95);
 }
