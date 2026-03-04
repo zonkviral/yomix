@@ -1,0 +1,36 @@
+"use client"
+
+import { useEffect } from "react"
+import { useReader } from "./ReaderContext"
+
+export function SingleReader({ pages }: { pages: string[] }) {
+    const { index, next, prev } = useReader()
+
+    // Preload next 2 pages
+    useEffect(() => {
+        for (let i = 1; i <= 2; i++) {
+            const url = pages[index + i]
+            if (url) new Image().src = url
+        }
+    }, [index, pages])
+
+    return (
+        <div className="relative flex h-full w-full items-center justify-center bg-black">
+            <div
+                className="absolute top-0 left-0 z-10 h-full w-1/3 cursor-pointer"
+                onClick={prev}
+            />
+            <div
+                className="absolute top-0 right-0 z-10 h-full w-1/3 cursor-pointer"
+                onClick={next}
+            />
+
+            <img
+                key={index}
+                src={pages[index]}
+                alt={`Page ${index + 1}`}
+                className="h-full w-full object-contain"
+            />
+        </div>
+    )
+}
