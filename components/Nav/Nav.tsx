@@ -2,7 +2,7 @@ import { Bookmark, HomeIcon } from "lucide-react"
 import Link from "next/link"
 
 const navItems = [
-    { title: "Discover", icon: HomeIcon, href: "/discover" },
+    { title: "Discover", icon: HomeIcon, href: "/" },
     { title: "Bookmarks", icon: Bookmark, href: "/bookmarks" },
 ]
 
