@@ -20,11 +20,9 @@ export interface InitConfig {
     container: HTMLDivElement
     pages: string[]
     currentIndex: number
-    onFlipRef: React.MutableRefObject<(index: number) => void>
-    flipBookRef: React.MutableRefObject<PageFlip | null>
-    // Cache persists between mode switches — avoids rescanning wide pages
-    // Pass same ref from parent, stays alive as long as pages array is same
-    urlCacheRef: React.MutableRefObject<string[] | null>
+    onFlipRef: React.RefObject<(index: number) => void>
+    flipBookRef: React.RefObject<PageFlip | null>
+    urlCacheRef: React.RefObject<string[] | null>
     isMounted: () => boolean
     onLoaded: () => void
     onError: (msg: string) => void
@@ -57,8 +55,6 @@ export async function initBook(config: InitConfig): Promise<void> {
 
     if (!isMounted()) return
 
-    // Wait for container to have real dimensions before creating PageFlip
-    // Container may be 0x0 if parent layout hasn't settled after mode switch
     await new Promise<void>((resolve) => {
         if (container.clientWidth > 0) {
             resolve()
@@ -71,17 +67,10 @@ export async function initBook(config: InitConfig): Promise<void> {
             }
         })
         observer.observe(container)
-        // Safety timeout — resolve anyway after 500ms
-        setTimeout(() => {
-            observer.disconnect()
-            resolve()
-        }, 500)
     })
 
     if (!isMounted()) return
 
-    // If we already scanned this chapter — use cached displayUrls
-    // Avoids rescanning wide pages every time user switches to book mode
     const cachedUrls = urlCacheRef.current
 
     const book = new PageFlip(container, {
@@ -102,9 +91,6 @@ export async function initBook(config: InitConfig): Promise<void> {
     flipBookRef.current = book
 
     book.on("init", (e: any) => {
-        // Double rAF — first rAF queues after paint starts,
-        // second rAF fires after layout is fully settled.
-        // Single rAF is not enough when switching modes — canvas is still 0x0.
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 if (flipBookRef.current) setupRenderer(flipBookRef.current)
@@ -153,29 +139,20 @@ export async function initBook(config: InitConfig): Promise<void> {
                 highestConsecutiveLoaded,
             )
 
-            // On final update — trim trailing blanks so book ends cleanly
-            // page-flip accepts shorter array than initialized with
             const isFinal = highestConsecutiveLoaded === totalPages - 1
             const trimmed = isFinal ? trimBlanks(displayUrls) : displayUrls
 
-            // Cache result so next mode switch reuses it
             urlCacheRef.current = [...trimmed]
             book.updateFromImages([...trimmed])
             onLoaded()
         }
 
         const collectPage = async (pageIdx: number, img: HTMLImageElement) => {
-            // Fix 4 — page-flip does not set crossOrigin on its img elements
-            // canvas.toDataURL() would throw SecurityError on cross-origin images
-            // Re-fetch with crossOrigin=anonymous — browser cache means no extra network cost
-            // if server sends correct CORS headers (MangaDex does)
             let canvasImg = img
             if (img.naturalWidth > img.naturalHeight) {
                 // Only re-fetch if wide — portrait pages don't need canvas work
                 const corsImg = await loadCrossOrigin(pages[pageIdx])
                 if (corsImg) canvasImg = corsImg
-                // If corsImg is null — CORS not supported, fall back to portrait display
-                // wide page won't be split but book won't break
             }
 
             pageInfos[pageIdx] = {
@@ -193,7 +170,6 @@ export async function initBook(config: InitConfig): Promise<void> {
         for (let i = 0; i < totalPages; i++) {
             const pg = internalPages[i]
 
-            // Fix 2 — missing/failed pages counted as portrait
             // prevents silent hang where collected never reaches totalPages
             if (!pg?.image) {
                 pageInfos[i] = {
@@ -213,7 +189,7 @@ export async function initBook(config: InitConfig): Promise<void> {
                 img.addEventListener("load", () => collectPage(i, img), {
                     once: true,
                 })
-                // Fix 2 — also handle load error — treat as portrait
+
                 img.addEventListener(
                     "error",
                     () => {
@@ -230,7 +206,6 @@ export async function initBook(config: InitConfig): Promise<void> {
         onFlipRef.current(e?.data as number)
     })
 
-    // If cached — load with final display urls directly, skip scan entirely
     book.loadFromImages(cachedUrls ? [...cachedUrls] : [...loadUrls])
 
     if (isMounted() && cachedUrls) onLoaded()
