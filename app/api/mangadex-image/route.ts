@@ -15,13 +15,10 @@ export async function GET(req: Request) {
             headers: {
                 Referer: "https://mangadex.org/",
                 Origin: "https://mangadex.org",
-
                 "User-Agent":
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-
                 Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
             },
-
             next: { revalidate: 86400 },
         })
 
@@ -31,7 +28,16 @@ export async function GET(req: Request) {
             })
         }
 
-        const contentType = res.headers.get("Content-Type") ?? "image/jpeg"
+        const contentType = res.headers.get("Content-Type") ?? ""
+
+        if (!contentType.startsWith("image/")) {
+            console.warn(
+                `[mangadex-image] Non-image response for ${url}: ${contentType}`,
+            )
+            return new Response("Upstream returned non-image content", {
+                status: 502,
+            })
+        }
 
         return new Response(res.body, {
             headers: {
