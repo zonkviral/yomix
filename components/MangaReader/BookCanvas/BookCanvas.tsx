@@ -59,9 +59,9 @@ export const BookCanvas = memo(
         }, [currentIndex])
 
         return (
-            <div className="relative flex h-full w-full items-center justify-center bg-black">
+            <>
                 {isLoading && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black">
+                    <div className="absolute inset-0 z-10 flex items-center justify-center">
                         <div className="flex h-3/4 w-1/2 max-w-sm animate-pulse flex-col gap-3 rounded bg-neutral-800 p-6">
                             <div className="h-6 w-3/4 rounded bg-neutral-700" />
                             <div className="h-4 w-full rounded bg-neutral-700" />
@@ -76,7 +76,7 @@ export const BookCanvas = memo(
                     </div>
                 )}
                 <div ref={containerRef} className="h-full w-full max-w-5xl" />
-            </div>
+            </>
         )
     },
 )

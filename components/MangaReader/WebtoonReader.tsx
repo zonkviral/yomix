@@ -47,7 +47,7 @@ export const WebtoonReader = ({ pages }: { pages: string[] }) => {
     }, [pages, setIndex])
 
     return (
-        <div className="h-full w-full overflow-y-auto bg-black">
+        <div className="h-full w-full overflow-y-auto">
             <div className="mx-auto flex max-w-2xl flex-col">
                 {pages.map((url, i) => (
                     <div

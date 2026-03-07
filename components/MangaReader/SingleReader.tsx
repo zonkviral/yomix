@@ -2,7 +2,6 @@
 
 import { useEffect } from "react"
 import { useReader } from "./ReaderContext"
-
 export function SingleReader({ pages }: { pages: string[] }) {
     const { index, next, prev } = useReader()
 
@@ -15,22 +14,21 @@ export function SingleReader({ pages }: { pages: string[] }) {
     }, [index, pages])
 
     return (
-        <div className="relative flex h-full w-full items-center justify-center bg-black">
-            <div
+        <>
+            <button
                 className="absolute top-0 left-0 z-10 h-full w-1/3 cursor-pointer"
                 onClick={prev}
             />
-            <div
+            <button
                 className="absolute top-0 right-0 z-10 h-full w-1/3 cursor-pointer"
                 onClick={next}
             />
-
             <img
                 key={index}
                 src={pages[index]}
                 alt={`Page ${index + 1}`}
-                className="h-full w-full object-contain"
+                className="h-full w-fit object-contain shadow-[1px_0px_11px_3px_black]"
             />
-        </div>
+        </>
     )
 }

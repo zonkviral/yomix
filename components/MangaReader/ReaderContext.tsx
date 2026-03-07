@@ -2,18 +2,16 @@
 import { createContext, useContext } from "react"
 
 export type ReadingMode = "single" | "book" | "webtoon"
-export type ColorFilter = "normal" | "dark" | "sepia"
 
 interface ReaderContextValue {
     index: number
     totalPages: number
+    pagesThumbs: string[]
     setIndex: (i: number) => void
     next: () => void
     prev: () => void
     readingMode: ReadingMode
     setReadingMode: (m: ReadingMode) => void
-    colorFilter: ColorFilter
-    setColorFilter: (f: ColorFilter) => void
 }
 
 export const ReaderContext = createContext<ReaderContextValue | null>(null)
