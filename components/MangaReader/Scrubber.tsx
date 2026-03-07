@@ -7,8 +7,6 @@ interface Props {
     pagesThumbs: string[]
 }
 
-// Maximum number of dashes shown regardless of page count.
-// Above this, each dash represents multiple pages.
 const MAX_DASHES = 60
 
 function ScrubberBase({ pagesThumbs }: Props) {
@@ -18,14 +16,9 @@ function ScrubberBase({ pagesThumbs }: Props) {
     const frame = useRef<number>(0)
 
     const dashCount = Math.min(totalPages, MAX_DASHES)
-    // How many real pages each dash represents (>=1)
     const pagesPerDash = totalPages / dashCount
-
-    // Convert a dash index to the page index it represents
     const dashToPage = (d: number) =>
         Math.min(Math.round(d * pagesPerDash), totalPages - 1)
-
-    // Which dash the current page falls on
     const activeDash = Math.floor(index / pagesPerDash)
 
     const dashFromEvent = useCallback(
@@ -60,7 +53,6 @@ function ScrubberBase({ pagesThumbs }: Props) {
         [dashFromEvent, dashToPage, setIndex],
     )
 
-    // Page number shown in the hover thumbnail
     const hoverPage = hoverDash !== null ? dashToPage(hoverDash) : null
 
     return (
@@ -75,11 +67,10 @@ function ScrubberBase({ pagesThumbs }: Props) {
                 {Array.from({ length: dashCount }, (_, i) => {
                     const filled = i <= activeDash
                     const isHovered = hoverDash !== null && i <= hoverDash
-
                     return (
                         <div
                             key={i}
-                            className="h-1 flex-1 rounded-sm bg-rose-600 transition-all duration-150"
+                            className="h-1 flex-1 rounded-sm transition-all duration-150"
                             style={{
                                 background: filled
                                     ? `linear-gradient(90deg,
@@ -99,38 +90,31 @@ function ScrubberBase({ pagesThumbs }: Props) {
                         />
                     )
                 })}
-
-                {/* Hover thumbnail */}
-                {hoverDash !== null &&
-                    hoverPage !== null &&
-                    pagesThumbs[hoverPage] && (
-                        <div
-                            className="pointer-events-none absolute bottom-10 z-50 overflow-hidden rounded border border-white/20 bg-black shadow-2xl"
-                            style={{
-                                left: `${(hoverDash / dashCount) * 100}%`,
-                                transform: "translateX(-50%)",
-                                width: 72,
-                                height: 100,
-                            }}
-                        >
-                            <img
-                                src={pagesThumbs[hoverPage]}
-                                alt=""
-                                className="h-full w-full object-cover"
-                            />
-                            <div className="absolute bottom-0 w-full bg-black/70 py-0.5 text-center font-mono text-[9px] text-white/80">
-                                {hoverPage + 1}
-                            </div>
-                        </div>
+                <div
+                    className="pointer-events-none absolute bottom-10 z-50 overflow-hidden rounded border border-white/20 bg-black shadow-2xl transition-opacity duration-100"
+                    style={{
+                        left:
+                            hoverDash !== null
+                                ? `${(hoverDash / dashCount) * 100}%`
+                                : "0%",
+                        transform: "translateX(-50%)",
+                        width: 72,
+                        height: 100,
+                        opacity: hoverDash !== null ? 1 : 0,
+                        pointerEvents: "none",
+                    }}
+                >
+                    {hoverPage && (
+                        <img
+                            src={pagesThumbs[hoverPage]}
+                            alt=""
+                            className="h-full w-full object-cover"
+                        />
                     )}
-            </div>
-
-            <div className="mt-0.5 flex justify-between font-mono text-[10px] text-white/30">
-                <span>1</span>
-                <span className="text-white/60">
-                    {index + 2} / {totalPages}
-                </span>
-                <span>{totalPages}</span>
+                    <div className="absolute bottom-0 w-full bg-black/70 py-0.5 text-center font-mono text-[9px] text-white/80">
+                        {hoverPage !== null ? hoverPage + 1 : ""}
+                    </div>
+                </div>
             </div>
         </div>
     )
