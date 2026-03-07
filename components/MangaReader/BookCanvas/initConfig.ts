@@ -208,5 +208,5 @@ export async function initBook(config: InitConfig): Promise<void> {
 
     book.loadFromImages(cachedUrls ? [...cachedUrls] : [...loadUrls])
 
-    if (isMounted() && cachedUrls) onLoaded()
+    if (isMounted()) onLoaded()
 }

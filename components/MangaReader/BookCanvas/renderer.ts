@@ -26,7 +26,7 @@ export function setupRenderer(book: PageFlip): void {
         }
 
         render.clear = function () {
-            ctx.fillStyle = "#000000"
+            ctx.fillStyle = "#0d0f1400"
             ctx.fillRect(0, 0, canvas.width, canvas.height)
         }
 
