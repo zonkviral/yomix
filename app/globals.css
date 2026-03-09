@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 :root {
+    --reader-top-h: calc(var(--spacing) * 13.1);
+    --reader-bottom-h: calc(var(--spacing) * 22.2);
+
     --color-primary: #101217;
     --color-primary-hover: #1f1217;
 
@@ -8,6 +11,7 @@
     --color-secondary-hover: #1f1a20;
 
     --color-surface: rgb(15 17 21 / 85%);
+    --color-hud: #0f1115;
     --color-text: #ffff;
     --color-secondary-text: gray;
 
@@ -16,9 +20,11 @@
 }
 
 @theme {
+    --color-secondary-hover: var(--color-secondary-hover);
     --color-surface: var(--color-surface);
     --color-primary: var(--color-primary);
     --color-secondary: var(--color-secondary);
+    --color-hud: var(--color-hud);
     --breakpoint-3xl: 150rem;
     --color-text: #ffffff;
 }
@@ -36,6 +42,7 @@
         --foreground: #ededed;
     }
 }
+
 input[type="search"]:focus,
 input[type="search"]:focus-visible {
     outline: none;
@@ -47,9 +54,12 @@ h5,
 h6 {
     font-family: var(--font-nunito);
 }
+button {
+    cursor: pointer;
+}
 body {
     margin: 0;
-    background-image: url("@/assets/background.png");
+    background-image: url("@/assets/background.webp");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
