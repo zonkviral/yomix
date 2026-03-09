@@ -69,7 +69,9 @@ export const ReaderTopBar = ({
                     Page {index + 1} of {totalPages}
                 </span>
                 <IconButton onClick={onToggleSettings}>
-                    <Settings className="w-6" />
+                    <Settings
+                        className={`w-6 transition-transform duration-300 ${settingsOpen ? "rotate-180" : "rotate-0"}`}
+                    />
                 </IconButton>
                 <IconButton onClick={toggleFullscreen}>
                     <Maximize2 className="w-6" />
