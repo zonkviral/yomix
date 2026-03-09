@@ -1,16 +1,24 @@
 "use client"
 
 import { useMemo, useState, useEffect, useRef } from "react"
-import { ReaderContext, ReadingMode } from "./ReaderContext"
+
+import {
+    ReaderBgColor,
+    ReaderContext,
+    ReaderFilter,
+    ReadingMode,
+} from "./ReaderContext"
+
 import { useReaderNavigation } from "@/hooks/useReaderNavigation"
 import { useZoom } from "@/hooks/useZoom"
 
 import { BookCanvas } from "./BookCanvas/BookCanvas"
 import { WebtoonReader } from "./WebtoonReader"
 import { SingleReader } from "./SingleReader"
-
 import { ReaderControls } from "./ReaderControls/ReaderControls"
-import { Noise } from "../Noise/Noise"
+import { Noise } from "@/components/Noise/Noise"
+
+import { BG_COLOR_MAP } from "./constants"
 
 export function MangaReader({
     pages,
@@ -19,14 +27,16 @@ export function MangaReader({
     pages: string[]
     pagesThumbs: string[]
 }) {
-    const totalPages = pages.length
     const [readingMode, setReadingMode] = useState<ReadingMode>("single")
+    const [filter, setFilter] = useState<ReaderFilter>("default")
+    const [bgColor, setBgColor] = useState<ReaderBgColor>("default")
+    const totalPages = pages.length
+
     const urlCacheRef = useRef<string[] | null>(null)
 
     const nav = useReaderNavigation(totalPages, readingMode)
     const zoom = useZoom()
 
-    // Keyboard navigation
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "ArrowRight") nav.next()
@@ -41,10 +51,14 @@ export function MangaReader({
             ...nav,
             pagesThumbs,
             totalPages,
+            bgColor,
+            setBgColor,
+            filter,
+            setFilter,
             readingMode,
             setReadingMode,
         }),
-        [nav, totalPages, readingMode],
+        [nav, totalPages, readingMode, filter],
     )
     return (
         <ReaderContext.Provider value={contextValue}>
@@ -53,13 +67,18 @@ export function MangaReader({
                 className="fixed inset-0 flex flex-col"
             >
                 <ReaderControls />
-                {/* Reading area */}
                 <div
                     onClick={zoom.toggle}
                     style={{ ...zoom.style }}
                     className="flex-1 overflow-hidden will-change-transform"
                 >
-                    <div className="relative flex h-full w-full items-center justify-center bg-[#0d0f14]">
+                    <div
+                        className="relative flex h-full w-full items-center justify-center"
+                        style={{
+                            backgroundColor: BG_COLOR_MAP[bgColor],
+                            transition: "background-color 0.3s",
+                        }}
+                    >
                         <Noise opacity={0.04} />
                         {readingMode === "single" && (
                             <SingleReader pages={pages} />

@@ -1,16 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
-import { useRef, useState, memo, useCallback } from "react"
-import { useReader } from "./ReaderContext"
 
-interface Props {
-    pagesThumbs: string[]
-}
+import { useRef, useState, memo, useCallback } from "react"
+
+import { useReader } from "./ReaderContext"
 
 const MAX_DASHES = 60
 
-function ScrubberBase({ pagesThumbs }: Props) {
-    const { index, setIndex, totalPages } = useReader()
+function ScrubberBase() {
+    const { index, setIndex, totalPages, pagesThumbs } = useReader()
     const trackRef = useRef<HTMLDivElement>(null)
     const [hoverDash, setHoverDash] = useState<number | null>(null)
     const frame = useRef<number>(0)
@@ -97,7 +95,7 @@ function ScrubberBase({ pagesThumbs }: Props) {
                             hoverDash !== null
                                 ? `${(hoverDash / dashCount) * 100}%`
                                 : "0%",
-                        transform: "translateX(-50%)",
+                        transform: "translateX(-25%)",
                         width: 72,
                         height: 100,
                         opacity: hoverDash !== null ? 1 : 0,

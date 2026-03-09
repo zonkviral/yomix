@@ -2,7 +2,11 @@
 
 import { useEffect } from "react"
 import { useReader } from "./ReaderContext"
+
+import { FILTER_MAP } from "./constants"
+
 export function SingleReader({ pages }: { pages: string[] }) {
+    const { filter } = useReader()
     const { index, next, prev } = useReader()
 
     // Preload next 2 pages
@@ -24,6 +28,7 @@ export function SingleReader({ pages }: { pages: string[] }) {
                 onClick={next}
             />
             <img
+                style={{ filter: FILTER_MAP[filter] }}
                 key={index}
                 src={pages[index]}
                 alt={`Page ${index + 1}`}
