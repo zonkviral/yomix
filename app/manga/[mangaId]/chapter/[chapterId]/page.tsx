@@ -2,6 +2,8 @@ import { getMangaChapter } from "@/lib/MangaDex/getMangaChapter"
 import { getMangaChaptersList } from "@/lib/MangaDex/getMangaChaptersList"
 
 import { MangaReader } from "@/components/MangaReader/MangaReader"
+import { getMangaById } from "@/lib/MangaDex/getMangaById"
+import { getTitle } from "@/utils/getTitle"
 
 const ChapterPage = async ({
     params,
@@ -9,21 +11,45 @@ const ChapterPage = async ({
     params: Promise<{ mangaId: string; chapterId: string }>
 }) => {
     const { mangaId } = await params
-    const mangaChapterList = await getMangaChaptersList(mangaId)
-    const chapter = await getMangaChapter(mangaChapterList.id)
-    const pagesThumbs = chapter.chapter.dataSaver.map(
+    const manga = await getMangaById(mangaId)
+    const chapterList = await getMangaChaptersList(mangaId)
+    const firstChapter = await getMangaChapter(chapterList[0].id)
+    const mangaTitle =
+        getTitle(
+            manga.attributes.title,
+            manga.attributes.altTitles,
+            "ru",
+        )?.[0] ??
+        getTitle(
+            manga.attributes.title,
+            manga.attributes.altTitles,
+            "en",
+        )?.[0] ??
+        Object.values(manga.attributes.title)[0]
+    const initialPages = firstChapter.chapter.data.map(
         (file: string) =>
             `/api/mangadex-image?url=${encodeURIComponent(
-                `${chapter.baseUrl}/data-saver/${chapter.chapter.hash}/${file}`,
+                `${firstChapter.baseUrl}/data/${firstChapter.chapter.hash}/${file}`,
             )}`,
     )
-    const pages = chapter.chapter.data.map(
+
+    const initialPagesThumbs = firstChapter.chapter.dataSaver.map(
         (file: string) =>
             `/api/mangadex-image?url=${encodeURIComponent(
-                `${chapter.baseUrl}/data/${chapter.chapter.hash}/${file}`,
+                `${firstChapter.baseUrl}/data-saver/${firstChapter.chapter.hash}/${file}`,
             )}`,
     )
-    return <MangaReader pages={pages} pagesThumbs={pagesThumbs} />
+
+    return (
+        <MangaReader
+            mangaTitle={mangaTitle}
+            mangaId={mangaId}
+            initialChapterId={chapterList[0].id}
+            initialPages={initialPages}
+            initialPagesThumbs={initialPagesThumbs}
+            chapterList={chapterList}
+        />
+    )
 }
 
 export default ChapterPage

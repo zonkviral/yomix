@@ -1,28 +1,13 @@
 "use client"
 
-import { useState } from "react"
-
 import { HoverZone } from "@/components/HoverZone/HoverZone"
 import { ChapterSidebar } from "./ChapterSidebar"
 import { ReaderTopBar } from "./ReaderTopBar"
 import { ReaderBottomBar } from "./ReaderBottomBar"
+import { ReaderUIProvider, useReaderUI } from "./ReaderUIContext"
 
-import { useHudVisibility } from "@/hooks/useHudVisibility"
-import { useModal } from "@/hooks/useModal"
-
-export const ReaderControls = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(false)
-    const { isOpen, close, toggle } = useModal()
-
-    const chapters = Array(30).fill("Том 1 Глава 1 - Гении против")
-
-    const { visible, show, hide } = useHudVisibility()
-
-    const hudClass = `transition-opacity duration-200 ${
-        visible || sidebarOpen || isOpen
-            ? "opacity-100"
-            : "opacity-0 pointer-events-none"
-    }`
+const ReaderControlsInner = () => {
+    const { show, hide } = useReaderUI()
 
     return (
         <>
@@ -31,26 +16,23 @@ export const ReaderControls = () => {
                 onShow={show}
                 onHide={hide}
             >
-                <ReaderTopBar
-                    hudClass={hudClass}
-                    sidebarOpen={sidebarOpen}
-                    onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
-                    settingsOpen={isOpen}
-                    onCloseSettings={close}
-                    onToggleSettings={toggle}
-                />
+                <ReaderTopBar />
             </HoverZone>
-            <ChapterSidebar sidebarOpen={sidebarOpen} chapters={chapters} />
+            <ChapterSidebar />
             <HoverZone
                 className="absolute bottom-0 z-1 h-25 w-full"
                 onShow={show}
                 onHide={hide}
             >
-                <ReaderBottomBar
-                    hudClass={hudClass}
-                    sidebarOpen={sidebarOpen}
-                />
+                <ReaderBottomBar />
             </HoverZone>
         </>
     )
 }
+
+// Wrap in provider so all children can access UI state
+export const ReaderControls = () => (
+    <ReaderUIProvider>
+        <ReaderControlsInner />
+    </ReaderUIProvider>
+)
