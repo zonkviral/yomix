@@ -1,39 +1,45 @@
-import { useState, useRef, useCallback, useMemo } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 
 export function useZoom() {
-    const [zoomed, setZoomed] = useState(false)
+    const [scale, setScale] = useState(1)
     const [origin, setOrigin] = useState({ x: 50, y: 50 })
     const containerRef = useRef<HTMLDivElement>(null)
 
-    const toggle = useCallback(
-        (e: React.MouseEvent) => {
-            if (!e.ctrlKey || !containerRef.current) return
-            e.preventDefault()
+    // Ctrl+scroll to zoom in/out — preserves quality, no scale cap issues
+    const onWheel = useCallback((e: WheelEvent) => {
+        if (!e.ctrlKey || !containerRef.current) return
+        e.preventDefault()
 
-            if (!zoomed) {
-                const rect = containerRef.current.getBoundingClientRect()
-                setOrigin({
-                    x: ((e.clientX - rect.left) / rect.width) * 100,
-                    y: ((e.clientY - rect.top) / rect.height) * 100,
-                })
-            }
+        const rect = containerRef.current.getBoundingClientRect()
+        setOrigin({
+            x: ((e.clientX - rect.left) / rect.width) * 100,
+            y: ((e.clientY - rect.top) / rect.height) * 100,
+        })
 
-            setZoomed((p) => !p)
-        },
-        [zoomed],
-    )
+        setScale((prev) => {
+            const delta = e.deltaY > 0 ? -0.15 : 0.15
+            return Math.min(Math.max(prev + delta, 1), 3) // clamp 1x - 3x
+        })
+    }, [])
 
-    // Memoized so the reading area div never sees a changed style object
-    // on re-renders unrelated to zoom state
-    const style = useMemo(
-        () => ({
-            transform: zoomed ? "scale(2)" : "scale(1)",
-            transformOrigin: `${origin.x}% ${origin.y}%`,
-            transition: "transform 0.25s ease",
-            willChange: "transform" as const,
-        }),
-        [zoomed, origin],
-    )
+    const onDoubleClick = useCallback(() => {
+        setScale(1)
+        setOrigin({ x: 50, y: 50 })
+    }, [])
 
-    return { zoomed, toggle, containerRef, style }
+    useEffect(() => {
+        const el = containerRef.current
+        if (!el) return
+        el.addEventListener("wheel", onWheel, { passive: false })
+        return () => el.removeEventListener("wheel", onWheel)
+    }, [onWheel])
+
+    const style = {
+        transform: `scale(${scale})`,
+        transformOrigin: `${origin.x}% ${origin.y}%`,
+        transition: scale === 1 ? "transform 0.25s ease" : "none", // snap back animated, zoom instant
+        willChange: "transform" as const,
+    }
+
+    return { scale, containerRef, style, onDoubleClick }
 }
