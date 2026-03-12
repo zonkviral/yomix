@@ -14,6 +14,7 @@ import { useReaderNavigation } from "@/hooks/useReaderNavigation"
 import { useZoom } from "@/hooks/useZoom"
 
 import { BookCanvas } from "./BookCanvas/BookCanvas"
+import { BookCache } from "./BookCanvas/initConfig"
 import { WebtoonReader } from "./WebtoonReader"
 import { SingleReader } from "./SingleReader"
 import { ReaderControls } from "./ReaderControls/ReaderControls"
@@ -48,7 +49,7 @@ export const MangaReader = ({
     const [filter, setFilter] = useState<ReaderFilter>("default")
     const [bgColor, setBgColor] = useState<ReaderBgColor>("default")
 
-    const urlCacheRef = useRef<string[] | null>(null)
+    const cacheRef = useRef<BookCache | null>(null)
     const nav = useReaderNavigation(pages.length, readingMode)
     const navRef = useRef(nav)
     const zoom = useZoom()
@@ -74,7 +75,7 @@ export const MangaReader = ({
                 setPages(data.pages)
                 setPagesThumbs(data.pagesThumbs)
                 setCurrentChapterId(chapterId)
-                urlCacheRef.current = null
+                cacheRef.current = null // clear cache on chapter switch
                 nav.setIndex(0)
                 window.history.pushState(
                     {},
@@ -155,7 +156,7 @@ export const MangaReader = ({
                                 pages={pages}
                                 currentIndex={nav.index}
                                 onFlip={nav.setIndex}
-                                urlCacheRef={urlCacheRef}
+                                cacheRef={cacheRef}
                             />
                         )}
                         {readingMode === "webtoon" && (

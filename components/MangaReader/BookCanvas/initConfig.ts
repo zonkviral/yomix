@@ -1,77 +1,154 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { PageFlip, SizeType } from "page-flip"
-import { loadCrossOrigin } from "./imageTransforms"
-import { setupRenderer } from "./renderer"
+import { PageFlip, SizeType, WidgetEvent } from "page-flip"
+import {
+    preloadImage,
+    loadCrossOrigin,
+    revokeBlobUrls,
+} from "./imageTransforms"
+import { setupRenderer, teardownRenderer } from "./renderer"
 import {
     PageInfo,
-    buildDisplayUrls,
-    trimBlanks,
-    BLANK,
-    MAX_WIDE_RESERVED,
+    BookStructure,
+    buildStructure,
+    isWide,
 } from "./buildStructure"
 
-const MOBILE_BREAKPOINT = 768
+const CONTAINER_TIMEOUT_MS = 5000
 
-function detectMobile(): boolean {
-    return window.innerWidth < MOBILE_BREAKPOINT
+export type BookCache = {
+    urls: string[]
+    pageToSlot: number[]
+    slotToPage: number[]
 }
 
 export interface InitConfig {
     container: HTMLDivElement
     pages: string[]
     currentIndex: number
-    onFlipRef: React.RefObject<(index: number) => void>
+    onFlipRef: React.RefObject<(pageIndex: number) => void>
     flipBookRef: React.RefObject<PageFlip | null>
-    urlCacheRef: React.RefObject<string[] | null>
-    isMounted: () => boolean
-    onLoaded: () => void
+    cacheRef: React.RefObject<BookCache | null>
+    signal: AbortSignal
+    onLoaded: (structure: BookStructure) => void
     onError: (msg: string) => void
 }
 
-export async function initBook(config: InitConfig): Promise<void> {
+export const initBook = async (config: InitConfig): Promise<void> => {
     const {
         container,
         pages,
         currentIndex,
         onFlipRef,
         flipBookRef,
-        urlCacheRef,
-        isMounted,
+        cacheRef,
+        signal,
         onLoaded,
+        onError,
     } = config
 
     flipBookRef.current?.destroy()
     flipBookRef.current = null
 
-    const isMobile = detectMobile()
-    const totalPages = pages.length
-    const totalSlots = totalPages + MAX_WIDE_RESERVED
-    const finalSlots = totalSlots % 2 === 0 ? totalSlots : totalSlots + 1
+    const isMounted = () => !signal.aborted
+    const isMobile = window.matchMedia("(max-width: 767px)").matches
+    const blobUrls: string[] = []
 
-    const loadUrls: string[] = [
-        ...pages,
-        ...Array(finalSlots - totalPages).fill(BLANK),
-    ]
-
-    if (!isMounted()) return
-
-    await new Promise<void>((resolve) => {
+    await new Promise<void>((resolve, reject) => {
         if (container.clientWidth > 0) {
             resolve()
             return
         }
+
+        let settled = false
+        const settle = (fn: () => void) => {
+            if (!settled) {
+                settled = true
+                fn()
+            }
+        }
+
         const observer = new ResizeObserver(() => {
             if (container.clientWidth > 0) {
                 observer.disconnect()
-                resolve()
+                settle(resolve)
             }
         })
         observer.observe(container)
-    })
+        signal.addEventListener(
+            "abort",
+            () => {
+                observer.disconnect()
+                settle(reject)
+            },
+            { once: true },
+        )
+        setTimeout(() => {
+            observer.disconnect()
+            settle(resolve)
+        }, CONTAINER_TIMEOUT_MS)
+    }).catch(() => null)
 
     if (!isMounted()) return
 
-    const cachedUrls = urlCacheRef.current
+    const preloaded = await Promise.all(pages.map((url) => preloadImage(url)))
+    if (!isMounted()) return
+
+    const pageInfos: PageInfo[] = await Promise.all(
+        preloaded.map(async (img, i): Promise<PageInfo> => {
+            if (!img) {
+                return { img: new Image(), isWide: false, url: pages[i] }
+            }
+            if (!isWide(img)) {
+                return { img, isWide: false, url: pages[i] }
+            }
+            const corsImg = await loadCrossOrigin(pages[i])
+            if (!isMounted()) return { img, isWide: false, url: pages[i] }
+            return { img: corsImg ?? img, isWide: true, url: pages[i] }
+        }),
+    )
+    if (!isMounted()) return
+
+    let structure: BookStructure
+    try {
+        structure = await buildStructure(pageInfos, isMobile, blobUrls)
+    } catch (err) {
+        console.error("buildStructure failed", err)
+        onError("Failed to process pages")
+        revokeBlobUrls(blobUrls)
+        return
+    }
+
+    if (!isMounted()) {
+        revokeBlobUrls(blobUrls)
+        return
+    }
+
+    // build slotToPage reverse map — slot index → real page index
+    // wide pages on desktop occupy 2 slots (left+right), both map to same page
+    const slotToPage: number[] = new Array(structure.urls.length).fill(-1)
+    for (let pageIdx = 0; pageIdx < structure.pageToSlot.length; pageIdx++) {
+        const slot = structure.pageToSlot[pageIdx]
+        slotToPage[slot] = pageIdx
+        // wide page occupies slot+1 too — point it to same page
+        if (
+            pageInfos[pageIdx].isWide &&
+            !isMobile &&
+            slot + 1 < slotToPage.length
+        ) {
+            slotToPage[slot + 1] = pageIdx
+        }
+    }
+    // fill any remaining -1 gaps (blank padding slots) with nearest previous page
+    for (let s = 1; s < slotToPage.length; s++) {
+        if (slotToPage[s] === -1) slotToPage[s] = slotToPage[s - 1]
+    }
+
+    cacheRef.current = {
+        urls: [...structure.urls],
+        pageToSlot: [...structure.pageToSlot],
+        slotToPage,
+    }
+
+    const startSlot = structure.pageToSlot[currentIndex] ?? 0
 
     const book = new PageFlip(container, {
         width: 400,
@@ -84,129 +161,39 @@ export async function initBook(config: InitConfig): Promise<void> {
         drawShadow: true,
         flippingTime: 250,
         usePortrait: true,
-        startPage: currentIndex,
+        startPage: startSlot,
         showCover: false,
     })
 
     flipBookRef.current = book
 
-    book.on("init", (e: any) => {
+    signal.addEventListener(
+        "abort",
+        () => {
+            teardownRenderer(book)
+            revokeBlobUrls(blobUrls)
+            book.destroy()
+            flipBookRef.current = null
+        },
+        { once: true },
+    )
+
+    book.on("init", () => {
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 if (flipBookRef.current) setupRenderer(flipBookRef.current)
             })
         })
-
         if (!isMounted()) return
-
-        const internalPages: any[] = e?.object?.pages?.pages ?? []
-        if (internalPages.length === 0) return
-
-        const pageInfos: (PageInfo | null)[] = new Array(totalPages).fill(null)
-        let highestConsecutiveLoaded = -1
-        let lastUpdateAt = -1
-
-        const onPageLoaded = () => {
-            if (!isMounted()) return
-
-            // Advance highestConsecutiveLoaded as far as possible
-            // Only update when we have a consecutive run from where we left off
-            // — avoids updating with gaps that would corrupt slot order
-            while (
-                highestConsecutiveLoaded + 1 < totalPages &&
-                pageInfos[highestConsecutiveLoaded + 1] !== null
-            ) {
-                highestConsecutiveLoaded++
-            }
-
-            // Only call updateFromImages if we have new consecutive pages
-            // AND a wide page was found in the new range
-            if (highestConsecutiveLoaded <= lastUpdateAt) return
-
-            const hasWide = pageInfos
-                .slice(lastUpdateAt + 1, highestConsecutiveLoaded + 1)
-                .some((p) => p?.isWide)
-
-            if (!hasWide) return
-
-            lastUpdateAt = highestConsecutiveLoaded
-
-            const displayUrls = buildDisplayUrls(
-                pageInfos,
-                totalPages,
-                finalSlots,
-                isMobile,
-                highestConsecutiveLoaded,
-            )
-
-            const isFinal = highestConsecutiveLoaded === totalPages - 1
-            const trimmed = isFinal ? trimBlanks(displayUrls) : displayUrls
-
-            urlCacheRef.current = [...trimmed]
-            book.updateFromImages([...trimmed])
-            onLoaded()
-        }
-
-        const collectPage = async (pageIdx: number, img: HTMLImageElement) => {
-            let canvasImg = img
-            if (img.naturalWidth > img.naturalHeight) {
-                // Only re-fetch if wide — portrait pages don't need canvas work
-                const corsImg = await loadCrossOrigin(pages[pageIdx])
-                if (corsImg) canvasImg = corsImg
-            }
-
-            pageInfos[pageIdx] = {
-                img: canvasImg,
-                isWide:
-                    img.naturalWidth > img.naturalHeight && canvasImg !== img
-                        ? true
-                        : img.naturalWidth > img.naturalHeight,
-                url: pages[pageIdx],
-            }
-
-            onPageLoaded()
-        }
-
-        for (let i = 0; i < totalPages; i++) {
-            const pg = internalPages[i]
-
-            // prevents silent hang where collected never reaches totalPages
-            if (!pg?.image) {
-                pageInfos[i] = {
-                    img: new Image(),
-                    isWide: false,
-                    url: pages[i],
-                }
-                onPageLoaded()
-                continue
-            }
-
-            const img: HTMLImageElement = pg.image
-
-            if (img.naturalWidth > 0) {
-                collectPage(i, img)
-            } else {
-                img.addEventListener("load", () => collectPage(i, img), {
-                    once: true,
-                })
-
-                img.addEventListener(
-                    "error",
-                    () => {
-                        pageInfos[i] = { img, isWide: false, url: pages[i] }
-                        onPageLoaded()
-                    },
-                    { once: true },
-                )
-            }
-        }
+        onLoaded(structure)
     })
 
-    book.on("flip", (e: any) => {
-        onFlipRef.current(e?.data as number)
+    book.on("flip", (e: WidgetEvent) => {
+        const slotIndex = e?.data as number
+        const pageIndex = cacheRef.current?.slotToPage[slotIndex] ?? slotIndex
+        onFlipRef.current(pageIndex)
     })
 
-    book.loadFromImages(cachedUrls ? [...cachedUrls] : [...loadUrls])
-
-    if (isMounted()) onLoaded()
+    if (!isMounted()) return
+    book.loadFromImages([...structure.urls])
 }

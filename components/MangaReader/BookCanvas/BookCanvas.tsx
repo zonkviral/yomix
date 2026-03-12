@@ -1,20 +1,29 @@
 "use client"
 
 import { memo, RefObject, useEffect, useRef, useState } from "react"
+
 import { PageFlip } from "page-flip"
-import { initBook } from "./initConfig"
+
+import { initBook, BookCache } from "./initConfig"
+import { BookStructure } from "./buildStructure"
+
+import { useReader } from "../ReaderContext"
+
+import { FILTER_MAP } from "../constants"
 
 interface Props {
     pages: string[]
     currentIndex: number
     onFlip: (index: number) => void
-    urlCacheRef: RefObject<string[] | null>
+    cacheRef: RefObject<BookCache | null>
 }
 
 export const BookCanvas = memo(
-    ({ pages, currentIndex, onFlip, urlCacheRef }: Props) => {
+    ({ pages, currentIndex, onFlip, cacheRef }: Props) => {
+        const { filter } = useReader()
         const containerRef = useRef<HTMLDivElement>(null)
         const flipBookRef = useRef<PageFlip | null>(null)
+        const pageToSlotRef = useRef<number[]>([])
 
         const [isLoading, setIsLoading] = useState(true)
         const [error, setError] = useState<string | null>(null)
@@ -24,27 +33,35 @@ export const BookCanvas = memo(
             onFlipRef.current = onFlip
         }, [onFlip])
 
+        // reinit only when pages array changes (chapter switch)
         useEffect(() => {
-            if (!containerRef.current) return
-            let mounted = true
+            const container = containerRef.current
+            if (!container) return
 
+            const abortController = new AbortController()
             setIsLoading(true)
             setError(null)
 
-            initBook({
-                container: containerRef.current,
+            void initBook({
+                container,
                 pages,
                 currentIndex,
                 onFlipRef,
                 flipBookRef,
-                urlCacheRef,
-                isMounted: () => mounted,
-                onLoaded: () => setIsLoading(false),
+                cacheRef,
+                signal: abortController.signal,
+                onLoaded: (structure: BookStructure) => {
+                    pageToSlotRef.current = structure.pageToSlot
+                    setIsLoading(false)
+                },
                 onError: (msg) => setError(msg),
+            }).catch((err) => {
+                console.error(err)
+                setError("Failed to initialize reader")
             })
 
             return () => {
-                mounted = false
+                abortController.abort()
                 flipBookRef.current?.destroy()
                 flipBookRef.current = null
             }
@@ -53,13 +70,20 @@ export const BookCanvas = memo(
         useEffect(() => {
             const book = flipBookRef.current
             if (!book || book.getPageCount() === 0) return
-            if (book.getCurrentPageIndex() !== currentIndex) {
-                book.turnToPage(currentIndex)
+            const slot = pageToSlotRef.current[currentIndex] ?? currentIndex
+            if (book.getCurrentPageIndex() !== slot) {
+                book.turnToPage(slot)
             }
         }, [currentIndex])
 
         return (
-            <>
+            <div className="relative flex h-full w-full items-center justify-center">
+                <div
+                    ref={containerRef}
+                    className="h-full w-full max-w-5xl"
+                    style={{ filter: FILTER_MAP[filter] }}
+                />
+
                 {isLoading && (
                     <div className="absolute inset-0 z-10 flex items-center justify-center">
                         <div className="flex h-3/4 w-1/2 max-w-sm animate-pulse flex-col gap-3 rounded bg-neutral-800 p-6">
@@ -75,10 +99,14 @@ export const BookCanvas = memo(
                         <p className="text-sm text-red-400">{error}</p>
                     </div>
                 )}
-                <div ref={containerRef} className="h-full w-full max-w-5xl" />
-            </>
+            </div>
         )
     },
+    (prev, next) =>
+        prev.pages === next.pages &&
+        prev.currentIndex === next.currentIndex &&
+        prev.onFlip === next.onFlip &&
+        prev.cacheRef === next.cacheRef,
 )
 
 BookCanvas.displayName = "BookCanvas"
