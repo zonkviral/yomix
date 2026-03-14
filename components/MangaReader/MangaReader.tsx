@@ -10,18 +10,20 @@ import {
 } from "./ReaderContext"
 
 import { getChapterPages } from "@/actions/getChapterPages.action"
+
 import { useReaderNavigation } from "@/hooks/useReaderNavigation"
 import { useZoom } from "@/hooks/useZoom"
 
+import { Noise } from "@/components/Noise/Noise"
 import { BookCanvas } from "./BookCanvas/BookCanvas"
 import { BookCache } from "./BookCanvas/initConfig"
 import { WebtoonReader } from "./WebtoonReader"
 import { SingleReader } from "./SingleReader"
 import { ReaderControls } from "./ReaderControls/ReaderControls"
-import { Noise } from "@/components/Noise/Noise"
+
+import { Chapter } from "@/lib/MangaDex/types"
 
 import { BG_COLOR_MAP } from "./constants"
-import { Chapter } from "@/lib/MangaDex/types"
 
 interface MangaReaderProps {
     mangaId: string

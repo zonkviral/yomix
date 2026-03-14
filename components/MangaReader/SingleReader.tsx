@@ -6,8 +6,7 @@ import { useReader } from "./ReaderContext"
 import { FILTER_MAP } from "./constants"
 
 export function SingleReader({ pages }: { pages: string[] }) {
-    const { filter } = useReader()
-    const { index, next, prev } = useReader()
+    const { index, next, prev, filter } = useReader()
 
     // Preload next 2 pages
     useEffect(() => {

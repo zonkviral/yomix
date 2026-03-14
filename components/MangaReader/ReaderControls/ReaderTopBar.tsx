@@ -15,13 +15,10 @@ export const ReaderTopBar = () => {
         closeSettings,
     } = useReaderUI()
 
-    const toggleFullscreen = () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen()
-        } else {
-            document.exitFullscreen()
-        }
-    }
+    const toggleFullscreen = () =>
+        !document.fullscreenElement
+            ? document.documentElement.requestFullscreen()
+            : document.exitFullscreen()
 
     return (
         <div

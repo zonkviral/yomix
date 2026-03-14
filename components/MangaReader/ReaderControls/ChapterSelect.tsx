@@ -1,18 +1,19 @@
 "use client"
 
 import * as Select from "@radix-ui/react-select"
-import { ChevronDown, Check } from "lucide-react"
+
 import { useReader } from "../ReaderContext"
 import { useReaderUI } from "./ReaderUIContext"
+
 import { cn } from "@/utils/cn"
+
+import { ChevronDown, Check } from "lucide-react"
 
 export const ChapterSelect = () => {
     const { chapterList, currentChapterId, switchChapter, chapterLoading } =
         useReader()
     const { setSelectOpen } = useReaderUI()
-    console.log(chapterList)
     const current = chapterList.find((c) => c.id === currentChapterId)
-    console.log(current)
     return (
         <Select.Root
             value={currentChapterId}
