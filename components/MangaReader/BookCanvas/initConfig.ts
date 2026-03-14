@@ -4,7 +4,7 @@ import {
     loadCrossOrigin,
     revokeBlobUrls,
 } from "./imageTransforms"
-import { setupRenderer, teardownRenderer } from "./renderer"
+import { setupRenderer } from "./renderer"
 import {
     PageInfo,
     BookStructure,
@@ -170,7 +170,6 @@ export const initBook = async (config: InitConfig): Promise<void> => {
     signal.addEventListener(
         "abort",
         () => {
-            teardownRenderer(book)
             revokeBlobUrls(blobUrls)
             book.destroy()
             flipBookRef.current = null

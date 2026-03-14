@@ -80,7 +80,7 @@ export const BookCanvas = memo(
             <div className="relative flex h-full w-full items-center justify-center">
                 <div
                     ref={containerRef}
-                    className="h-full w-full max-w-5xl"
+                    className="h-full w-full"
                     style={{ filter: FILTER_MAP[filter] }}
                 />
 
