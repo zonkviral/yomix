@@ -1,12 +1,16 @@
+import { apiFetchHandler } from "@/utils/apiFetchHandler"
 import { REMANGA_URL } from "./constants"
-import { ISearchedManga } from "./types"
+import { SearchedManga, SearchResponse } from "./types"
 
 export const searchMangaByName = async (
     slug: string,
-): Promise<ISearchedManga[]> => {
-    const res = await fetch(
-        `${REMANGA_URL}/api/search/?query=${encodeURIComponent(slug)}/`,
-    )
-    const data = await res.json()
-    return data.content
+): Promise<SearchedManga[] | null> => {
+    try {
+        const data = await apiFetchHandler<SearchResponse>(
+            `${REMANGA_URL}/api/search/?query=${encodeURIComponent(slug)}/`,
+        )
+        return data.content ?? null
+    } catch {
+        return null
+    }
 }

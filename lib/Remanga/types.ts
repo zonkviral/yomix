@@ -11,7 +11,7 @@ export interface Publishers {
     type: string
 }
 
-export interface ISearchedManga {
+export interface SearchedManga {
     id: number
     count_chapters: number
     cover: Cover
@@ -31,7 +31,7 @@ interface FirstChapter {
     chapter: string
 }
 
-export interface IReManga {
+export interface ReManga {
     another_name: string
     count_chapters: number
     id: number
@@ -49,7 +49,12 @@ interface Page {
     height: number
     id: number
 }
-
+export interface RemangaResponse {
+    content: ReManga
+}
+export interface SearchResponse {
+    content: SearchedManga[]
+}
 export interface Chapter {
     chapter: number
     id: number

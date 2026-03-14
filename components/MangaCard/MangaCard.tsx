@@ -44,13 +44,13 @@ export const MangaCard = async ({ manga }: { manga: Manga }) => {
     )
     if (!titleRu || !manga.attributes.description["ru"]) {
         const searchResults = await searchMangaByName(titleEn?.[0] ?? "")
-        if (searchResults?.[0]?.dir) {
+        if (searchResults && searchResults?.[0]?.dir) {
             mangaRu = await getMangaByName(searchResults[0].dir)
         }
     }
     const description = htmlTagsRemover(
         manga.attributes.description["ru"] ??
-            mangaRu?.description ??
+            (mangaRu !== null && mangaRu?.description) ??
             manga.attributes.description["en"],
     )
     return (

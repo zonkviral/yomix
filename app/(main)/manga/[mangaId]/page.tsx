@@ -9,12 +9,13 @@ import { getMangaByName } from "@/lib/Remanga/getMangabyName"
 import { InfoItemList } from "@/components/InfoItemList/InfoItemList"
 
 import { getFlagUrl } from "@/utils/langToFlag"
-import { Star } from "lucide-react"
 import { getTitle } from "@/utils/getTitle"
 import { htmlTagsRemover } from "@/utils/htmlTagsRemover"
 
 import Link from "next/link"
 import Image from "next/image"
+
+import { Star } from "lucide-react"
 
 export const MangaPageInfo = async ({
     params,
@@ -35,11 +36,11 @@ export const MangaPageInfo = async ({
         "en",
     )
     const mangaTitle = await searchMangaByName(titleEn?.[0] ?? "")
-    const mangaRu = await getMangaByName(mangaTitle[0].dir)
+    const mangaRu = mangaTitle && (await getMangaByName(mangaTitle[0].dir))
     const statistic = await getMangaStatistics(mangaId)
     const description = htmlTagsRemover(
         manga.attributes.description["ru"] ??
-            mangaRu.description ??
+            (mangaRu && mangaRu.description) ??
             manga.attributes.description["en"],
     )
     return (
@@ -63,7 +64,7 @@ export const MangaPageInfo = async ({
 
                     <div className="3xl:text-[1.8rem] mt-4 flex w-full flex-row flex-wrap justify-between gap-2 text-xl">
                         <Link
-                            href={`/manga/${manga.id}/chapter/${mangaRu.branches[0].id}`}
+                            href={`/manga/${manga.id}/chapter/${mangaRu?.branches[0].id ?? ""}`}
                             className="grow rounded bg-rose-800 px-4 py-2 text-center shadow-md shadow-rose-900/50 transition hover:bg-rose-700 hover:shadow-lg hover:shadow-rose-900/70"
                         >
                             Read Chapter 1
@@ -76,7 +77,7 @@ export const MangaPageInfo = async ({
 
                 <div className="min-w-0">
                     <h1 className="3xl:text-5xl text-2xl font-bold xl:text-3xl">
-                        {title?.[0] ?? mangaRu.rus_name}
+                        {title?.[0] ?? mangaRu?.rus_name ?? titleEn}
                     </h1>
                     <div className="mt-2 flex items-center">
                         <Star className="fill-amber-400 stroke-0" />
