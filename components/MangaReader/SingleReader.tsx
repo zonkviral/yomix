@@ -5,7 +5,7 @@ import { useReader } from "./ReaderContext"
 
 import { FILTER_MAP } from "./constants"
 
-export function SingleReader({ pages }: { pages: string[] }) {
+export const SingleReader = ({ pages }: { pages: string[] }) => {
     const { index, next, prev, filter } = useReader()
 
     // Preload next 2 pages

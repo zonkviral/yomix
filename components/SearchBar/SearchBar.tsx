@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { Search, X } from "lucide-react"
 
-export default function SearchBar() {
+export const SearchBar = () => {
     const [open, setOpen] = useState(false)
 
     return (

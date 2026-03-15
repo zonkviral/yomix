@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
 import { ReadingMode } from "@/components/MangaReader/ReaderContext"
 
-export function useReaderNavigation(totalPages: number, mode: ReadingMode) {
+export const useReaderNavigation = (totalPages: number, mode: ReadingMode) => {
     const [index, setIndexRaw] = useState(0)
 
     const setIndex = useCallback(

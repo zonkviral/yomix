@@ -2,7 +2,9 @@
  * Loads an image with crossOrigin=anonymous.
  * Required for canvas access when images come from a CDN.
  */
-export function loadCrossOrigin(url: string): Promise<HTMLImageElement | null> {
+export const loadCrossOrigin = (
+    url: string,
+): Promise<HTMLImageElement | null> => {
     return new Promise((resolve) => {
         const img = new Image()
         img.crossOrigin = "anonymous"
@@ -19,7 +21,7 @@ export function loadCrossOrigin(url: string): Promise<HTMLImageElement | null> {
  * Preloads an image just to get naturalWidth/naturalHeight.
  * No crossOrigin — faster, no CORS preflight.
  */
-export function preloadImage(url: string): Promise<HTMLImageElement | null> {
+export const preloadImage = (url: string): Promise<HTMLImageElement | null> => {
     return new Promise((resolve) => {
         const img = new Image()
         img.onload = () => resolve(img)
@@ -28,10 +30,10 @@ export function preloadImage(url: string): Promise<HTMLImageElement | null> {
     })
 }
 
-function canvasToUrl(
+const canvasToUrl = (
     canvas: HTMLCanvasElement,
     blobUrls: string[],
-): Promise<string> {
+): Promise<string> => {
     return new Promise((resolve) => {
         canvas.toBlob(
             (blob) => {
@@ -49,10 +51,10 @@ function canvasToUrl(
     })
 }
 
-export async function splitImg(
+export const splitImg = async (
     img: HTMLImageElement,
     blobUrls: string[],
-): Promise<[string, string]> {
+): Promise<[string, string]> => {
     const halfW = Math.floor(img.naturalWidth / 2)
     const h = img.naturalHeight
 
@@ -77,10 +79,10 @@ export async function splitImg(
     return [leftUrl, rightUrl]
 }
 
-export async function rotateImg(
+export const rotateImg = async (
     img: HTMLImageElement,
     blobUrls: string[],
-): Promise<string> {
+): Promise<string> => {
     const canvas = document.createElement("canvas")
     canvas.width = img.naturalHeight
     canvas.height = img.naturalWidth
@@ -92,7 +94,7 @@ export async function rotateImg(
     return canvasToUrl(canvas, blobUrls)
 }
 
-export function revokeBlobUrls(blobUrls: string[]): void {
+export const revokeBlobUrls = (blobUrls: string[]): void => {
     blobUrls.forEach((url) => URL.revokeObjectURL(url))
     blobUrls.length = 0
 }

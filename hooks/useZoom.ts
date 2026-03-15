@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 
-export function useZoom() {
+export const useZoom = () => {
     const [scale, setScale] = useState(1)
     const [origin, setOrigin] = useState({ x: 50, y: 50 })
     const containerRef = useRef<HTMLDivElement>(null)

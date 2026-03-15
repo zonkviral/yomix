@@ -7,7 +7,7 @@ import { useReader } from "./ReaderContext"
 
 const MAX_DASHES = 60
 
-function ScrubberBase() {
+const ScrubberBase = () => {
     const { index, setIndex, totalPages, pagesThumbs } = useReader()
     const trackRef = useRef<HTMLDivElement>(null)
     const [hoverDash, setHoverDash] = useState<number | null>(null)
@@ -89,7 +89,7 @@ function ScrubberBase() {
                     )
                 })}
                 <div
-                    className="pointer-events-none absolute bottom-10 z-50 overflow-hidden rounded border border-white/20 bg-black shadow-2xl transition-opacity duration-100"
+                    className="pointer-events-none absolute bottom-10 z-2 overflow-hidden rounded border border-white/20 bg-black shadow-2xl transition-opacity duration-100"
                     style={{
                         left:
                             hoverDash !== null

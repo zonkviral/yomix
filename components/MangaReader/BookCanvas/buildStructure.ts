@@ -5,7 +5,7 @@ export const BLANK =
 
 const WIDE_RATIO = 1.2
 
-export function isWide(img: HTMLImageElement): boolean {
+export const isWide = (img: HTMLImageElement): boolean => {
     return img.naturalWidth / img.naturalHeight > WIDE_RATIO
 }
 
@@ -21,11 +21,11 @@ export type BookStructure = {
     totalSlots: number
 }
 
-export async function buildStructure(
+export const buildStructure = async (
     pageInfos: PageInfo[],
     isMobile: boolean,
     blobUrls: string[],
-): Promise<BookStructure> {
+): Promise<BookStructure> => {
     const pageToSlot: number[] = new Array(pageInfos.length).fill(0)
     const slotUrls: string[] = []
 
