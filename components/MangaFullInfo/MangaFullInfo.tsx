@@ -15,7 +15,7 @@ export const MangaFullInfo = ({ manga }: { manga: Manga }) => {
             <div className="relative isolate h-48 w-32 overflow-hidden rounded-xl shadow-lg shadow-black/50 transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-black/70 sm:h-60 sm:w-40 md:h-72 md:w-48 lg:h-75 lg:w-50">
                 <Image
                     className="object-cover"
-                    src={coverUrl!}
+                    src={coverUrl ?? ""}
                     alt="cover"
                     sizes="200px"
                     loading="lazy"
