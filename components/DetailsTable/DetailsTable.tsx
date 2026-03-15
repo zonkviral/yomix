@@ -1,14 +1,14 @@
-interface InfoItem {
+interface DetailsTableItem {
     label: string
     value: React.ReactNode
 }
 
-interface InfoItemListProps {
-    data: InfoItem[]
+interface DetailsTableProps {
+    data: DetailsTableItem[]
     className?: string
 }
 
-export const InfoItemList = ({ className, data }: InfoItemListProps) => {
+export const DetailsTable = ({ className, data }: DetailsTableProps) => {
     return (
         <dl className={`${className} flex flex-col gap-1`}>
             {data.map((item) => (

@@ -6,7 +6,7 @@ import { getArtist, getAuthor, getTags } from "@/lib/MangaDex/helpers"
 import { searchMangaByName } from "@/lib/Remanga/searchMangaByName"
 import { getMangaByName } from "@/lib/Remanga/getMangabyName"
 
-import { InfoItemList } from "@/components/InfoItemList/InfoItemList"
+import { DetailsTable } from "@/components/DetailsTable/DetailsTable"
 
 import { getFlagUrl } from "@/utils/langToFlag"
 import { getTitle } from "@/utils/getTitle"
@@ -95,7 +95,7 @@ export const MangaPageInfo = async ({
                         <span className="bg-secondary h-0.5 flex-1" />
                     </h2>
 
-                    <InfoItemList
+                    <DetailsTable
                         data={[
                             { label: "Author:", value: getAuthor(manga) },
                             { label: "Artist:", value: getArtist(manga) },
