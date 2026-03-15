@@ -1,4 +1,5 @@
 import { Manga, MangaAuthorRelationship } from "./types"
+
 export const getAuthor = (manga: Manga) => {
     const rel = manga.relationships.find((r) => r.type === "author") as
         | MangaAuthorRelationship

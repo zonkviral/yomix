@@ -10,7 +10,7 @@ export const PopularList = async () => {
     const data = await getPopularManga()
     return (
         <section className="overflow-hidden">
-            <h2 className="mb-3 text-4xl font-bold">Popular Now</h2>
+            <h2 className="mb-3 text-4xl font-bold">Популярное</h2>
             <CarouselWrapper>
                 <List
                     keyExtractor={(data: Manga) => data.id}
