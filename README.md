@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Yomix
+
+A manga reader built with Next.js. Reads from MangaDex with three reading modes — single page, book spread, and webtoon scroll.
+
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+
+## Stack
+
+- [Next.js 16](https://nextjs.org) — App Router, Server Actions
+- [TypeScript](https://www.typescriptlang.org)
+- [Tailwind CSS](https://tailwindcss.com)
+- [page-flip](https://github.com/Nodlik/StPageFlip) — book spread animation
+- [Radix UI](https://www.radix-ui.com) — accessible UI primitives
+- [MangaDex API](https://api.mangadex.org) — manga and chapter data
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+git clone https://github.com/zonkviral/yomix
+cd yomix
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/                    # Next.js App Router pages
+actions/                # Server actions
+components/
+  MangaReader/          # Reader component tree
+    BookCanvas/         # Book mode — page-flip canvas
+      initConfig.ts     # PageFlip initialization, cache logic
+      buildStructure.ts # Slot layout, wide page processing
+      imageTransforms.ts# splitImg, rotateImg, blob URL management
+      renderer.ts       # Canvas resolution, DPR, resize handling
+    SingleReader.tsx    # Single page mode
+    WebtoonReader.tsx   # Webtoon scroll mode
+    ReaderContext.tsx   # Reader state (pages, chapter, navigation)
+    ReaderControls/     # HUD — top bar, bottom bar, sidebar, settings
+hooks/                  # useReaderNavigation, useZoom, useChapterNavigation
+lib/
+  MangaDex/             # MangaDex API client
+  MangaLib/             # MangaLib API is still up in the air
+  Remanga/              # Remanga API client
+```
 
-## Learn More
+## Book Mode Architecture
 
-To learn more about Next.js, take a look at the following resources:
+Book mode uses `page-flip` to render pages as a canvas-based book spread. Wide pages (width/height ratio > 1.2) are detected before loading and either split into left/right halves (desktop) or rotated 90° (mobile).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The initialization runs in four phases:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Preload** — all page URLs loaded in parallel to get dimensions
+2. **CORS reload** — wide pages reloaded with `crossOrigin=anonymous` for canvas access
+3. **Build structure** — exact slot count calculated, `pageToSlot` and `slotToPage` maps built, blob URLs created
+4. **Init PageFlip** — loaded once with the exact URL array, no reserved slots needed
 
-## Deploy on Vercel
+The result is cached in `cacheRef`. Switching reading modes reuses the cache — no reprocessing. Switching chapters clears the cache and revokes blob URLs.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
