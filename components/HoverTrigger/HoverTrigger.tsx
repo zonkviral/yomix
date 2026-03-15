@@ -5,7 +5,7 @@ interface HoverZoneProps {
     className?: string
 }
 
-export const HoverZone = ({
+export const HoverTrigger = ({
     children,
     onShow,
     onHide,

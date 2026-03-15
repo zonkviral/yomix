@@ -1,6 +1,6 @@
 "use client"
 
-import { HoverZone } from "@/components/HoverZone/HoverZone"
+import { HoverTrigger } from "@/components/HoverTrigger/HoverTrigger"
 import { ChapterSidebar } from "./ChapterSidebar"
 import { ReaderTopBar } from "./ReaderTopBar"
 import { ReaderBottomBar } from "./ReaderBottomBar"
@@ -11,21 +11,21 @@ const ReaderControlsInner = () => {
 
     return (
         <>
-            <HoverZone
+            <HoverTrigger
                 className="absolute top-0 z-1 h-15 w-full"
                 onShow={show}
                 onHide={hide}
             >
                 <ReaderTopBar />
-            </HoverZone>
+            </HoverTrigger>
             <ChapterSidebar />
-            <HoverZone
+            <HoverTrigger
                 className="absolute bottom-0 z-1 h-25 w-full"
                 onShow={show}
                 onHide={hide}
             >
                 <ReaderBottomBar />
-            </HoverZone>
+            </HoverTrigger>
         </>
     )
 }
