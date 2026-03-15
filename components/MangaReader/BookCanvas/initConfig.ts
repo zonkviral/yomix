@@ -15,9 +15,9 @@ import {
 const CONTAINER_TIMEOUT_MS = 5000
 
 export type BookCache = {
-    urls: string[]
-    pageToSlot: number[]
+    structure: BookStructure
     slotToPage: number[]
+    blobUrls: string[]
 }
 
 export interface InitConfig {
@@ -30,6 +30,79 @@ export interface InitConfig {
     signal: AbortSignal
     onLoaded: (structure: BookStructure) => void
     onError: (msg: string) => void
+}
+
+type PageFlipInitParams = {
+    container: HTMLDivElement
+    structure: BookStructure
+    slotToPage: number[]
+    currentIndex: number
+    onFlipRef: React.RefObject<(pageIndex: number) => void>
+    flipBookRef: React.RefObject<PageFlip | null>
+    cacheRef: React.RefObject<BookCache | null>
+    signal: AbortSignal
+    onLoaded: (structure: BookStructure) => void
+}
+
+const initPageFlip = async (params: PageFlipInitParams): Promise<void> => {
+    const {
+        container,
+        structure,
+        currentIndex,
+        onFlipRef,
+        flipBookRef,
+        cacheRef,
+        signal,
+        onLoaded,
+    } = params
+
+    const isMounted = () => !signal.aborted
+    const startSlot = structure.pageToSlot[currentIndex] ?? 0
+
+    const book = new PageFlip(container, {
+        width: 400,
+        height: 566,
+        minWidth: 300,
+        maxWidth: 2000,
+        minHeight: 400,
+        maxHeight: 2800,
+        size: "stretch" as SizeType,
+        drawShadow: true,
+        flippingTime: 250,
+        usePortrait: true,
+        startPage: startSlot,
+        showCover: false,
+    })
+
+    flipBookRef.current = book
+
+    signal.addEventListener(
+        "abort",
+        () => {
+            book.destroy()
+            flipBookRef.current = null
+        },
+        { once: true },
+    )
+
+    book.on("init", () => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                if (flipBookRef.current) setupRenderer(flipBookRef.current)
+            })
+        })
+        if (!isMounted()) return
+        onLoaded(structure)
+    })
+
+    book.on("flip", (e: WidgetEvent) => {
+        const slotIndex = e?.data as number
+        const pageIndex = cacheRef.current?.slotToPage[slotIndex] ?? slotIndex
+        onFlipRef.current(pageIndex)
+    })
+
+    if (!isMounted()) return
+    book.loadFromImages([...structure.urls])
 }
 
 export const initBook = async (config: InitConfig): Promise<void> => {
@@ -89,6 +162,23 @@ export const initBook = async (config: InitConfig): Promise<void> => {
 
     if (!isMounted()) return
 
+    // cache hit — skip all processing, reinit page-flip with existing structure
+    const cached = cacheRef.current
+    if (cached) {
+        await initPageFlip({
+            container,
+            structure: cached.structure,
+            slotToPage: cached.slotToPage,
+            currentIndex,
+            onFlipRef,
+            flipBookRef,
+            cacheRef,
+            signal,
+            onLoaded,
+        })
+        return
+    }
+
     const preloaded = await Promise.all(pages.map((url) => preloadImage(url)))
     if (!isMounted()) return
 
@@ -123,12 +213,10 @@ export const initBook = async (config: InitConfig): Promise<void> => {
     }
 
     // build slotToPage reverse map — slot index → real page index
-    // wide pages on desktop occupy 2 slots (left+right), both map to same page
     const slotToPage: number[] = new Array(structure.urls.length).fill(-1)
     for (let pageIdx = 0; pageIdx < structure.pageToSlot.length; pageIdx++) {
         const slot = structure.pageToSlot[pageIdx]
         slotToPage[slot] = pageIdx
-        // wide page occupies slot+1 too — point it to same page
         if (
             pageInfos[pageIdx].isWide &&
             !isMobile &&
@@ -137,62 +225,29 @@ export const initBook = async (config: InitConfig): Promise<void> => {
             slotToPage[slot + 1] = pageIdx
         }
     }
-    // fill any remaining -1 gaps (blank padding slots) with nearest previous page
     for (let s = 1; s < slotToPage.length; s++) {
         if (slotToPage[s] === -1) slotToPage[s] = slotToPage[s - 1]
     }
 
     cacheRef.current = {
-        urls: [...structure.urls],
-        pageToSlot: [...structure.pageToSlot],
+        structure: {
+            urls: [...structure.urls],
+            pageToSlot: [...structure.pageToSlot],
+            totalSlots: structure.totalSlots,
+        },
         slotToPage,
+        blobUrls,
     }
 
-    const startSlot = structure.pageToSlot[currentIndex] ?? 0
-
-    const book = new PageFlip(container, {
-        width: 400,
-        height: 566,
-        minWidth: 300,
-        maxWidth: 2000,
-        minHeight: 400,
-        maxHeight: 2800,
-        size: "stretch" as SizeType,
-        drawShadow: true,
-        flippingTime: 250,
-        usePortrait: true,
-        startPage: startSlot,
-        showCover: false,
+    await initPageFlip({
+        container,
+        structure: cacheRef.current.structure,
+        slotToPage,
+        currentIndex,
+        onFlipRef,
+        flipBookRef,
+        cacheRef,
+        signal,
+        onLoaded,
     })
-
-    flipBookRef.current = book
-
-    signal.addEventListener(
-        "abort",
-        () => {
-            revokeBlobUrls(blobUrls)
-            book.destroy()
-            flipBookRef.current = null
-        },
-        { once: true },
-    )
-
-    book.on("init", () => {
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                if (flipBookRef.current) setupRenderer(flipBookRef.current)
-            })
-        })
-        if (!isMounted()) return
-        onLoaded(structure)
-    })
-
-    book.on("flip", (e: WidgetEvent) => {
-        const slotIndex = e?.data as number
-        const pageIndex = cacheRef.current?.slotToPage[slotIndex] ?? slotIndex
-        onFlipRef.current(pageIndex)
-    })
-
-    if (!isMounted()) return
-    book.loadFromImages([...structure.urls])
 }
