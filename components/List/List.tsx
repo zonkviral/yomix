@@ -1,3 +1,5 @@
+import { memo } from "react"
+
 interface ListProps<T> {
     list: T[]
     renderItem: (item: T, index: number) => React.ReactNode
@@ -6,7 +8,7 @@ interface ListProps<T> {
     keyExtractor?: (item: T) => string
 }
 
-export const List = <T,>({
+const ListInner = <T,>({
     className,
     list,
     renderItem,
@@ -26,3 +28,5 @@ export const List = <T,>({
         </ul>
     )
 }
+
+export const List = memo(ListInner) as typeof ListInner
