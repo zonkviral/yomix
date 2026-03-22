@@ -4,7 +4,7 @@ import {
     ChevronLeft,
     ChevronRight,
 } from "lucide-react"
-import { PaginationButton } from "../PaginationButton/PaginationButton"
+import { PaginationButton } from "./PaginationButton/PaginationButton"
 
 interface PaginationProps {
     page: number
