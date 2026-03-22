@@ -2,9 +2,9 @@
 
 import { unstable_cache } from "next/cache"
 import { getMangaList } from "@/lib/MangaDex/getMangaList"
-import { fetchEnrichedManga } from "@/utils/fetchEnrichedManga"
+import { fetchEnrichedManga } from "@/utils/enrichManga"
 
-export type { EnrichedManga } from "@/utils/fetchEnrichedManga"
+export type { EnrichedManga } from "@/utils/enrichManga"
 
 const LIMIT = 10
 
