@@ -1,9 +1,18 @@
-import { useState } from "react"
+import { useState, useCallback, useEffect } from "react"
 
 export const useModal = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
-    const open = () => setIsOpen(true)
-    const close = () => setIsOpen(false)
-    const toggle = () => setIsOpen((prev) => !prev)
+
+    useEffect(() => {
+        if (isOpen) document.body.style.overflow = "hidden"
+        else document.body.style.overflow = ""
+        return () => {
+            document.body.style.overflow = ""
+        }
+    }, [isOpen])
+
+    const open = useCallback(() => setIsOpen(true), [])
+    const close = useCallback(() => setIsOpen(false), [])
+    const toggle = useCallback(() => setIsOpen((prev) => !prev), [])
     return { isOpen, open, close, toggle }
 }
