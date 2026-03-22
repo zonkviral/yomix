@@ -1,2 +1,16 @@
 export const BASE_URL = process.env.MANGADEX_BASE_URL
 export const UPLOADS_BASE_URL = process.env.MANGADEX_UPLOADS_URL
+
+export const status = {
+    ongoing: "bg-blue-500/80",
+    completed: "bg-emerald-600/80",
+    hiatus: "bg-amber-500/80",
+    cancelled: "bg-red-600/80",
+}
+
+export const contentRating = {
+    safe: ["12+", "bg-green-500/70"],
+    suggestive: ["16+", "bg-yellow-500/70"],
+    erotica: ["18+", "bg-orange-500/70"],
+    pornographic: ["18+", "bg-red-500/70"],
+}

@@ -1,7 +1,7 @@
 import { NavButton } from "@/components/NavButton/NavButton"
 import { Scrubber } from "../Scrubber"
 import { useReaderUI } from "./ReaderUIContext"
-import { useChapterNavigation } from "@/hooks/useChapterNavigation"
+import { useChapterNavigation } from "@/app/manga/[mangaId]/chapter/[chapterId]/_hooks/useChapterNavigation"
 import { ChapterSelect } from "./ChapterSelect"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 

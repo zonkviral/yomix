@@ -1,10 +1,10 @@
 import { getPopularManga } from "@/lib/MangaDex/getPopularManga"
 import { Manga } from "@/lib/MangaDex/types"
 
-import { CarouselWrapper } from "../CarouselWrapper/CarouselWrapper"
-import { MangaFullInfo } from "../MangaFullInfo/MangaFullInfo"
+import { CarouselWrapper } from "@/components/CarouselWrapper/CarouselWrapper"
+import { MangaFullInfo } from "@/components/MangaFullInfo/MangaFullInfo"
 
-import { List } from "../List/List"
+import { List } from "@/components/List/List"
 
 export const PopularList = async () => {
     const data = await getPopularManga()

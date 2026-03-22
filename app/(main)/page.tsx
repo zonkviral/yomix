@@ -1,9 +1,11 @@
-import { unstable_cache } from "next/cache"
-import { SWRConfig } from "swr"
-
-import { PopularList } from "@/components/PopularList/PopularList"
 import { getMangaListAction } from "@/actions/getMangaList.action"
-import { NewestList } from "@/components/Newest/Newest"
+
+import { PopularList } from "./_components/PopularList/PopularList"
+import { NewestList } from "./_components/Newest/Newest"
+
+import { unstable_cache } from "next/cache"
+
+import { SWRConfig } from "swr"
 
 const getCachedMangaList = unstable_cache(
     (page: number) => getMangaListAction(page),

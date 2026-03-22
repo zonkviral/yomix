@@ -11,7 +11,7 @@ import {
 
 import { getChapterPages } from "@/actions/getChapterPages.action"
 
-import { useReaderNavigation } from "@/hooks/useReaderNavigation"
+import { useReaderNavigation } from "@/app/manga/[mangaId]/chapter/[chapterId]/_hooks/useReaderNavigation"
 import { useZoom } from "@/hooks/useZoom"
 
 import { Noise } from "@/components/Noise/Noise"

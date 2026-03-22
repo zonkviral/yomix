@@ -1,24 +1,16 @@
 import { EnrichedManga } from "@/actions/getMangaList.action"
+
 import { NoDragLink } from "@/components/NoDragLink/NoDragLink"
+
 import { formatNumber } from "@/utils/formatNumber"
-import { tagTranslationMap } from "@/utils/tagTranslationMap"
-import { statusTranslationMap } from "@/utils/statusTranslationMap"
+import { tagTranslationMap } from "@/lib/MangaDex/mappings/tagTranslationMap"
+import { statusTranslationMap } from "@/lib/MangaDex/mappings/statusTranslationMap"
+
+import { status, contentRating } from "@/lib/MangaDex/constants"
+
 import { Star, Users } from "lucide-react"
+
 import Image from "next/image"
-
-const status = {
-    ongoing: "bg-blue-500",
-    completed: "bg-emerald-600",
-    hiatus: "bg-amber-500",
-    cancelled: "bg-red-600",
-}
-
-const contentRating = {
-    safe: ["12+", "bg-green-500/70"],
-    suggestive: ["16+", "bg-yellow-500/70"],
-    erotica: ["18+", "bg-orange-500/70"],
-    pornographic: ["18+", "bg-red-500/70"],
-}
 
 export const MangaCard = ({
     manga,
@@ -34,16 +26,14 @@ export const MangaCard = ({
             className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-white/10"
         >
             <div className="relative h-75 w-50">
-                {coverUrl && (
-                    <Image
-                        loading="lazy"
-                        src={coverUrl}
-                        alt="manga cover"
-                        sizes="200px"
-                        fill
-                        className="shrink-0 rounded object-cover"
-                    />
-                )}
+                <Image
+                    loading="lazy"
+                    src={coverUrl ?? ""}
+                    alt="manga cover"
+                    sizes="200px"
+                    fill
+                    className="shrink-0 rounded object-cover"
+                />
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
                 <h3 className="truncate text-xl font-bold">{titleDisplay}</h3>
@@ -84,10 +74,12 @@ export const MangaCard = ({
                     </p>
                 )}
             </div>
-            <span className="flex shrink-0 font-medium text-yellow-400">
-                <Star className="fill-amber-400 stroke-0 pr-1" />
-                {rating.toFixed(2)}
-            </span>
+            {rating && (
+                <span className="flex shrink-0 font-medium text-yellow-400">
+                    <Star className="fill-amber-400 stroke-0 pr-1" />
+                    {rating.toFixed(2)}
+                </span>
+            )}
         </NoDragLink>
     )
 }

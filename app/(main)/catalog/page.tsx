@@ -1,4 +1,4 @@
-import { Discover } from "@/components/Discover/Discover"
+import { Discover } from "./_components/Discover/Discover"
 
 const CatalogPage = () => <Discover />
 

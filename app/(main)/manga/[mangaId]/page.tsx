@@ -49,9 +49,10 @@ export const MangaPageInfo = async ({
                 <div className="flex flex-col items-center md:items-start">
                     <div className="relative aspect-2/3 w-full">
                         <Image
-                            src={coverUrl!}
+                            src={coverUrl ?? ""}
                             alt="cover"
                             fill
+                            loading="lazy"
                             className="rounded-lg object-cover shadow-lg"
                             sizes="
                         (max-width: 768px) 50vw,
@@ -79,12 +80,15 @@ export const MangaPageInfo = async ({
                     <h1 className="3xl:text-5xl text-2xl font-bold xl:text-3xl">
                         {title?.[0] ?? mangaRu?.rus_name ?? titleEn}
                     </h1>
-                    <div className="mt-2 flex items-center">
-                        <Star className="fill-amber-400 stroke-0" />
-                        <span className="block fill-amber-400 pl-1 font-semibold text-yellow-400 xl:text-lg">
-                            {statistic.rating.average.toFixed(2)}
-                        </span>
-                    </div>
+
+                    {statistic.rating.average && (
+                        <div className="mt-2 flex items-center">
+                            <Star className="fill-amber-400 stroke-0" />
+                            <span className="block fill-amber-400 pl-1 font-semibold text-yellow-400 xl:text-lg">
+                                {statistic.rating.average.toFixed(2)}
+                            </span>
+                        </div>
+                    )}
 
                     <div className="3xl:text-3xl mt-4 text-sm leading-relaxed text-gray-300 xl:text-xl">
                         <p>{description}</p>

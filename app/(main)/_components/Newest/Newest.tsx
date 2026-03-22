@@ -1,7 +1,7 @@
 import { getNewestManga } from "@/lib/MangaDex/getNewestManga"
-import { fetchEnrichedManga } from "@/utils/fetchEnrichedManga"
+import { fetchEnrichedManga } from "@/utils/enrichManga"
 import { MangaCard } from "@/components/MangaCard/MangaCard"
-import { List } from "../List/List"
+import { List } from "../../../../components/List/List"
 
 export const NewestList = async () => {
     const { items } = await fetchEnrichedManga(getNewestManga)

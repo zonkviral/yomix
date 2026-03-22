@@ -1,17 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { memo, useCallback, useState } from "react"
 
-import { MangaCard } from "../MangaCard/MangaCard"
-import { List } from "../List/List"
-import { Pagination } from "../Pagination/Pagination"
+import { MangaCard } from "@/components/MangaCard/MangaCard"
+import { List } from "@/components/List/List"
+import { Pagination } from "@/components/Pagination/Pagination"
 
 import { useMangaList } from "@/hooks/useMangaList"
+import { EnrichedManga } from "@/utils/enrichManga"
 
-export const Discover = () => {
+const DiscoverCatalog = () => {
     const [page, setPage] = useState(0)
     const { items, totalPages, isLoading } = useMangaList(page)
-
+    const renderItem = useCallback(
+        (item: EnrichedManga) => <MangaCard {...item} />,
+        [],
+    )
     return (
         <section className="mt-8.75">
             <div className="mb-6 flex items-baseline justify-between">
@@ -27,7 +31,7 @@ export const Discover = () => {
                     className="grid list-none grid-cols-1 gap-4 2xl:grid-cols-2"
                     listClassName="relative select-text"
                     keyExtractor={(item) => item.manga.id}
-                    renderItem={(item) => <MangaCard {...item} />}
+                    renderItem={renderItem}
                 />
             </div>
             <Pagination
@@ -39,3 +43,4 @@ export const Discover = () => {
         </section>
     )
 }
+export const Discover = memo(DiscoverCatalog)

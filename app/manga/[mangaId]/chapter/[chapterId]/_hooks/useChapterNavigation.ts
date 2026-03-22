@@ -1,4 +1,4 @@
-import { useReader } from "@/components/MangaReader/ReaderContext"
+import { useReader } from "@/app/manga/[mangaId]/chapter/[chapterId]/_components/MangaReader/ReaderContext"
 
 export const useChapterNavigation = () => {
     const { chapterList, currentChapterId, switchChapter, chapterLoading } =

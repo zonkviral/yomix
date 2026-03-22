@@ -8,7 +8,7 @@ import {
     useCallback,
 } from "react"
 
-import { useHudVisibility } from "@/hooks/useHudVisibility"
+import { useAutoHide } from "@/hooks/useAutoHide"
 import { useModal } from "@/hooks/useModal"
 
 interface ReaderUIContextValue {
@@ -44,7 +44,7 @@ export const ReaderUIProvider = ({ children }: { children: ReactNode }) => {
         toggle: toggleSettings,
         close: closeSettings,
     } = useModal()
-    const { visible, show, hide } = useHudVisibility()
+    const { visible, show, hide } = useAutoHide()
 
     const toggleSidebar = useCallback(() => setSidebarOpen((o) => !o), [])
 

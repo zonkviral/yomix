@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
 
-export const useHudVisibility = () => {
+export const useAutoHide = () => {
     const [visible, setVisible] = useState(false)
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
