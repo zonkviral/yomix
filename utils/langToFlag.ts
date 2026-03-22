@@ -25,6 +25,7 @@ export const langToCountry: Record<string, string> = {
     kk: "kz",
     el: "gr",
     ur: "pk",
+    hi: "in",
 }
 
 export const getFlagUrl = (lang: string) => {
