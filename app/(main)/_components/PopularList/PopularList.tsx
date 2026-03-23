@@ -2,7 +2,7 @@ import { getPopularManga } from "@/lib/MangaDex/getPopularManga"
 import { Manga } from "@/lib/MangaDex/types"
 
 import { CarouselWrapper } from "@/components/CarouselWrapper/CarouselWrapper"
-import { MangaFullInfo } from "@/components/MangaFullInfo/MangaFullInfo"
+import { CarouselCard } from "@/components/CarouselCard/CarouselCard"
 
 import { List } from "@/components/List/List"
 
@@ -18,7 +18,7 @@ export const PopularList = async () => {
                     listClassName="p-2 first:pl-0"
                     list={data}
                     renderItem={(manga: Manga) => (
-                        <MangaFullInfo manga={manga} />
+                        <CarouselCard manga={manga} />
                     )}
                 />
             </CarouselWrapper>
