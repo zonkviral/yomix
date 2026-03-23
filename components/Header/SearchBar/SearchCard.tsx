@@ -1,7 +1,7 @@
 import { SearchResult } from "@/actions/getSearchResult.action"
 
 import { statusTranslationMap } from "@/lib/MangaDex/mappings/statusTranslationMap"
-import { status } from "@/lib/MangaDex/constants"
+import { contentRating, status } from "@/lib/MangaDex/constants"
 
 import { Highlight } from "@/components/Highlight/Highlight"
 
@@ -17,7 +17,7 @@ export const SearchCard = ({ result, query }: SearchCardProps) => {
     return (
         <a
             href={`/manga/${manga.id}`}
-            className="flex items-center gap-3 rounded-lg px-3 py-1 transition-colors hover:bg-white/5"
+            className="relative flex gap-3 rounded-lg px-3 py-1 transition-colors hover:bg-white/5"
         >
             <div className="relative h-24 w-16 shrink-0">
                 {coverUrl ? (
@@ -33,15 +33,22 @@ export const SearchCard = ({ result, query }: SearchCardProps) => {
                     <div className="h-full w-full rounded bg-neutral-800" />
                 )}
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-1 self-start">
+            <div className="flex min-w-0 flex-1 flex-col justify-between gap-1">
                 <h4 className="line-clamp-2 text-base/tight text-amber-50/70">
                     <Highlight text={titleDisplay} query={query} />
                 </h4>
-                <span
-                    className={`w-fit rounded p-1 text-xs capitalize ${status[manga.attributes.status]}`}
-                >
-                    {statusTranslationMap[manga.attributes.status]}
-                </span>
+                <div className="flex flex-col gap-2">
+                    <span
+                        className={`w-fit rounded p-1 text-xs capitalize ${status[manga.attributes.status]}`}
+                    >
+                        {statusTranslationMap[manga.attributes.status]}
+                    </span>
+                    <span
+                        className={`${contentRating[manga.attributes.contentRating][1]} w-fit rounded px-1 py-px text-xs`}
+                    >
+                        {contentRating[manga.attributes.contentRating][0]}
+                    </span>
+                </div>
             </div>
         </a>
     )
