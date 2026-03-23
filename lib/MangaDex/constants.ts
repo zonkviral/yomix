@@ -9,8 +9,8 @@ export const status = {
 }
 
 export const contentRating = {
-    safe: ["12+", "bg-green-500/70"],
-    suggestive: ["16+", "bg-yellow-500/70"],
-    erotica: ["18+", "bg-orange-500/70"],
-    pornographic: ["18+", "bg-red-500/70"],
+    safe: ["12+", "bg-green-500/80"],
+    suggestive: ["16+", "bg-yellow-500/80"],
+    erotica: ["18+", "bg-red-600/80"],
+    pornographic: ["18+", "bg-red-600/80"],
 }
