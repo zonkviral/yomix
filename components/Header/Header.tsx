@@ -1,14 +1,7 @@
-import { Permanent_Marker } from "next/font/google"
-
 import { SearchBar } from "./SearchBar/SearchBar"
 
 import Link from "next/link"
 import Image from "next/image"
-
-const permanentMarker = Permanent_Marker({
-    subsets: ["latin"],
-    weight: "400",
-})
 
 export const Header = () => (
     <header className="bg-surface border-primary col-span-2 row-start-1 flex items-center rounded-t-sm border-b-[0.5px] px-5 py-1">
@@ -21,11 +14,7 @@ export const Header = () => (
                     alt="logo"
                     loading="eager"
                 />
-                <h1
-                    className={`${permanentMarker.className} text-0 invisible text-4xl uppercase`}
-                >
-                    Yomix
-                </h1>
+                <h1 className="text-0 invisible text-4xl uppercase">Yomix</h1>
             </Link>
         </div>
         <SearchBar />
