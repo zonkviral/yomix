@@ -11,6 +11,7 @@ import { status, contentRating } from "@/lib/MangaDex/constants"
 import { Star, Users } from "lucide-react"
 
 import Image from "next/image"
+import { htmlTagsRemover } from "@/utils/htmlTagsRemover"
 
 export const MangaCard = ({
     manga,
@@ -20,6 +21,7 @@ export const MangaCard = ({
     rating,
     follows,
 }: EnrichedManga) => {
+    const title = htmlTagsRemover(titleDisplay)
     return (
         <NoDragLink
             href={`manga/${manga.id}`}
@@ -36,12 +38,12 @@ export const MangaCard = ({
                 />
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
-                <h3 className="truncate text-xl font-bold">{titleDisplay}</h3>
+                <h3 className="truncate text-xl font-bold">{title}</h3>
                 {/* <span className="mt-3 text-gray-400">
                     Ch. {manga.attributes.lastChapter}
                 </span> */}
                 <ul className="mt-3 flex list-none flex-wrap gap-1">
-                    {manga.attributes.tags.map((tag, id) => (
+                    {manga.attributes.tags.slice(0, 6).map((tag, id) => (
                         <li
                             className="bg-secondary rounded-sm px-4 capitalize"
                             key={id}
@@ -51,6 +53,11 @@ export const MangaCard = ({
                                 tag.attributes.name["en"]}
                         </li>
                     ))}
+                    {manga.attributes.tags.length > 6 && (
+                        <li className="mt-1 text-xs text-white/30">
+                            +{manga.attributes.tags.length - 6}
+                        </li>
+                    )}
                 </ul>
                 <span
                     className={`mt-2 w-fit rounded-sm ${status[manga.attributes.status]} px-4 py-0.5 capitalize`}
@@ -69,12 +76,12 @@ export const MangaCard = ({
                     </span>
                 </div>
                 {description && (
-                    <p className="mb-3 line-clamp-2 grow content-end">
+                    <p className="mb-3 line-clamp-3 grow content-end">
                         {description}
                     </p>
                 )}
             </div>
-            {rating && (
+            {rating > 0 && (
                 <span className="flex shrink-0 font-medium text-yellow-400">
                     <Star className="fill-amber-400 stroke-0 pr-1" />
                     {rating.toFixed(2)}
