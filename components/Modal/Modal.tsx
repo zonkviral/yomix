@@ -46,11 +46,11 @@ export const Modal = ({
         >
             <div className="bg-surface custom-scroll relative max-h-[93dvh] overflow-hidden rounded-xl p-4">
                 {!hideCloseButton && (
-                    <button onClick={onClose} className="shrink-0">
-                        <X
-                            size={16}
-                            className="text-white/40 hover:text-white/80"
-                        />
+                    <button
+                        onClick={onClose}
+                        className="bg-primary absolute top-2 right-2 shrink-0 rounded p-2 text-white/40 hover:bg-white/10 hover:text-white/80"
+                    >
+                        <X size={16} className="text-white/40" />
                     </button>
                 )}
                 {children}
