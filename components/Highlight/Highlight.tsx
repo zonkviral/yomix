@@ -4,7 +4,7 @@ export const Highlight = ({ text, query }: { text: string; query: string }) => {
     return (
         <span>
             {text.slice(0, idx)}
-            <span className="text-amber-400">
+            <span className="text-rose-400">
                 {text.slice(idx, idx + query.length)}
             </span>
             {text.slice(idx + query.length)}
