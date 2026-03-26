@@ -8,9 +8,9 @@ export type { EnrichedManga } from "@/utils/enrichManga"
 
 const LIMIT = 10
 
-export const getMangaListAction = unstable_cache(
-    (page: number) =>
-        fetchEnrichedManga(() => getMangaList(LIMIT, page * LIMIT)),
-    ["manga-list"],
-    { revalidate: 60 * 10 },
-)
+export const getMangaListAction = async (page: number) =>
+    unstable_cache(
+        () => fetchEnrichedManga(() => getMangaList(LIMIT, page * LIMIT)),
+        ["manga-list", page.toString()],
+        { revalidate: 60 * 10 },
+    )()
