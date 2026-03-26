@@ -21,6 +21,7 @@ export const apiFetchHandler = async <T>(
             switch (res.status) {
                 case 404:
                     notFound()
+                    break
                 case 429:
                     throw new ApiError("Rate limited", 429)
                 case 503:
