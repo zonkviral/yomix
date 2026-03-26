@@ -9,13 +9,19 @@ export const NewestList = async () => {
     return (
         <section className="mt-8.75">
             <h2 className="mb-3 text-4xl font-bold">Новинки</h2>
-            <List
-                list={items}
-                className="grid list-none grid-cols-1 gap-4 2xl:grid-cols-2"
-                listClassName="relative select-text"
-                keyExtractor={(item) => item.manga.id}
-                renderItem={(item) => <MangaCard {...item} />}
-            />
+            {items.length > 0 ? (
+                <List
+                    list={items}
+                    className="grid list-none grid-cols-1 gap-4 2xl:grid-cols-2"
+                    listClassName="relative select-text"
+                    keyExtractor={(item) => item.manga.id}
+                    renderItem={(item) => <MangaCard {...item} />}
+                />
+            ) : (
+                <p className="text-sm text-gray-500">
+                    Нет данных для отображения.
+                </p>
+            )}
         </section>
     )
 }

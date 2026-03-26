@@ -12,15 +12,21 @@ export const PopularList = async () => {
         <section className="overflow-hidden">
             <h2 className="mb-3 text-4xl font-bold">Популярное</h2>
             <CarouselWrapper>
-                <List
-                    keyExtractor={(data: Manga) => data.id}
-                    className="flex list-none flex-row"
-                    listClassName="p-2 first:pl-0"
-                    list={data}
-                    renderItem={(manga: Manga) => (
-                        <CarouselCard manga={manga} />
-                    )}
-                />
+                {data.length > 0 ? (
+                    <List
+                        keyExtractor={(data: Manga) => data.id}
+                        className="flex list-none flex-row"
+                        listClassName="p-2 first:pl-0"
+                        list={data}
+                        renderItem={(manga: Manga) => (
+                            <CarouselCard manga={manga} />
+                        )}
+                    />
+                ) : (
+                    <p className="text-sm text-gray-500">
+                        Нет данных для отображения.
+                    </p>
+                )}
             </CarouselWrapper>
         </section>
     )
