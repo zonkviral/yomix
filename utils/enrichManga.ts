@@ -104,6 +104,38 @@ const enrichOne = async (manga: Manga): Promise<EnrichedManga> => {
     }
 }
 
+const PromisePool = async <T, U>(
+    items: T[],
+    mapper: (item: T) => Promise<U>,
+    concurrency: number,
+): Promise<U[]> => {
+    const results: U[] = []
+    const executing: Promise<void>[] = []
+
+    for (let i = 0; i < items.length; i += 1) {
+        const item = items[i]
+
+        const p = mapper(item).then((result) => {
+            results[i] = result
+        })
+
+        const e = p.then(() => {
+            const index = executing.indexOf(e)
+            if (index >= 0) executing.splice(index, 1)
+        })
+
+        executing.push(e)
+
+        if (executing.length >= concurrency) {
+            await Promise.race(executing)
+        }
+    }
+
+    await Promise.all(executing)
+
+    return results
+}
+
 export const fetchEnrichedManga = async (
     fetcher: () => Promise<{ manga: Manga[]; total?: number }>,
 ): Promise<{ items: EnrichedManga[]; total?: number }> => {
@@ -111,7 +143,7 @@ export const fetchEnrichedManga = async (
 
     const [stats, enriched] = await Promise.all([
         getMangaStatisticsBatch(manga.map((m) => m.id)),
-        Promise.all(manga.map(enrichOne)),
+        PromisePool(manga, enrichOne, 5),
     ])
 
     const items = enriched.map((item) => {
