@@ -39,12 +39,12 @@ export const SearchCard = ({ result, query }: SearchCardProps) => {
                 </h4>
                 <div className="flex flex-col gap-2">
                     <span
-                        className={`w-fit rounded p-1 text-xs capitalize ${status[manga.attributes.status]}`}
+                        className={`w-fit rounded p-1 text-xs capitalize opacity-90 ${status[manga.attributes.status]}`}
                     >
                         {statusTranslationMap[manga.attributes.status]}
                     </span>
                     <span
-                        className={`${contentRating[manga.attributes.contentRating][1]} w-fit rounded px-1 py-px text-xs`}
+                        className={`${contentRating[manga.attributes.contentRating][1]} w-fit rounded px-1 py-px text-xs opacity-90`}
                     >
                         {contentRating[manga.attributes.contentRating][0]}
                     </span>

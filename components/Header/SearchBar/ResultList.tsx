@@ -30,8 +30,7 @@ export const ResultList = ({
         <div className="mt-2">
             {query.length !== 0 && (
                 <p className="px-3 pb-1 text-[10px] font-medium tracking-widest text-white/30 uppercase">
-                    Результаты:{" "}
-                    <span className="text-amber-500">"{query}"</span>
+                    Результаты: <span className="text-rose-500">"{query}"</span>
                 </p>
             )}
             <hr className="mb-1 h-px border-none bg-linear-to-r from-transparent via-neutral-700 to-transparent" />
@@ -46,7 +45,7 @@ export const ResultList = ({
                     list={results}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.manga.id}
-                    className="custom-scroll grid max-h-[calc(100dvh-17rem)] grid-cols-2 gap-2 overflow-y-auto p-2"
+                    className="custom-scroll grid grid-cols-2 gap-2 overflow-y-auto p-2"
                 />
             )}
         </div>

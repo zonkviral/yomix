@@ -13,7 +13,7 @@ export const SearchBar = () => {
     return (
         <>
             <button
-                className="r-auto flex h-fit items-center justify-items-center rounded-2xl bg-neutral-950 px-4 py-2"
+                className="r-auto flex h-fit items-center justify-items-center rounded-2xl bg-neutral-950 px-6 py-2"
                 onClick={open}
             >
                 <Search size={16} className="mr-2" />

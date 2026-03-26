@@ -14,6 +14,7 @@ import {
 
 import { useDebounce } from "@/hooks/useDebounce"
 
+import { AnimatedBorder } from "@/components/AnimatedBorder/AnimatedBorder"
 import { ResultList } from "./ResultList"
 import { RecentSearches } from "./RecentSearches"
 
@@ -57,9 +58,9 @@ export const SearchModal = ({ closeModal }: SearchModalProps) => {
 
     return (
         <>
-            <div
-                role="search"
-                className={`${isPending && "search-spin"} relative mx-auto flex w-full overflow-hidden rounded-xl p-px`}
+            <AnimatedBorder
+                isAnimating={isPending}
+                className="mx-auto flex w-full overflow-hidden rounded-xl p-px"
             >
                 <div className="relative z-10 flex w-full items-stretch rounded-xl bg-[#101217]">
                     <div className="flex items-center pl-4">
@@ -89,10 +90,10 @@ export const SearchModal = ({ closeModal }: SearchModalProps) => {
                         onClick={closeModal}
                         className="flex h-full items-center rounded-l-none border-amber-500/10 px-4 transition-colors hover:bg-white/5"
                     >
-                        <X className="w-5 text-amber-500/80" />
+                        <X className="w-5 text-rose-500/80" />
                     </button>
                 </div>
-            </div>
+            </AnimatedBorder>
             {isEmpty && (
                 <RecentSearches
                     searches={recentSearches}
