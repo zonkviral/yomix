@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter, Nunito } from "next/font/google"
 
 import "./globals.css"
+import { AuthProvider } from "@/context/AuthContext"
 
 export const metadata: Metadata = {
     title: "Manga",
@@ -19,7 +20,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={`${inter.variable} ${nunito.variable}`}>
-            <body>{children}</body>
+            <body>
+                <AuthProvider>{children}</AuthProvider>
+            </body>
         </html>
     )
 }
