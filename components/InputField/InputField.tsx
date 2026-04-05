@@ -1,3 +1,16 @@
+interface InputFieldProps {
+    icon: React.ReactNode
+    placeholder: string
+    type: string
+    id: string
+    value: string
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    onBlur?: () => void
+    autoFocus?: boolean
+    rightSlot?: React.ReactNode
+    onFocus?: () => void
+}
+
 export const InputField = ({
     icon,
     placeholder,
@@ -7,16 +20,9 @@ export const InputField = ({
     onChange,
     autoFocus,
     rightSlot,
-}: {
-    icon: React.ReactNode
-    placeholder: string
-    type: string
-    id: string
-    value: string
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-    autoFocus?: boolean
-    rightSlot?: React.ReactNode
-}) => (
+    onBlur,
+    onFocus,
+}: InputFieldProps) => (
     <div className="relative z-10 flex w-full items-stretch rounded-xl bg-[#101217]">
         <div className="flex items-center pl-4">{icon}</div>
         <div className="relative flex flex-1">
@@ -29,6 +35,8 @@ export const InputField = ({
                 value={value}
                 onChange={onChange}
                 autoComplete="off"
+                onBlur={onBlur}
+                onFocus={onFocus}
             />
             {rightSlot && (
                 <div className="absolute top-0 right-0 flex h-full items-center">
