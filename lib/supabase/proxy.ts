@@ -27,7 +27,6 @@ export async function updateSession(request: NextRequest) {
         },
     )
 
-    // This revalidates/refreshes the session server-side (no redirect)
     await supabase.auth.getClaims()
 
     return supabaseResponse
