@@ -1,7 +1,7 @@
 import { memo } from "react"
 
 interface ListProps<T> {
-    list: T[]
+    items: T[]
     renderItem: (item: T, index: number) => React.ReactNode
     className?: string
     listClassName?: string
@@ -10,7 +10,7 @@ interface ListProps<T> {
 
 const ListInner = <T,>({
     className,
-    list,
+    items: list,
     renderItem,
     listClassName,
     keyExtractor,
