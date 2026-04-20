@@ -1,6 +1,6 @@
 "use client"
 
-import { BookmarkButton } from "../Bookmark/BookmarkButton/BookmarkButton"
+import { BookmarkButton } from "@/features/bookmarks/components/BookmarkButton/BookmarkButton"
 
 import { DetailsTable } from "@/components/DetailsTable/DetailsTable"
 

@@ -1,14 +1,12 @@
 import { Suspense } from "react"
 
-import { BookmarksPageGuest } from "../_components/Bookmark/BookmarksPageGuest/BookmarksPageGuest"
-import { BookmarksPageAuth } from "../_components/Bookmark/BookmarksPageAuth/BookmarksPageAuth"
-
-import { BookmarksSkeleton } from "@/components/BookmarksSkeleton/BookmarksSkeleton"
+import { BookmarksPageGuest } from "@/features/bookmarks/components/BookmarksPageGuest/BookmarksPageGuest"
+import { BookmarksPageAuth } from "@/features/bookmarks/components/BookmarksPageAuth/BookmarksPageAuth"
+import { BookmarksSkeleton } from "@/features/bookmarks/components/BookmarksSkeleton/BookmarksSkeleton"
 
 import { getUserBookmarks } from "@/lib/supabase/queries/bookmarks"
 import { getUserCollections } from "@/lib/supabase/queries/collections"
 import { getUserStats } from "@/lib/supabase/queries/stats"
-
 import { createClient } from "@/lib/supabase/server"
 
 const BookmarksContent = async () => {

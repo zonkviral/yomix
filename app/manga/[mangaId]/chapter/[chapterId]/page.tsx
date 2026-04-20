@@ -2,7 +2,7 @@ import { getMangaChapter } from "@/lib/MangaDex/getMangaChapter"
 import { getMangaChaptersList } from "@/lib/MangaDex/getMangaChaptersList"
 import { getMangaById } from "@/lib/MangaDex/getMangaById"
 
-import { MangaReader } from "./_components/MangaReader/MangaReader"
+import { MangaReader } from "@/features/reader/components/MangaReader"
 
 import { getTitle } from "@/utils/getTitle"
 

@@ -19,7 +19,12 @@ export interface Collection {
 }
 
 export interface ReadingProgress {
+    user_id: string
+    manga_id: string
     chapter_number: number
+    page_number?: number
+    read_at?: string
+    updated_at?: string
 }
 
 export interface Bookmark {
