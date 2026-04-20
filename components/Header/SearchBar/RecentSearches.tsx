@@ -40,7 +40,7 @@ export const RecentSearches = memo(
                     Недавние
                 </p>
                 <List
-                    list={searches}
+                    items={searches}
                     renderItem={renderItem}
                     keyExtractor={(q) => q}
                     listClassName="flex items-center gap-3 rounded-lg px-2 py-1 hover:bg-white/5"

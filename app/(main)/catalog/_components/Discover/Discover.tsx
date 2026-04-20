@@ -1,5 +1,4 @@
 "use client"
-
 import { memo, useCallback, useState } from "react"
 
 import { MangaCard } from "@/components/MangaCard/MangaCard"
@@ -7,6 +6,7 @@ import { List } from "@/components/List/List"
 import { Pagination } from "@/components/Pagination/Pagination"
 
 import { useMangaList } from "@/hooks/useMangaList"
+
 import { EnrichedManga } from "@/utils/enrichManga"
 
 const DiscoverCatalog = () => {
@@ -27,7 +27,7 @@ const DiscoverCatalog = () => {
                     <div className="absolute inset-0 z-10 rounded-lg bg-black/20" />
                 )}
                 <List
-                    list={items}
+                    items={items}
                     className="grid list-none grid-cols-1 gap-4 2xl:grid-cols-2"
                     listClassName="relative select-text"
                     keyExtractor={(item) => item.manga.id}

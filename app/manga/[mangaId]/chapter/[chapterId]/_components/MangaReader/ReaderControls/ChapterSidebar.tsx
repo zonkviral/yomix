@@ -31,7 +31,7 @@ export const ChapterSidebar = () => {
         >
             <List
                 className="py-1"
-                list={chapterList}
+                items={chapterList}
                 renderItem={(data) => {
                     const isActive = data.id === currentChapterId
                     return (

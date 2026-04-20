@@ -42,7 +42,7 @@ export const ResultList = ({
                 </p>
             ) : (
                 <List
-                    list={results}
+                    items={results}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.manga.id}
                     className="custom-scroll grid grid-cols-2 gap-2 overflow-y-auto p-2"
