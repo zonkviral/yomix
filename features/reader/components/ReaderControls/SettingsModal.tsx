@@ -3,9 +3,9 @@
 import { useReader } from "../ReaderContext"
 import type { ReadingMode, ReaderFilter, ReaderBgColor } from "../ReaderContext"
 
-import { IconButton } from "@/components/IconButton/IconButton"
-import { RadioGroup } from "@/components/RadioGroup/RadioGroup"
-import { RadioTab } from "@/components/RadioTab/RadioTab"
+import { IconButton } from "@/components/ui/IconButton/IconButton"
+import { RadioGroup } from "@/components/ui/RadioGroup/RadioGroup"
+import { RadioTab } from "@/components/ui/RadioTab/RadioTab"
 
 import {
     BG_COLOR_MAP,

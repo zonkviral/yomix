@@ -5,7 +5,7 @@ import Link from "next/link"
 
 import { EllipsisVertical } from "lucide-react"
 
-import { ProgressBar } from "@/components/ProgressBar/ProgressBar"
+import { ProgressBar } from "@/components/feedback/ProgressBar/ProgressBar"
 import { Bookmark } from "@/lib/supabase/type"
 import { getLastChapter } from "../../utils/helpers"
 

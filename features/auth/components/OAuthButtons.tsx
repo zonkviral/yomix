@@ -1,5 +1,5 @@
-import { GoogleIcon } from "@/components/Icons/GoogleIcon"
-import { DiscordIcon } from "@/components/Icons/DiscordIcon"
+import { GoogleIcon } from "@/components/icons/GoogleIcon"
+import { DiscordIcon } from "@/components/icons/DiscordIcon"
 
 export const OAuthButtons = ({ label }: { label: string }) => (
     <div className="flex flex-col gap-2 text-white">

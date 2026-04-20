@@ -1,8 +1,8 @@
 import { BookmarkCard } from "@/features/bookmarks/components/BookmarkCard/BookmarkCard"
 import { BookmarkRow } from "@/features/bookmarks/components/BookmarkRow/BookmarkRow"
 
-import { CarouselWrapper } from "@/components/CarouselWrapper/CarouselWrapper"
-import { List } from "@/components/List/List"
+import { CarouselWrapper } from "@/components/ui/CarouselWrapper/CarouselWrapper"
+import { List } from "@/components/ui/List/List"
 
 import { Bookmark } from "@/lib/supabase/type"
 

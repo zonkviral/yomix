@@ -1,5 +1,5 @@
 import { Check, X } from "lucide-react"
-import type { PasswordRules } from "@/hooks/useFormValidation"
+import type { PasswordRules } from "@/features/auth/hooks/useFormValidation"
 
 const rules: { key: keyof PasswordRules; label: string }[] = [
     { key: "minLength", label: "Минимум 6 символов" },

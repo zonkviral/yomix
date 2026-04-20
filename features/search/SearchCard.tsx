@@ -1,9 +1,9 @@
-import { SearchResult } from "@/actions/getSearchResult.action"
+import { SearchResult } from "@/features/search/actions"
+
+import { Highlight } from "@/components/ui/Highlight/Highlight"
 
 import { statusTranslationMap } from "@/lib/MangaDex/mappings/statusTranslationMap"
 import { contentRating, status } from "@/lib/MangaDex/constants"
-
-import { Highlight } from "@/components/Highlight/Highlight"
 
 import Image from "next/image"
 

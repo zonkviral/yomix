@@ -1,4 +1,4 @@
-import { IconButton } from "@/components/IconButton/IconButton"
+import { IconButton } from "@/components/ui/IconButton/IconButton"
 
 import { useReader } from "../ReaderContext"
 import { useReaderUI } from "./ReaderUIContext"

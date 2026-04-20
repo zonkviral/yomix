@@ -1,4 +1,4 @@
-import { NavButton } from "@/components/NavButton/NavButton"
+import { NavButton } from "@/components/ui/NavButton/NavButton"
 
 import { Scrubber } from "../Scrubber"
 import { useReaderUI } from "./ReaderUIContext"

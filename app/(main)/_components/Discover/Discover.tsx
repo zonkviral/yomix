@@ -1,9 +1,9 @@
 "use client"
 import { memo, useCallback, useState } from "react"
 
-import { MangaCard } from "@/components/MangaCard/MangaCard"
-import { List } from "@/components/List/List"
-import { Pagination } from "@/components/Pagination/Pagination"
+import { MangaCard } from "@/components/ui/MangaCard/MangaCard"
+import { List } from "@/components/ui/List/List"
+import { Pagination } from "@/components/ui/Pagination/Pagination"
 
 import { useMangaList } from "@/hooks/useMangaList"
 

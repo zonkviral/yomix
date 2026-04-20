@@ -1,5 +1,5 @@
-import { MangaCard } from "@/components/MangaCard/MangaCard"
-import { List } from "@/components/List/List"
+import { MangaCard } from "@/components/ui/MangaCard/MangaCard"
+import { List } from "@/components/ui/List/List"
 
 import { getNewestManga } from "@/lib/MangaDex/getNewestManga"
 

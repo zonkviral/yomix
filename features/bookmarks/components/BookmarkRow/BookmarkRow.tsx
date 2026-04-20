@@ -1,4 +1,4 @@
-import { ProgressBar } from "@/components/ProgressBar/ProgressBar"
+import { ProgressBar } from "@/components/feedback/ProgressBar/ProgressBar"
 
 import { Bookmark } from "@/lib/supabase/type"
 

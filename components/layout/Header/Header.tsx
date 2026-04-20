@@ -1,9 +1,10 @@
 "use client"
-import { SearchBar } from "./SearchBar/SearchBar"
+import { SearchBar } from "@/features/search/SearchBar"
+import { Auth } from "@/features/auth/components/Auth"
 
-import { Auth } from "./Auth/Auth"
+import { UserMenu } from "@/components/layout/UserMenu/UserMenu"
+
 import { useAuth } from "@/context/AuthContext"
-import { UserMenu } from "../UserMenu/UserMenu"
 
 import Link from "next/link"
 import Image from "next/image"

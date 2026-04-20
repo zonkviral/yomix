@@ -1,22 +1,18 @@
 "use client"
-
 import { useCallback, useEffect, useState, useTransition } from "react"
-import {
-    getSearchResultAction,
-    SearchResult,
-} from "@/actions/getSearchResult.action"
 
+import { getSearchResultAction, SearchResult } from "../search/actions"
 import {
     addRecentSearch,
     getRecentSearches,
     removeRecentSearch,
-} from "@/utils/recentSearches"
-
-import { useDebounce } from "@/hooks/useDebounce"
-
-import { AnimatedBorder } from "@/components/AnimatedBorder/AnimatedBorder"
+} from "../search/utils/recentSearches"
 import { ResultList } from "./ResultList"
 import { RecentSearches } from "./RecentSearches"
+
+import { AnimatedBorder } from "@/components/ui/AnimatedBorder/AnimatedBorder"
+
+import { useDebounce } from "@/hooks/useDebounce"
 
 import { Delete, Search, X } from "lucide-react"
 

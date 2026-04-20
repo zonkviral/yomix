@@ -4,15 +4,13 @@ import { useRef } from "react"
 
 import Link from "next/link"
 
-export const NoDragLink = ({
-    href,
-    className,
-    children,
-}: {
+interface NoDragLinkProps {
     href: string
     className?: string
     children: React.ReactNode
-}) => {
+}
+
+export const NoDragLink = ({ href, className, children }: NoDragLinkProps) => {
     const selecting = useRef(false)
 
     return (

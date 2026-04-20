@@ -2,7 +2,7 @@
 
 import { BookmarkButton } from "@/features/bookmarks/components/BookmarkButton/BookmarkButton"
 
-import { DetailsTable } from "@/components/DetailsTable/DetailsTable"
+import { DetailsTable } from "@/components/ui/DetailsTable/DetailsTable"
 
 import { tagTranslationMap } from "@/lib/MangaDex/mappings/tagTranslationMap"
 import { statusTranslationMap } from "@/lib/MangaDex/mappings/statusTranslationMap"

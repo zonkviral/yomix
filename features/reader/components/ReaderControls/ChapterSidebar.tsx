@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 
-import { List } from "@/components/List/List"
+import { List } from "@/components/ui/List/List"
 import { useReader } from "../ReaderContext"
 import { useReaderUI } from "./ReaderUIContext"
 

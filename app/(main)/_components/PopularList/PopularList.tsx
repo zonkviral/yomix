@@ -1,6 +1,6 @@
-import { CarouselWrapper } from "@/components/CarouselWrapper/CarouselWrapper"
-import { CarouselCard } from "@/components/CarouselCard/CarouselCard"
-import { List } from "@/components/List/List"
+import { CarouselWrapper } from "@/components/ui/CarouselWrapper/CarouselWrapper"
+import { CarouselCard } from "@/components/ui/CarouselCard/CarouselCard"
+import { List } from "@/components/ui/List/List"
 
 import { getPopularManga } from "@/lib/MangaDex/getPopularManga"
 import { getCoverUrl } from "@/lib/MangaDex/getCoverUrl"

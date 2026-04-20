@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/Skeleton/Skeleton"
+import { Skeleton } from "@/components/feedback/Skeleton/Skeleton"
 
 export const SkeletonSearchCard = () => (
     <div className="grid grid-cols-2">

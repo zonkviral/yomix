@@ -1,5 +1,5 @@
-import { Nav } from "@/components/Nav/Nav"
-import { Header } from "@/components/Header/Header"
+import { Nav } from "@/components/layout/Nav/Nav"
+import { Header } from "@/components/layout/Header/Header"
 
 export default function RootLayout({
     children,

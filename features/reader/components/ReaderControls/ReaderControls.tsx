@@ -1,6 +1,6 @@
 "use client"
 
-import { HoverTrigger } from "@/components/HoverTrigger/HoverTrigger"
+import { HoverTrigger } from "@/components/ui/HoverTrigger/HoverTrigger"
 
 import { ChapterSidebar } from "./ChapterSidebar"
 import { ReaderTopBar } from "./ReaderTopBar"

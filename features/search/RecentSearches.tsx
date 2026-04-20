@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react"
 
-import { List } from "@/components/List/List"
+import { List } from "@/components/ui/List/List"
 
 import { Clock, Trash2 } from "lucide-react"
 

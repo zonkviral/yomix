@@ -1,10 +1,9 @@
 import { cn } from "@/utils/cn"
 
-// components/IconButton/IconButton.tsx
 interface Props {
     onClick?: () => void
     children: React.ReactNode
-    active?: boolean // for menu button active state
+    active?: boolean
     className?: string
 }
 

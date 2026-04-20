@@ -11,7 +11,7 @@ import {
 
 import { getChapterPages } from "@/actions/getChapterPages.action"
 
-import { Noise } from "@/components/Noise/Noise"
+import { Noise } from "@/components/ui/Noise/Noise"
 
 import { BookCanvas } from "./BookCanvas/BookCanvas"
 import { BookCache } from "./BookCanvas/initConfig"
@@ -20,7 +20,7 @@ import { SingleReader } from "./SingleReader"
 import { ReaderControls } from "./ReaderControls/ReaderControls"
 
 import { useReaderNavigation } from "../hooks/useReaderNavigation"
-import { useZoom } from "@/hooks/useZoom"
+import { useZoom } from "@/features/reader/hooks/useZoom"
 
 import { Chapter } from "@/lib/MangaDex/types"
 

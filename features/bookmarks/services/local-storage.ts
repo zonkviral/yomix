@@ -1,4 +1,4 @@
-import { Bookmark } from "../supabase/type"
+import { Bookmark } from "@/lib/supabase/type"
 
 const KEY = "local_bookmarks"
 

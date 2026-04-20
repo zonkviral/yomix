@@ -1,11 +1,11 @@
 import { useCallback } from "react"
 
-import { SearchResult } from "@/actions/getSearchResult.action"
+import { SearchResult } from "@/features/search/actions"
+
+import { List } from "@/components/ui/List/List"
 
 import { SearchCard } from "./SearchCard"
 import { SkeletonSearchCard } from "./SkeletonSearchCard"
-
-import { List } from "@/components/List/List"
 
 interface ResultListProps {
     results: SearchResult[]

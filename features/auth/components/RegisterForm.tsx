@@ -1,18 +1,22 @@
 import { useReducer } from "react"
+import { useRouter } from "next/navigation"
 
-import { AnimatedBorder } from "@/components/AnimatedBorder/AnimatedBorder"
-import { Divider } from "@/components/Divider/Divider"
-import { InputField } from "@/components/InputField/InputField"
-import { OAuthButtons } from "./OAuthButtons"
+import { AnimatedBorder } from "@/components/ui/AnimatedBorder/AnimatedBorder"
+import { Divider } from "@/components/ui/Divider/Divider"
+import { InputField } from "@/components/ui/InputField/InputField"
+import { ShakeWrapper } from "@/components/ui/ShakeWrapper/ShakeWrapper"
+
+import { useFormValidation } from "../hooks/useFormValidation"
+
 import { EmailIcon, PasswordToggle } from "./FormComponents"
-import { ShakeWrapper } from "@/components/ShakeWrapper/ShakeWrapper"
+import { OAuthButtons } from "./OAuthButtons"
 import { PasswordRulesIndicator } from "./PasswordRulesIndicator"
-import { useFormValidation } from "@/hooks/useFormValidation"
+
 import { register } from "@/actions/validation.action"
 
-import { Lock, Mail, User, UserPlus } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
+
+import { Lock, Mail, User, UserPlus } from "lucide-react"
 
 const initialState = {
     showPassword: false,

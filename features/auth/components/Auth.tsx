@@ -1,8 +1,8 @@
 "use client"
 
-import { AuthModal } from "./AuthModal"
+import { Modal } from "@/components/ui/Modal/Modal"
 
-import { Modal } from "@/components/Modal/Modal"
+import { AuthModal } from "./AuthModal"
 
 import { useModal } from "@/hooks/useModal"
 

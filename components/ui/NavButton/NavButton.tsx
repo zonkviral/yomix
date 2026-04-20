@@ -1,7 +1,6 @@
 import { cn } from "@/utils/cn"
 
-// components/NavButton/NavButton.tsx
-interface Props {
+interface NavButtonProps {
     onClick?: () => void
     disabled?: boolean
     children: React.ReactNode
@@ -13,7 +12,7 @@ export const NavButton = ({
     disabled,
     children,
     className,
-}: Props) => (
+}: NavButtonProps) => (
     <button
         type="button"
         onClick={onClick}

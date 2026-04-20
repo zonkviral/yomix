@@ -1,6 +1,7 @@
 "use client"
 
-import { Modal } from "@/components/Modal/Modal"
+import { Modal } from "@/components/ui/Modal/Modal"
+
 import { SearchModal } from "./SearchModal"
 
 import { useModal } from "@/hooks/useModal"

@@ -1,6 +1,6 @@
 import { EnrichedManga } from "@/actions/getMangaList.action"
 
-import { NoDragLink } from "@/components/NoDragLink/NoDragLink"
+import { NoDragLink } from "@/components/ui/NoDragLink/NoDragLink"
 
 import { formatNumber } from "@/utils/formatNumber"
 import { tagTranslationMap } from "@/lib/MangaDex/mappings/tagTranslationMap"

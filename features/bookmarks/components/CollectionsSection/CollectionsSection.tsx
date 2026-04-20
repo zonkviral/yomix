@@ -1,4 +1,4 @@
-import { List } from "@/components/List/List"
+import { List } from "@/components/ui/List/List"
 import { Collection } from "@/lib/supabase/type"
 
 import Link from "next/link"
