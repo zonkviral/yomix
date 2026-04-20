@@ -17,6 +17,7 @@
 
     --foreground: #171717;
     --reader-filter: none;
+    --color-background: linear-gradient(180deg, #111319 0%, #0c0e14 100%);
 }
 
 @theme {
@@ -30,22 +31,19 @@
     --animate-border-spin: border-spin 4s linear infinite;
 }
 @theme inline {
-    --color-background: var(--background);
     --color-foreground: var(--foreground);
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-    }
-}
 @utility gradient-text {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+@utility bg-app {
+    background: var(--color-background);
 }
 
 @keyframes border-spin {
@@ -56,7 +54,33 @@
         transform: translate(-50%, -50%) rotate(360deg);
     }
 }
-
+@keyframes heartPop {
+    0% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(0.75);
+    }
+    50% {
+        transform: scale(1.4);
+    }
+    75% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+@keyframes particleFly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+    }
+}
 .search-spin::before {
     content: "";
     position: absolute;
