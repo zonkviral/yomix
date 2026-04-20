@@ -1,6 +1,6 @@
-import { List } from "@/components/List/List"
+import { List } from "@/components/ui/List/List"
 
-import { formatBookmarkDate } from "@/utils/formatBookmarkDate"
+import { formatRelativeDate } from "@/utils/formatRelativeDate"
 
 import { Bookmark } from "@/lib/supabase/type"
 
@@ -50,7 +50,7 @@ export const RecentlySection = ({ bookmarks }: RecentlySectionProps) => (
                                 )}
                             </div>
                             <span className="mb-0.5 text-sm text-gray-500">
-                                {formatBookmarkDate(
+                                {formatRelativeDate(
                                     new Date(bookmark.updated_at),
                                 )}
                             </span>
