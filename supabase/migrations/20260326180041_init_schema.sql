@@ -9,7 +9,7 @@ create extension if not exists pgcrypto;
 -- ============================================================
 create table if not exists public.profiles (
   id         uuid references auth.users(id) on delete cascade primary key,
-  username   text unique,                   
+  username   text unique,
   avatar_url text,
   bio        text,
   banner_url text,
@@ -24,30 +24,27 @@ create table if not exists public.profiles (
 -- MANGA
 -- ============================================================
 create table if not exists public.manga (
-  id             uuid primary key default gen_random_uuid(),
-  mangadex_id    text unique,
-  remanga_slug   text unique,
-  anilist_id     text,
-  title          text not null,
-  cover_url      text,
-  status         text,
+  id        uuid primary key default gen_random_uuid(),
+  title     text not null,
+  author    text,
+  status    text,
   total_chapters int,
-  cached_at      timestamp with time zone default now()
+  cover_url text,
+  cached_at timestamp with time zone default now()
 );
 
 
 -- ============================================================
--- GENRES
+-- MANGA SOURCES
 -- ============================================================
-create table if not exists public.genres (
-  id   serial primary key,
-  name text unique not null
-);
-
-create table if not exists public.manga_genres (
-  manga_id uuid references public.manga(id) on delete cascade,
-  genre_id int  references public.genres(id) on delete cascade,
-  primary key (manga_id, genre_id)
+create table if not exists public.manga_sources (
+  id          uuid primary key default gen_random_uuid(),
+  manga_id    uuid references public.manga(id) on delete cascade not null,
+  source      text not null,
+  external_id text not null,
+  url         text,
+  cached_at   timestamp with time zone default now(),
+  unique(source, external_id)
 );
 
 
@@ -80,7 +77,6 @@ create table if not exists public.chapters (
   language       text not null,
   chapter_number float not null,
   external_id    text,
-  pages          int,
   published_at   timestamp with time zone,
   cached_at      timestamp with time zone default now(),
   unique(manga_id, chapter_number, language, source)
@@ -151,7 +147,6 @@ create table if not exists public.list_items (
 create table if not exists public.user_stats (
   user_id         uuid references public.profiles(id) on delete cascade primary key,
   total_chapters  int default 0,
-  total_manga     int default 0,
   total_time_mins int default 0,
   updated_at      timestamp with time zone default now()
 );
@@ -178,7 +173,7 @@ create table if not exists public.subscriptions (
 -- FUNCTIONS & TRIGGERS
 -- ============================================================
 
--- auto-create profile on auth signup
+-- 1. auto-create profile on auth signup
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -202,6 +197,7 @@ create trigger on_auth_user_created
   after insert or update on auth.users
   for each row execute function public.handle_new_user();
 
+-- 2. auto-create user_stats row when profile is created
 create or replace function public.handle_new_profile()
 returns trigger
 language plpgsql
@@ -221,7 +217,7 @@ create trigger on_profile_created
   after insert on public.profiles
   for each row execute function public.handle_new_profile();
 
-
+-- 3. increment total_chapters on new reading session
 create or replace function public.update_user_stats()
 returns trigger
 language plpgsql
@@ -249,7 +245,7 @@ create trigger on_reading_session
   for each row execute function public.update_user_stats();
 
 
--- 4. auto-update updated_at timestamps
+-- 4. auto-update updated_at on row update
 create or replace function public.update_timestamp()
 returns trigger
 language plpgsql
@@ -285,31 +281,29 @@ create trigger set_progress_timestamp
 -- ============================================================
 -- ROW LEVEL SECURITY
 -- ============================================================
-alter table public.profiles        enable row level security;
-alter table public.manga           enable row level security;
-alter table public.chapters        enable row level security;
-alter table public.genres          enable row level security;
-alter table public.manga_genres    enable row level security;
-alter table public.bookmarks       enable row level security;
+alter table public.profiles         enable row level security;
+alter table public.manga            enable row level security;
+alter table public.manga_sources    enable row level security;
+alter table public.chapters         enable row level security;
+alter table public.bookmarks        enable row level security;
 alter table public.reading_progress enable row level security;
 alter table public.reading_sessions enable row level security;
-alter table public.lists           enable row level security;
-alter table public.list_items      enable row level security;
-alter table public.user_stats      enable row level security;
-alter table public.subscriptions   enable row level security;
+alter table public.lists            enable row level security;
+alter table public.list_items       enable row level security;
+alter table public.user_stats       enable row level security;
+alter table public.subscriptions    enable row level security;
 
 
 -- ============================================================
 -- POLICIES
 -- ============================================================
 
--- public readable tables
-create policy "manga public read"        on public.manga        for select using (true);
-create policy "chapters public read"     on public.chapters     for select using (true);
-create policy "genres public read"       on public.genres       for select using (true);
-create policy "manga_genres public read" on public.manga_genres for select using (true);
+-- public read
+create policy "manga public read"         on public.manga         for select using (true);
+create policy "manga_sources public read" on public.manga_sources for select using (true);
+create policy "chapters public read"      on public.chapters      for select using (true);
 
--- profiles: public can read public profiles, owner can do everything
+-- profiles
 create policy "profiles public read" on public.profiles
   for select using (is_public = true);
 
@@ -317,7 +311,7 @@ create policy "own profile" on public.profiles for all
   using (auth.uid() = id)
   with check (auth.uid() = id);
 
--- user-owned tables
+-- user owned
 create policy "own bookmarks" on public.bookmarks for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
@@ -352,11 +346,12 @@ create policy "own subscription" on public.subscriptions for all
 -- ============================================================
 create index if not exists idx_bookmarks_user       on public.bookmarks (user_id);
 create index if not exists idx_bookmarks_manga      on public.bookmarks (manga_id);
+create index if not exists idx_bookmarks_status     on public.bookmarks (user_id, read_status);
 create index if not exists idx_progress_user_manga  on public.reading_progress (user_id, manga_id);
 create index if not exists idx_sessions_user        on public.reading_sessions (user_id);
 create index if not exists idx_list_items_list      on public.list_items (list_id);
 create index if not exists idx_chapters_manga       on public.chapters (manga_id);
-create index if not exists idx_manga_genres_manga   on public.manga_genres (manga_id);
-create index if not exists idx_manga_genres_genre   on public.manga_genres (genre_id);
 create index if not exists idx_chapters_published   on public.chapters (published_at desc);
 create index if not exists idx_lists_user           on public.lists (user_id);
+create index if not exists idx_manga_sources_manga  on public.manga_sources (manga_id);
+create index if not exists idx_manga_sources_lookup on public.manga_sources (source, external_id);
