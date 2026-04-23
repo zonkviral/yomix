@@ -1,7 +1,7 @@
 "use client"
 import { useRef } from "react"
 
-import { useBookmark } from "@/features/bookmarks/useBookmark"
+import { useBookmark } from "../../hooks/useBookmark"
 
 import { MangaSource } from "@/lib/supabase/type"
 

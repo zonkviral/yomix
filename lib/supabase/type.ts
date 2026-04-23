@@ -1,3 +1,10 @@
+export type ReadStatus =
+    | "reading"
+    | "on-hold"
+    | "completed"
+    | "dropped"
+    | "plan_to_read"
+
 export interface UserStats {
     total_chapters: number
     total_time_mins: number
@@ -7,8 +14,12 @@ export interface UserStats {
 export interface Manga {
     id: string
     title: string
-    cover_url: string | null
-    total_chapters: number | null
+    source: string
+    cover_url?: string
+    cached_at?: string
+    author?: string
+    status?: string
+    total_chapters?: number
 }
 
 export interface Collection {
@@ -29,7 +40,7 @@ export interface ReadingProgress {
 
 export interface Bookmark {
     id: string
-    read_status: string
+    read_status: ReadStatus
     score: number | null
     updated_at: string
     manga: Manga[]
@@ -48,6 +59,7 @@ export interface MangaSource {
     externalId: string
     source: string
     title: string
+    author?: string
     coverUrl: string
     totalChapters?: number
 }

@@ -1,4 +1,4 @@
-import { Bookmark } from "@/lib/supabase/type"
+import { Bookmark, MangaSource } from "@/lib/supabase/type"
 
 const KEY = "local_bookmarks"
 
@@ -12,32 +12,37 @@ export const getLocalBookmarks = (): LocalBookmark[] => {
     }
 }
 
-export const addLocalBookmark = (manga: {
-    mangaId: string
-    title: string
-    coverUrl: string
-    totalChapters?: number
-}) => {
+export const addLocalBookmark = (manga: MangaSource) => {
     const bookmarks = getLocalBookmarks()
-    if (bookmarks.find((b) => b.id === manga.mangaId)) return
+    if (bookmarks.find((b) => b.id === manga.externalId)) return
 
     const newBookmark: LocalBookmark = {
-        id: manga.mangaId,
+        id: manga.externalId,
         read_status: "plan_to_read",
         score: null,
         updated_at: new Date().toISOString(),
         manga: [
             {
-                id: manga.mangaId,
+                id: manga.externalId,
                 title: manga.title,
+                source: manga.source,
+                author: manga.author ?? undefined,
                 cover_url: manga.coverUrl,
-                total_chapters: manga.totalChapters ?? null,
+                total_chapters: manga.totalChapters ?? undefined,
             },
         ],
         reading_progress: [],
     }
-
-    localStorage.setItem(KEY, JSON.stringify([...bookmarks, newBookmark]))
+    localStorage.setItem(
+        KEY,
+        JSON.stringify(
+            [...bookmarks, newBookmark].sort(
+                (a, b) =>
+                    new Date(b.updated_at).getTime() -
+                    new Date(a.updated_at).getTime(),
+            ),
+        ),
+    )
 }
 
 export const removeLocalBookmark = (mangaId: string) => {
@@ -65,6 +70,18 @@ export const updateLocalReadingProgress = (
             reading_progress: newProgress.sort(
                 (a, b) => a.chapter_number - b.chapter_number,
             ),
+        }
+    })
+    localStorage.setItem(KEY, JSON.stringify(updated))
+}
+export const updateLocalReadStatus = (mangaId: string, status: string) => {
+    const bookmarks = getLocalBookmarks()
+    const updated = bookmarks.map((b) => {
+        if (b.id !== mangaId) return b
+        return {
+            ...b,
+            updated_at: new Date().toISOString(),
+            read_status: status,
         }
     })
     localStorage.setItem(KEY, JSON.stringify(updated))

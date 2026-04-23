@@ -33,7 +33,7 @@ const BookmarksContent = async () => {
 }
 
 const BookmarksPage = () => (
-    <Suspense fallback={<BookmarksSkeleton />}>
+    <Suspense fallback={<BookmarksSkeleton sidebar />}>
         <BookmarksContent />
     </Suspense>
 )

@@ -8,5 +8,5 @@ export const getMangaById = async (id: string): Promise<Manga> => {
     const data = await apiFetchHandler<MangaResponse>(
         `${BASE_URL}/manga/${id}?includes[]=cover_art&includes[]=author&includes[]=artist`,
     )
-    return data.data
+    return { ...data.data, source: "mangadex" }
 }

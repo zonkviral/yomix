@@ -1,18 +1,19 @@
+import { MangaOverview } from "../../_components/MangaOverview/MangaOverview"
+
 import { getCoverUrl } from "@/lib/MangaDex/getCoverUrl"
 import { getMangaById } from "@/lib/MangaDex/getMangaById"
 import { getMangaStatistics } from "@/lib/MangaDex/getMangaStatistics"
+import { getMangaChaptersList } from "@/lib/MangaDex/getMangaChaptersList"
 import { getArtist, getAuthor, getTags } from "@/lib/MangaDex/helpers"
 
 import { searchMangaByName } from "@/lib/Remanga/searchMangaByName"
 import { getMangaByName } from "@/lib/Remanga/getMangabyName"
 
+import { createClient } from "@/lib/supabase/server"
+
 import { getFlagUrl } from "@/utils/langToFlag"
 import { getTitle } from "@/utils/getTitle"
 import { htmlTagsRemover } from "@/utils/htmlTagsRemover"
-
-import { MangaOverview } from "../../_components/MangaOverview/MangaOverview"
-import { createClient } from "@/lib/supabase/server"
-import { getMangaChaptersList } from "@/lib/MangaDex/getMangaChaptersList"
 
 export const MangaPageInfo = async ({
     params,
@@ -73,9 +74,10 @@ export const MangaPageInfo = async ({
             description={description}
             manga={{
                 externalId: mangaId,
-                source: "mangadex",
-                title: title?.[0] ?? titleEn?.[0] ?? "Unknown Title",
-                coverUrl: coverUrl ?? "",
+                source: manga.source,
+                author: getAuthor(manga),
+                title: fullTitle,
+                coverUrl: getCoverUrl(manga, 256) ?? "",
                 totalChapters: chapterList.length,
             }}
             info={{

@@ -1,3 +1,5 @@
+import { SideSectionWrapper } from "../SideSectionWrapper/SideSectionWrapper"
+
 import { List } from "@/components/ui/List/List"
 
 import { formatRelativeDate } from "@/utils/formatRelativeDate"
@@ -14,10 +16,7 @@ interface RecentlySectionProps {
 }
 
 export const RecentlySection = ({ bookmarks }: RecentlySectionProps) => (
-    <section className="bg-neutral-900 p-4 shadow-md">
-        <h2 className="text-xl font-bold text-neutral-100">
-            Недавние закладки
-        </h2>
+    <SideSectionWrapper title="Недавно добавленные">
         <List
             className="mt-4 flex flex-col gap-2"
             items={bookmarks}
@@ -59,5 +58,5 @@ export const RecentlySection = ({ bookmarks }: RecentlySectionProps) => (
                 )
             }}
         />
-    </section>
+    </SideSectionWrapper>
 )

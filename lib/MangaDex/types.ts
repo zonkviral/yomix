@@ -54,6 +54,7 @@ export interface Manga {
         updatedAt: string
         createdAt: string
     }
+    source: string
     relationships: (
         | MangaAuthorRelationship
         | MangaCoverArt

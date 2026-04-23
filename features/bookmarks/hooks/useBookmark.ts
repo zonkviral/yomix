@@ -10,18 +10,14 @@ import {
     addLocalBookmark,
     getLocalBookmarks,
     removeLocalBookmark,
-} from "./services/local-storage"
+} from "../services/local-storage"
+
+import { MangaSource } from "@/lib/supabase/type"
 
 export const useBookmark = (
     mangaId: string,
     initialState: boolean,
-    manga?: {
-        externalId: string
-        source: string
-        title: string
-        coverUrl: string
-        totalChapters?: number
-    },
+    manga?: MangaSource,
 ) => {
     const { user } = useAuth()
 
@@ -59,8 +55,10 @@ export const useBookmark = (
                         removeLocalBookmark(mangaId)
                     } else {
                         addLocalBookmark({
-                            mangaId,
+                            externalId: mangaId,
+                            source: manga.source,
                             title: manga.title,
+                            author: manga.author,
                             coverUrl: manga.coverUrl,
                             totalChapters: manga.totalChapters,
                         })

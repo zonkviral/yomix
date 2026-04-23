@@ -1,19 +1,32 @@
-import { BookmarkCard } from "@/features/bookmarks/components/BookmarkCard/BookmarkCard"
-import { BookmarkRow } from "@/features/bookmarks/components/BookmarkRow/BookmarkRow"
+import { BookmarkCard } from "../../components/BookmarkCard/BookmarkCard"
+import { BookmarkRow } from "../../components/BookmarkRow/BookmarkRow"
+import { StatsSection } from "../StatsSection/StatsSection"
+import { RecentlySection } from "../RecentlySection/RecentlySection"
+import { CollectionsSection } from "../CollectionsSection/CollectionsSection"
+import { SideSectionWrapper } from "../SideSectionWrapper/SideSectionWrapper"
+import { BookmarksSkeleton } from "../BookmarksSkeleton/BookmarksSkeleton"
 
 import { CarouselWrapper } from "@/components/ui/CarouselWrapper/CarouselWrapper"
 import { List } from "@/components/ui/List/List"
 
-import { Bookmark } from "@/lib/supabase/type"
+import { Bookmark, Collection, UserStats } from "@/lib/supabase/type"
+
+import { BookAlert } from "lucide-react"
 
 interface BookmarksLayoutProps {
     bookmarks: Bookmark[]
-    sidebar: React.ReactNode
+    collections?: Collection[]
+    showSavePrompt?: boolean
+    stats?: UserStats | null
+    loading?: boolean
 }
 
 export const BookmarksLayout = ({
     bookmarks,
-    sidebar,
+    collections,
+    showSavePrompt = false,
+    stats,
+    loading = false,
 }: BookmarksLayoutProps) => {
     const continueReading = [...bookmarks]
         .filter((b) => b.reading_progress.length > 0)
@@ -23,6 +36,7 @@ export const BookmarksLayout = ({
                 new Date(a.updated_at).getTime(),
         )
         .slice(0, 10)
+    const recentlyAdded = bookmarks.slice(0, 4)
 
     return (
         <div className="grid grid-cols-[1fr_17.5rem] gap-8 p-4">
@@ -34,10 +48,13 @@ export const BookmarksLayout = ({
                             {bookmarks.length}
                         </span>
                     </div>
-                    <p className="text-sm text-gray-500">
-                        Здесь отображаются все ваши закладки.
-                    </p>
+                    {bookmarks.length === 0 && (
+                        <p className="text-sm text-gray-500">
+                            Здесь будут отображаться все ваши закладки.
+                        </p>
+                    )}
                 </div>
+                {loading && <BookmarksSkeleton rowBookmarks={false} />}
 
                 {continueReading.length > 0 && (
                     <section>
@@ -69,10 +86,41 @@ export const BookmarksLayout = ({
                             Нет закладок. Добавьте мангу в закладки.
                         </p>
                     )}
+                    {loading && <BookmarksSkeleton colBookmarks={false} />}
                 </section>
             </div>
-
-            <div className="ml-auto flex w-70 flex-col gap-4">{sidebar}</div>
+            <div className="ml-auto flex w-70 flex-col gap-4">
+                {showSavePrompt && (
+                    <SideSectionWrapper
+                        title="Перенесите библиотеку"
+                        icon={
+                            <BookAlert className="float-left mt-0.5 mr-1 w-5" />
+                        }
+                    >
+                        <p className="mt-2 text-sm text-gray-500">
+                            Войдите в аккаунт, чтобы ваши закладки были доступны
+                            везде. Без аккаунта данные могут удалиться при
+                            очистке кеша.
+                        </p>
+                    </SideSectionWrapper>
+                )}
+                {stats && (
+                    <StatsSection
+                        stats={{
+                            total_manga: stats?.total_manga ?? 0,
+                            total_chapters: stats?.total_chapters ?? 0,
+                            total_time_mins: stats?.total_time_mins ?? 0,
+                        }}
+                    />
+                )}
+                <CollectionsSection
+                    collections={collections}
+                    bookmarks={bookmarks}
+                />
+                {bookmarks.length > 0 && (
+                    <RecentlySection bookmarks={recentlyAdded} />
+                )}
+            </div>
         </div>
     )
 }

@@ -1,13 +1,11 @@
 "use server"
 
-import type { ReadingProgress } from "@/lib/supabase/type"
 import { createClient } from "@/lib/supabase/server"
+import type { ReadingProgress, ReadStatus } from "@/lib/supabase/type"
+
 import type { LocalBookmark } from "./services/local-storage"
 
-export const updateReadStatus = async (
-    mangaId: string,
-    status: "reading" | "completed" | "plan_to_read" | "dropped" | "on_hold",
-) => {
+export const updateReadStatus = async (mangaId: string, status: ReadStatus) => {
     const supabase = await createClient()
     const {
         data: { user },
@@ -142,19 +140,20 @@ export const migrateLocalBookmarks = async (bookmarks: LocalBookmark[]) => {
 
     if (error) return { error: error.message }
 
-    for (const bookmark of bookmarks) {
-        const mangaId = idMap[bookmark.id]
-        if (!mangaId || !bookmark.reading_progress.length) continue
-
-        await supabase.from("reading_progress").upsert(
-            bookmark.reading_progress.map((p: ReadingProgress) => ({
-                user_id: user.id,
-                manga_id: mangaId,
-                chapter_number: p.chapter_number,
-            })),
-            { onConflict: "user_id,manga_id,chapter_number" },
-        )
-    }
+    await Promise.all(
+        bookmarks
+            .filter((b) => idMap[b.id] && b.reading_progress.length)
+            .map((b) =>
+                supabase.from("reading_progress").upsert(
+                    b.reading_progress.map((p: ReadingProgress) => ({
+                        user_id: user.id,
+                        manga_id: b.id,
+                        chapter_number: p.chapter_number,
+                    })),
+                    { onConflict: "user_id,manga_id,chapter_number" },
+                ),
+            ),
+    )
 
     return { success: true }
 }
