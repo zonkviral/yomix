@@ -14,7 +14,7 @@ import { PasswordRulesIndicator } from "./PasswordRulesIndicator"
 
 import { register } from "@/actions/validation.action"
 
-import { migrateLocalBookmarks } from "@/features/bookmarks/actions"
+import { migrateLocalBookmarks } from "@/features/bookmarks/actions/migrate.action"
 import {
     clearLocalBookmarks,
     getLocalBookmarks,

@@ -1,4 +1,6 @@
-import { addBookmark, removeBookmark } from "../../actions"
+import { addBookmark } from "../../actions/add-bookmark.action"
+import { removeBookmark } from "../../actions/remove-bookmark.action"
+
 import {
     addLocalBookmark,
     removeLocalBookmark,

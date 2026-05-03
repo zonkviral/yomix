@@ -1,4 +1,4 @@
-import { removeBookmark } from "../../actions"
+import { removeBookmark } from "../../actions/remove-bookmark.action"
 import { removeLocalBookmark } from "../../services/local-storage"
 
 import { findByExternalId, filterByExternalId } from "../helpers"

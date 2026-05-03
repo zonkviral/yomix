@@ -1,4 +1,4 @@
-import { updateReadStatus } from "../../actions"
+import { updateReadStatus } from "../../actions/update-status.action"
 import { updateLocalReadStatus } from "../../services/local-storage"
 
 import { ReadStatus } from "@/lib/supabase/type"
