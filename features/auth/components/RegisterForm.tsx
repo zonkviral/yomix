@@ -20,7 +20,7 @@ import {
     getLocalBookmarks,
 } from "@/features/bookmarks/services/local-storage"
 
-import { useAuth } from "@/context/AuthContext"
+import { useAuth } from "@/features/auth/context/AuthContext"
 
 import { Lock, Mail, User, UserPlus } from "lucide-react"
 

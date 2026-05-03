@@ -1,4 +1,4 @@
-import { useAuth } from "@/context/AuthContext"
+import { useAuth } from "@/features/auth/context/AuthContext"
 import { logoutClient } from "@/features/auth/services/auth.service"
 
 export const UserMenu = () => {

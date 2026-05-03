@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
 import { Inter, Nunito } from "next/font/google"
 
+import { AuthProvider } from "@/features/auth/context/AuthContext"
+
 import "./globals.css"
-import { AuthProvider } from "@/context/AuthContext"
 
 export const metadata: Metadata = {
     title: "Manga",
