@@ -2,7 +2,11 @@ import { ProgressBar } from "@/components/feedback/ProgressBar/ProgressBar"
 
 import { Bookmark } from "@/lib/supabase/type"
 
-import { getLastChapter } from "../../utils/helpers"
+import {
+    getExternalId,
+    getLastChapter,
+    getTotalChapters,
+} from "../../utils/helpers"
 
 import { EllipsisVertical } from "lucide-react"
 
@@ -17,37 +21,38 @@ interface BookmarkCardProps {
 
 export const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
     const lastChapter = getLastChapter(bookmark)
+    const externalId = getExternalId(bookmark)
+    const totalChapters = getTotalChapters(bookmark)
     return (
         <div className="relative rounded bg-neutral-900/50">
             <div className="relative isolate flex aspect-2/3 w-50 shrink-0 flex-col rounded">
                 <Image
-                    src={bookmark.manga[0].cover_url || noCover}
-                    alt={bookmark.manga[0].title}
+                    src={bookmark.manga.cover_url || noCover}
+                    alt={bookmark.manga.title}
                     fill
                     className="rounded object-cover"
                 />
                 <button className="absolute top-1 right-1 z-120 rounded p-1 hover:bg-neutral-800/70">
                     <EllipsisVertical className="w-3 text-amber-50" />
                 </button>
-                {bookmark.manga[0].total_chapters &&
-                    bookmark.manga[0].total_chapters > 0 && (
-                        <p className="absolute bottom-0 left-1/2 mb-2 w-max -translate-x-1/2 rounded-full bg-neutral-800/70 px-2 py-1 text-sm text-gray-500">
-                            Глава {bookmark.manga[0].total_chapters}
-                        </p>
-                    )}
+                {totalChapters && totalChapters > 0 && (
+                    <p className="absolute bottom-0 left-1/2 mb-2 w-max -translate-x-1/2 rounded-full bg-neutral-800/70 px-2 py-1 text-sm text-gray-500">
+                        Глава {totalChapters}
+                    </p>
+                )}
             </div>
             <div className="p-2">
                 <h3 className="text-lg font-semibold">
-                    {bookmark.manga[0].title}
+                    {bookmark.manga.title}
                 </h3>
-                {/* <p className="text-sm text-gray-500">{bookmark.manga[0].author}</p> */}
+                {/* <p className="text-sm text-gray-500">{bookmark.manga.title}</p> */}
                 <Link
-                    href={`/manga/${bookmark.manga[0].id}`}
+                    href={`/manga/${externalId}`}
                     className="mt-2 block rounded p-1 hover:bg-neutral-800"
                 >
                     <ProgressBar
                         current={lastChapter ?? 0}
-                        total={bookmark.manga[0].total_chapters ?? 0}
+                        total={totalChapters || 0}
                     />
                 </Link>
             </div>

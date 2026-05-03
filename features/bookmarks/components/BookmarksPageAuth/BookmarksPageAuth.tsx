@@ -1,10 +1,7 @@
 "use client"
 import { useEffect } from "react"
-
 import { BookmarksLayout } from "../BookmarksLayout/BookmarksLayout"
-
 import { useBookmarksStore } from "../../store/bookmarks.store"
-
 import { Bookmark, Collection, UserStats } from "@/lib/supabase/type"
 
 interface BookmarksPageAuthProps {
@@ -18,14 +15,16 @@ export const BookmarksPageAuth = ({
     stats,
     collections,
 }: BookmarksPageAuthProps) => {
-    const { load } = useBookmarksStore()
-
-    useEffect(() => load(bookmarks), [])
-
+    const init = useBookmarksStore((s) => s.init)
     const storeBookmarks = useBookmarksStore((s) => s.bookmarks)
+
+    useEffect(() => {
+        init(false, bookmarks)
+    }, [])
+
     return (
         <BookmarksLayout
-            bookmarks={storeBookmarks}
+            bookmarks={storeBookmarks.length > 0 ? storeBookmarks : bookmarks}
             collections={collections}
             stats={stats}
         />

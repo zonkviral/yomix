@@ -44,32 +44,5 @@ export const register = async (formData: {
 
     if (profileError)
         return { error: `Profile creation failed: ${profileError.message}` }
-
-    return { success: true }
-}
-
-export const login = async (formData: { email: string; password: string }) => {
-    const { email, password } = formData
-
-    if (!email || !password) return { error: "Заполните все поля" }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-        return { error: "Некорректный email" }
-
-    const supabase = await createClient()
-
-    const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password,
-    })
-
-    if (error) return { error: error.message }
-
-    return { success: true }
-}
-
-export const logout = async () => {
-    const supabase = await createClient()
-    await supabase.auth.signOut()
     return { success: true }
 }

@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { ReadingProgress, ReadStatus } from "@/lib/supabase/type"
+import type { Manga, ReadStatus } from "@/lib/supabase/type"
 
 import type { LocalBookmark } from "./services/local-storage"
 
@@ -16,6 +16,7 @@ export const updateReadStatus = async (mangaId: string, status: ReadStatus) => {
         .from("bookmarks")
         .update({
             read_status: status,
+            updated_at: new Date().toISOString(),
             completed_at:
                 status === "completed" ? new Date().toISOString() : null,
             started_at:
@@ -86,42 +87,57 @@ export const migrateLocalBookmarks = async (bookmarks: LocalBookmark[]) => {
 
     const externalIds = bookmarks.map((b) => b.id)
 
+    // 1. Get existing sources
     const { data: mangaSources } = await supabase
         .from("manga_sources")
         .select("manga_id, external_id")
         .in("external_id", externalIds)
-        .eq("source", "mangadex")
 
     const idMap = Object.fromEntries(
         (mangaSources ?? []).map((s) => [s.external_id, s.manga_id]),
     )
 
-    const missing = bookmarks.filter((b) => !idMap[b.id])
-
+    // 2. Handle missing OR incomplete manga (like missing authors)
     await Promise.all(
-        missing.map(async (b) => {
-            const manga = b.manga[0]
-            const { data: newManga } = await supabase
-                .from("manga")
-                .insert({
-                    title: manga.title,
-                    cover_url: manga.cover_url,
-                    total_chapters: manga.total_chapters,
-                })
-                .select("id")
-                .single()
+        bookmarks.map(async (b) => {
+            const internalId = idMap[b.id]
+            const mangaData = {
+                title: b.manga.title,
+                cover_url: b.manga.cover_url,
+                total_chapters: b.manga.total_chapters,
+                author: b.manga.author, // <--- This fixes your author issue!
+            }
 
-            if (newManga) {
-                await supabase.from("manga_sources").insert({
-                    manga_id: newManga.id,
-                    source: "mangadex",
-                    external_id: b.id,
-                })
-                idMap[b.id] = newManga.id
+            if (!internalId) {
+                // INSERT NEW
+                const { data: newManga } = await supabase
+                    .from("manga")
+                    .insert(mangaData)
+                    .select("id")
+                    .single()
+
+                if (newManga) {
+                    await supabase.from("manga_sources").insert({
+                        manga_id: newManga.id,
+                        source: b.manga.manga_sources[0].source,
+                        external_id: b.id,
+                    })
+                    idMap[b.id] = newManga.id
+                }
+            } else {
+                console.log(
+                    `Updating existing manga (ID: ${internalId}) with latest data from bookmark.`,
+                )
+                // UPDATE EXISTING (To ensure author/cover are up to date)
+                await supabase
+                    .from("manga")
+                    .update(mangaData)
+                    .eq("id", internalId)
             }
         }),
     )
 
+    // 3. Upsert Bookmarks
     const toUpsert = bookmarks
         .filter((b) => idMap[b.id])
         .map((b) => ({
@@ -129,64 +145,63 @@ export const migrateLocalBookmarks = async (bookmarks: LocalBookmark[]) => {
             manga_id: idMap[b.id],
             read_status: b.read_status,
             score: b.score,
-            created_at: b.updated_at,
+            updated_at: b.updated_at,
+            created_at: b.created_at,
         }))
 
-    if (!toUpsert.length) return { success: true }
+    if (toUpsert.length > 0) {
+        await supabase
+            .from("bookmarks")
+            .upsert(toUpsert, { onConflict: "user_id,manga_id" })
+    }
 
-    const { error } = await supabase
-        .from("bookmarks")
-        .upsert(toUpsert, { onConflict: "user_id,manga_id" })
+    // 4. Upsert Reading Progress (FIXED THE ID BUG HERE)
+    const progressData = bookmarks
+        .filter((b) => idMap[b.id] && b.manga.reading_progress?.length)
+        .flatMap((b) =>
+            b.manga.reading_progress.map((p) => ({
+                user_id: user.id,
+                manga_id: idMap[b.id], // <--- USE idMap[b.id] (UUID), NOT b.id (External)
+                chapter_number: p.chapter_number,
+            })),
+        )
 
-    if (error) return { error: error.message }
-
-    await Promise.all(
-        bookmarks
-            .filter((b) => idMap[b.id] && b.reading_progress.length)
-            .map((b) =>
-                supabase.from("reading_progress").upsert(
-                    b.reading_progress.map((p: ReadingProgress) => ({
-                        user_id: user.id,
-                        manga_id: b.id,
-                        chapter_number: p.chapter_number,
-                    })),
-                    { onConflict: "user_id,manga_id,chapter_number" },
-                ),
-            ),
-    )
+    if (progressData.length > 0) {
+        await supabase.from("reading_progress").upsert(progressData, {
+            onConflict: "user_id,manga_id,chapter_number",
+        })
+    }
 
     return { success: true }
 }
 
-export const addBookmark = async (manga: {
-    externalId: string
-    source: string
-    title: string
-    coverUrl: string
-    totalChapters?: number
-}) => {
+export const addBookmark = async (manga: Manga) => {
     const supabase = await createClient()
     const {
         data: { user },
     } = await supabase.auth.getUser()
+
     if (!user) return { error: "Not authenticated" }
 
-    const { data: existing } = await supabase
+    const sourceData = manga.manga_sources[0]
+
+    const { data: existingSource } = await supabase
         .from("manga_sources")
         .select("manga_id")
-        .eq("source", manga.source)
-        .eq("external_id", manga.externalId)
+        .eq("external_id", sourceData.external_id)
+        .eq("source", sourceData.source)
         .single()
 
-    let mangaId = existing?.manga_id
+    let mangaId = existingSource?.manga_id
 
     if (!mangaId) {
         const { data: newManga, error: mangaError } = await supabase
             .from("manga")
             .insert({
                 title: manga.title,
-                cover_url: manga.coverUrl,
-                total_chapters: manga.totalChapters,
+                cover_url: manga.cover_url,
+                total_chapters: manga.total_chapters,
+                author: manga.author,
             })
             .select("id")
             .single()
@@ -196,18 +211,47 @@ export const addBookmark = async (manga: {
 
         await supabase.from("manga_sources").insert({
             manga_id: mangaId,
-            source: manga.source,
-            external_id: manga.externalId,
-            url: `https://mangadex.org/title/${manga.externalId}`,
+            source: sourceData.source,
+            external_id: sourceData.external_id,
         })
+    } else {
+        await supabase
+            .from("manga")
+            .update({
+                title: manga.title,
+                cover_url: manga.cover_url,
+                total_chapters: manga.total_chapters,
+                author: manga.author,
+            })
+            .eq("id", mangaId)
     }
 
-    const { error } = await supabase
+    const { data: bookmarkData, error: bookmarkError } = await supabase
         .from("bookmarks")
-        .insert({ user_id: user.id, manga_id: mangaId })
+        .insert({
+            user_id: user.id,
+            manga_id: mangaId,
+            read_status: "plan_to_read",
+        })
+        .select(
+            `
+            id, read_status, score, updated_at,
+            manga (
+                id, title, cover_url, total_chapters, author, 
+                reading_progress(chapter_number),
+                manga_sources(source, external_id)
+            )
+        `,
+        )
+        .single()
 
-    if (error) return { error: error.message }
-    return { success: true }
+    if (bookmarkError) {
+        if (bookmarkError.code === "23505")
+            return { error: "Already bookmarked" }
+        return { error: bookmarkError.message }
+    }
+
+    return { success: true, data: bookmarkData }
 }
 
 export const removeBookmark = async (mangaId: string) => {
@@ -224,5 +268,6 @@ export const removeBookmark = async (mangaId: string) => {
         .eq("manga_id", mangaId)
 
     if (error) return { error: error.message }
+
     return { success: true }
 }

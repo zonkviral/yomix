@@ -22,44 +22,57 @@ export const MangaPageInfo = async ({
 }) => {
     const { mangaId } = await params
     const supabase = await createClient()
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
-    let isBookmarked = false
-    if (user) {
-        const { data } = await supabase
-            .from("manga_sources")
-            .select("manga_id, manga(bookmarks(id))")
-            .eq("source", "mangadex")
-            .eq("external_id", mangaId)
-            .eq("manga.bookmarks.user_id", user.id)
-            .single()
-        isBookmarked = !!data?.manga?.[0]?.bookmarks?.[0]
-    }
+
     const manga = await getMangaById(mangaId)
-    const coverUrl = getCoverUrl(manga)
-    const title = getTitle(
-        manga.attributes.title,
-        manga.attributes.altTitles,
-        "ru",
-    )
+
     const titleEn = getTitle(
         manga.attributes.title,
         manga.attributes.altTitles,
         "en",
     )
-    const mangaTitle = await searchMangaByName(titleEn?.[0] ?? "")
-    const mangaRu = mangaTitle && (await getMangaByName(mangaTitle[0].dir))
-    const statistic = await getMangaStatistics(mangaId)
+    const titleRu = getTitle(
+        manga.attributes.title,
+        manga.attributes.altTitles,
+        "ru",
+    )
+
+    const [
+        statistic,
+        chapterList,
+        {
+            data: { user },
+        },
+        mangaTitleResults,
+    ] = await Promise.all([
+        getMangaStatistics(mangaId),
+        getMangaChaptersList(mangaId),
+        supabase.auth.getUser(),
+        searchMangaByName(titleEn?.[0] ?? ""),
+    ])
+
+    const [mangaRu] = await Promise.all([
+        mangaTitleResults?.[0]
+            ? getMangaByName(mangaTitleResults[0].dir)
+            : Promise.resolve(null),
+
+        user
+            ? supabase
+                  .from("bookmarks")
+                  .select("id")
+                  .eq("user_id", user.id)
+                  .match({ "manga.manga_sources.external_id": mangaId })
+                  .single()
+            : Promise.resolve(false),
+    ])
+
+    const coverUrl = getCoverUrl(manga)
     const description = htmlTagsRemover(
         manga.attributes.description["ru"] ??
             (mangaRu && mangaRu.description) ??
             manga.attributes.description["en"],
     )
-    const chapterList = await getMangaChaptersList(mangaId)
-
     const fullTitle =
-        title?.[0] ??
+        titleRu?.[0] ??
         mangaRu?.rus_name ??
         titleEn?.[0] ??
         "Неизвестное название"
@@ -68,17 +81,23 @@ export const MangaPageInfo = async ({
         <MangaOverview
             id={mangaId}
             title={fullTitle}
-            isBookmarked={isBookmarked}
             coverUrl={coverUrl}
             rating={statistic.rating.average}
             description={description}
             manga={{
-                externalId: mangaId,
-                source: manga.source,
+                id: mangaId,
+                manga_sources: [
+                    {
+                        source: manga.source,
+                        external_id: mangaId,
+                        manga_id: mangaId,
+                    },
+                ],
                 author: getAuthor(manga),
                 title: fullTitle,
-                coverUrl: getCoverUrl(manga, 256) ?? "",
-                totalChapters: chapterList.length,
+                cover_url: getCoverUrl(manga, 256) ?? "",
+                total_chapters: chapterList.length,
+                reading_progress: [],
             }}
             info={{
                 author: getAuthor(manga),

@@ -1,14 +1,10 @@
 import { useAuth } from "@/context/AuthContext"
-import { useRouter } from "next/navigation"
-import { logout } from "@/actions/validation.action"
+import { logoutClient } from "@/features/auth/services/auth.service"
 
 export const UserMenu = () => {
-    const { username, refreshAuth } = useAuth()
-    const router = useRouter()
+    const { username } = useAuth()
     const handleLogout = async () => {
-        await logout()
-        await refreshAuth()
-        router.refresh()
+        await logoutClient()
     }
     return (
         <div className="ml-auto flex">

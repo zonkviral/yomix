@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import type { User } from "@supabase/supabase-js"
+import type { Session, User } from "@supabase/supabase-js"
+import { useBookmarksStore } from "@/features/bookmarks/store/bookmarks.store"
 
 type AuthContextType = {
     user: User | null
@@ -31,12 +32,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             .select("username")
             .eq("id", userId)
             .maybeSingle()
-        if (error) {
-            console.log("Error fetching profile:", error)
-        }
 
-        if (data?.username !== null) {
-            setUsername(data?.username)
+        if (error) console.error("Error fetching profile:", error)
+
+        if (data?.username) {
+            setUsername(data.username)
             return
         }
 
@@ -46,44 +46,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         setUsername(null)
+        setLoading(false)
     }
 
     useEffect(() => {
         let mounted = true
 
-        const init = async () => {
-            const { data } = await supabase.auth.getUser()
-
-            if (!mounted) return
-
-            const currentUser = data.user ?? null
-            setUser(currentUser)
-
-            if (currentUser) await fetchProfile(currentUser.id)
-
-            setLoading(false)
-        }
-
-        init()
-
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event, session) => {
-            if (!mounted) return
+        } = supabase.auth.onAuthStateChange(
+            async (event: string, session: Session) => {
+                if (!mounted) return
 
-            setLoading(true)
+                const currentUser = session?.user ?? null
+                setUser(currentUser)
 
-            const currentUser = session?.user ?? null
-            setUser(currentUser)
+                if (currentUser) {
+                    const bookmarks = await fetch("/api/bookmarks")
+                        .then((r) => r.json())
+                        .catch(() => [])
 
-            if (currentUser) {
-                await fetchProfile(currentUser.id)
-            } else {
-                setUsername(null)
-            }
+                    useBookmarksStore.getState().init(false, bookmarks)
+                    await fetchProfile(currentUser.id)
+                } else {
+                    useBookmarksStore.getState().init(true)
+                    setUsername(null)
+                }
 
-            setLoading(false)
-        })
+                setLoading(false)
+            },
+        )
 
         return () => {
             mounted = false

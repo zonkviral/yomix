@@ -6,12 +6,13 @@ import { DetailsTable } from "@/components/ui/DetailsTable/DetailsTable"
 
 import { tagTranslationMap } from "@/lib/MangaDex/mappings/tagTranslationMap"
 import { statusTranslationMap } from "@/lib/MangaDex/mappings/statusTranslationMap"
-import { MangaInfo, MangaSource } from "@/lib/supabase/type"
+import { MangaInfo, Manga } from "@/lib/supabase/type"
 
 import { Star } from "lucide-react"
 
 import Link from "next/link"
 import Image from "next/image"
+import { useMemo } from "react"
 
 interface MangaOverviewProps {
     id: string
@@ -19,7 +20,7 @@ interface MangaOverviewProps {
     coverUrl: string | null
     rating?: number
     description: string
-    manga?: MangaSource
+    manga?: Manga
     info: MangaInfo
     isBookmarked?: boolean
 }
@@ -32,8 +33,33 @@ export const MangaOverview = ({
     description,
     manga,
     info,
-    isBookmarked = false,
 }: MangaOverviewProps) => {
+    const tableData = useMemo(
+        () => [
+            { label: "Автор:", value: info.author },
+            { label: "Художник:", value: info.artist },
+            {
+                label: "Статус:",
+                value: statusTranslationMap[info.status] || info.status,
+            },
+            { label: "Год:", value: info.year },
+            {
+                label: "Теги:",
+                value: info.tags
+                    .map((tag) => tagTranslationMap[tag] || tag)
+                    .join(", "),
+            },
+            {
+                label: "Языки:",
+                value: info.languages.map((lang, index) => (
+                    <div key={index} className="relative h-4.5 w-6">
+                        <Image src={lang} alt="flag" fill sizes="24px" />
+                    </div>
+                )),
+            },
+        ],
+        [info],
+    )
     return (
         <div className="px-6 py-8">
             <div className="3xl:grid-cols-[33%_1fr] grid grid-cols-1 gap-6 md:grid-cols-[240px_1fr] xl:grid-cols-[24%_1fr] xl:gap-10 2xl:gap-14">
@@ -43,7 +69,7 @@ export const MangaOverview = ({
                             src={coverUrl ?? ""}
                             alt="cover"
                             fill
-                            loading="lazy"
+                            priority
                             className="rounded-lg object-cover shadow-lg"
                             sizes="
                         (max-width: 768px) 50vw,
@@ -60,11 +86,7 @@ export const MangaOverview = ({
                         >
                             Читать c начала
                         </Link>
-                        <BookmarkButton
-                            mangaId={id}
-                            isBookmarked={isBookmarked}
-                            manga={manga}
-                        />
+                        <BookmarkButton mangaId={id} manga={manga} />
                     </div>
                 </div>
 
@@ -90,39 +112,7 @@ export const MangaOverview = ({
                         Информация
                         <span className="bg-secondary h-0.5 flex-1" />
                     </h2>
-                    <DetailsTable
-                        data={[
-                            { label: "Автор:", value: info.author },
-                            { label: "Художник:", value: info.artist },
-                            {
-                                label: "Статус:",
-                                value: statusTranslationMap[info.status],
-                            },
-                            { label: "Год:", value: info.year },
-                            {
-                                label: "Теги:",
-                                value: info.tags
-                                    .map((tag) => tagTranslationMap[tag] || tag)
-                                    .join(", "),
-                            },
-                            {
-                                label: "языки:",
-                                value: info.languages.map((lang, index) => (
-                                    <div
-                                        key={index}
-                                        className="relative h-4.5 w-6"
-                                    >
-                                        <Image
-                                            src={lang}
-                                            alt="lang"
-                                            fill
-                                            sizes="24"
-                                        />
-                                    </div>
-                                )),
-                            },
-                        ]}
-                    />
+                    <DetailsTable data={tableData} />
                 </div>
             </div>
         </div>

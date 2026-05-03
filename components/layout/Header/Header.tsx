@@ -10,7 +10,7 @@ import Link from "next/link"
 import Image from "next/image"
 
 export const Header = () => {
-    const { user, username } = useAuth()
+    const { user, username, loading } = useAuth()
 
     return (
         <header className="bg-surface border-primary col-span-2 row-start-1 flex items-center rounded-t-sm border-b-[0.5px] px-5 py-1">
@@ -29,7 +29,15 @@ export const Header = () => {
                 </Link>
             </div>
             <SearchBar />
-            {user && username ? <UserMenu /> : <Auth />}
+            {loading ? (
+                <div className="ml-auto h-8 w-24 animate-pulse rounded bg-neutral-800" />
+            ) : user && username ? (
+                <UserMenu />
+            ) : user && !username ? (
+                <div className="ml-auto h-8 w-24 animate-pulse rounded bg-neutral-800" />
+            ) : (
+                <Auth />
+            )}
         </header>
     )
 }

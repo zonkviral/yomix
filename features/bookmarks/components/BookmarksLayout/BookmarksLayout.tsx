@@ -29,11 +29,11 @@ export const BookmarksLayout = ({
     loading = false,
 }: BookmarksLayoutProps) => {
     const continueReading = [...bookmarks]
-        .filter((b) => b.reading_progress.length > 0)
+        .filter((b) => b.manga.reading_progress.length > 0)
         .sort(
             (a, b) =>
-                new Date(b.updated_at).getTime() -
-                new Date(a.updated_at).getTime(),
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime(),
         )
         .slice(0, 10)
     const recentlyAdded = bookmarks.slice(0, 4)

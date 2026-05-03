@@ -50,7 +50,8 @@ export const BookmarkActionsMenu = ({
                             onClick={() =>
                                 handleMenuItemClick(
                                     item.id,
-                                    bookmark.manga[0].id,
+                                    bookmark.manga.manga_sources?.[0]
+                                        .external_id || "",
                                 )
                             }
                             className={`flex w-full cursor-pointer items-center rounded px-2 py-1.5 transition-colors hover:bg-neutral-700/50 ${
@@ -79,7 +80,7 @@ export const BookmarkActionsMenu = ({
                                         <button
                                             onClick={() => {
                                                 updateStatus(
-                                                    bookmark.manga[0].id,
+                                                    bookmark.manga.id,
                                                     option.value,
                                                 )
                                                 setIsOpen(false)

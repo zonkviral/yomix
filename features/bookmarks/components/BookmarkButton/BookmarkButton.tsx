@@ -3,7 +3,7 @@ import { useRef } from "react"
 
 import { useBookmark } from "../../hooks/useBookmark"
 
-import { MangaSource } from "@/lib/supabase/type"
+import { Manga } from "@/lib/supabase/type"
 
 import { Heart } from "lucide-react"
 
@@ -12,26 +12,19 @@ const ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]
 
 interface BookmarkButtonProps {
     mangaId: string
-    isBookmarked: boolean
-    manga?: MangaSource
+    manga?: Manga
 }
 
-export const BookmarkButton = ({
-    mangaId,
-    isBookmarked,
-    manga,
-}: BookmarkButtonProps) => {
-    const {
-        isBookmarked: bookmarked,
-        toggle,
-        loading,
-        hasMounted,
-    } = useBookmark(mangaId, isBookmarked, manga)
+export const BookmarkButton = ({ mangaId, manga }: BookmarkButtonProps) => {
+    const { isBookmarked, isToggling, toggle, hasMounted } = useBookmark(
+        mangaId,
+        manga,
+    )
     const btnRef = useRef<HTMLButtonElement>(null)
     const heartRef = useRef<SVGSVGElement>(null)
 
     const handleClick = async () => {
-        if (loading) return
+        if (isToggling) return
 
         const heart = heartRef.current
         if (heart) {
@@ -41,7 +34,7 @@ export const BookmarkButton = ({
                 "heartPop 0.45s cubic-bezier(.36,.07,.19,.97) forwards"
         }
 
-        if (!bookmarked && btnRef.current) {
+        if (!isBookmarked && btnRef.current) {
             ANGLES.forEach((angle, i) => {
                 const span = document.createElement("span")
                 span.className =
@@ -79,12 +72,12 @@ export const BookmarkButton = ({
                 <button
                     ref={btnRef}
                     onClick={handleClick}
-                    disabled={loading || !hasMounted}
+                    disabled={isToggling || !hasMounted}
                     className="relative cursor-pointer rounded bg-gray-700 px-2 py-1 shadow-md shadow-gray-900/50 transition hover:bg-gray-600 hover:shadow-lg hover:shadow-gray-900/70 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     <Heart
                         ref={heartRef}
-                        className={`all inline w-6 stroke-rose-600 stroke-1 transition ${bookmarked ? "fill-rose-500" : ""}`}
+                        className={`all inline w-6 stroke-rose-600 stroke-1 transition ${isBookmarked ? "fill-rose-500" : ""}`}
                     />
                 </button>
             )}

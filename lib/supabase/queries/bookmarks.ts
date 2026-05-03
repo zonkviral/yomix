@@ -8,16 +8,22 @@ export const getUserBookmarks = async (userId: string): Promise<Bookmark[]> => {
         .from("bookmarks")
         .select(
             `
-            id, read_status, score, updated_at,
-            manga (id, title, cover_url, total_chapters),
-            reading_progress (chapter_number)
+            id, read_status, score, updated_at, created_at, completed_at, started_at,
+            manga (
+                id, title, manga_sources (source, external_id), cover_url, total_chapters, author,
+                reading_progress (chapter_number)
+            )
         `,
         )
         .eq("user_id", userId)
-        .order("updated_at", { ascending: false })
+        .order("created_at", { ascending: false })
 
-    if (error) return []
-    return (data ?? []) as Bookmark[]
+    if (error) {
+        console.error("SUPABASE ERROR:", error.message)
+    }
+
+    console.log("Fetched bookmarks:", data)
+    return (data ?? []) as unknown as Bookmark[]
 }
 
 export const getUserBookmarkedIds = async (
@@ -25,16 +31,39 @@ export const getUserBookmarkedIds = async (
 ): Promise<Set<string>> => {
     const supabase = await createClient()
 
-    const { data } = await supabase
+    const { data, error } = await supabase
         .from("bookmarks")
-        .select("manga_sources!inner(external_id)")
+        .select(
+            `
+            manga!inner (
+                manga_sources (
+                    external_id
+                )
+            )
+        `,
+        )
         .eq("user_id", userId)
 
+    if (error) {
+        console.error("SUPABASE ERROR (Bookmarked IDs):", error.message)
+        return new Set()
+    }
+
     const ids = new Set<string>()
-    data?.forEach((b: { manga_sources?: { external_id: string }[] }) => {
-        b.manga_sources?.forEach((s: { external_id: string }) =>
-            ids.add(s.external_id),
-        )
-    })
+
+    data?.forEach(
+        (item: { manga: { manga_sources: { external_id: string }[] }[] }) => {
+            item.manga?.forEach((manga) => {
+                manga.manga_sources?.forEach(
+                    (source: { external_id: string }) => {
+                        if (source.external_id) {
+                            ids.add(source.external_id)
+                        }
+                    },
+                )
+            })
+        },
+    )
+
     return ids
 }

@@ -14,6 +14,12 @@ import { PasswordRulesIndicator } from "./PasswordRulesIndicator"
 
 import { register } from "@/actions/validation.action"
 
+import { migrateLocalBookmarks } from "@/features/bookmarks/actions"
+import {
+    clearLocalBookmarks,
+    getLocalBookmarks,
+} from "@/features/bookmarks/services/local-storage"
+
 import { useAuth } from "@/context/AuthContext"
 
 import { Lock, Mail, User, UserPlus } from "lucide-react"
@@ -76,10 +82,14 @@ export const RegisterForm = ({
             password: data.password,
             username: data.username,
         })
-
         if (result.error) {
             return setServerError(result.error)
         }
+        const migrateResult = await migrateLocalBookmarks(getLocalBookmarks())
+        if (migrateResult.error) {
+            return setServerError(migrateResult.error)
+        }
+        clearLocalBookmarks()
         await refreshAuth()
         router.refresh()
     }
@@ -105,13 +115,11 @@ export const RegisterForm = ({
                 <Divider />
 
                 <div className="flex flex-col gap-2 rounded text-white">
-                    {/* Server error */}
                     {serverError && (
                         <p className="rounded bg-rose-500/10 px-3 py-2 text-sm text-rose-400">
                             {serverError}
                         </p>
                     )}
-
                     <ShakeWrapper shakeKey={shakeCounters.get("username") ?? 0}>
                         <InputField
                             icon={

@@ -1,7 +1,5 @@
 import { useState } from "react"
 
-import { useRouter } from "next/navigation"
-
 import { AnimatedBorder } from "@/components/ui/AnimatedBorder/AnimatedBorder"
 import { Divider } from "@/components/ui/Divider/Divider"
 import { InputField } from "@/components/ui/InputField/InputField"
@@ -10,23 +8,19 @@ import { ShakeWrapper } from "@/components/ui/ShakeWrapper/ShakeWrapper"
 import { OAuthButtons } from "./OAuthButtons"
 import { EmailIcon, PasswordToggle } from "./FormComponents"
 
-import { login } from "@/actions/validation.action"
-
-import { useAuth } from "@/context/AuthContext"
-
 import { useFormValidation } from "../hooks/useFormValidation"
 
 import { Lock, LockKeyhole, Mail, Square, SquareCheck } from "lucide-react"
+import { loginClient } from "../services/auth.service"
 
 export const LoginForm = ({
     onSwitchToRegister,
 }: {
     onSwitchToRegister: () => void
 }) => {
-    const { refreshAuth, loading } = useAuth()
-    const router = useRouter()
     const [showPassword, setShowPassword] = useState(false)
     const [rememberMe, setRememberMe] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const {
         values,
@@ -41,17 +35,14 @@ export const LoginForm = ({
     } = useFormValidation({ email: "", password: "" }, "login")
 
     const onSubmit = async (data: typeof values) => {
-        const result = await login({
-            email: data.email,
-            password: data.password,
-        })
+        setLoading(true)
+
+        const result = await loginClient(data.email, data.password)
 
         if (result.error) {
             setServerError(result.error)
-        } else {
-            await refreshAuth()
-            router.refresh()
         }
+        setLoading(false)
     }
 
     const emailValid = !errors.email && !!values.email
