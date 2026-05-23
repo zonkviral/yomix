@@ -1,20 +1,20 @@
 "use client"
 
 import { useEffect } from "react"
-import { useReader } from "./ReaderContext"
+import { useReaderConfig, useReaderPlayback } from "./ReaderContext"
 
 import { FILTER_MAP } from "../constants"
 
 export const SingleReader = ({ pages }: { pages: string[] }) => {
-    const { index, next, prev, filter } = useReader()
+    const { filter } = useReaderConfig()
+    const { pageIndex, next, prev } = useReaderPlayback()
 
-    // Preload next 2 pages
     useEffect(() => {
         for (let i = 1; i <= 2; i++) {
-            const url = pages[index + i]
+            const url = pages[pageIndex + i]
             if (url) new Image().src = url
         }
-    }, [index, pages])
+    }, [pageIndex, pages])
 
     return (
         <>
@@ -28,9 +28,9 @@ export const SingleReader = ({ pages }: { pages: string[] }) => {
             />
             <img
                 style={{ filter: FILTER_MAP[filter] }}
-                key={index}
-                src={pages[index]}
-                alt={`Page ${index + 1}`}
+                key={pageIndex}
+                src={pages[pageIndex]}
+                alt={`Page ${pageIndex + 1}`}
                 className="h-full w-fit object-contain shadow-[1px_0px_11px_3px_black]"
             />
         </>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useReader } from "../ReaderContext"
+import { useReaderConfig } from "../ReaderContext"
 import type { ReadingMode, ReaderFilter, ReaderBgColor } from "../ReaderContext"
 
 import { IconButton } from "@/components/ui/IconButton/IconButton"
@@ -28,7 +28,7 @@ export const SettingsModal = ({ onClose }: Props) => {
         setFilter,
         bgColor,
         setBgColor,
-    } = useReader()
+    } = useReaderConfig()
 
     const readingModeIndex = READING_MODES.findIndex(
         (m) => m.value === readingMode,

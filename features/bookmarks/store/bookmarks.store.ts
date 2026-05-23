@@ -6,6 +6,7 @@ import { createInitSlice } from "./slices/init.slice"
 import { createToggleSlice } from "./slices/toggle.slice"
 import { createStatusSlice } from "./slices/status.slice"
 import { createRemoveSlice } from "./slices/remove.slice"
+import { createProgressSlice } from "./slices/progress.slice"
 
 export const useBookmarksStore = create<BookmarksStore>((set, get) => ({
     bookmarks: [],
@@ -23,4 +24,5 @@ export const useBookmarksStore = create<BookmarksStore>((set, get) => ({
     ...createToggleSlice(set, get),
     ...createStatusSlice(set, get),
     ...createRemoveSlice(set, get),
+    ...createProgressSlice(set, get),
 }))

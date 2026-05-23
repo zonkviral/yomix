@@ -28,7 +28,7 @@ create table if not exists public.manga (
   title     text not null,
   author    text,
   status    text,
-  total_chapters int,
+  total_chapters float,
   cover_url text,
   cached_at timestamp with time zone default now()
 );
@@ -66,23 +66,6 @@ create table if not exists public.bookmarks (
   unique(user_id, manga_id)
 );
 
-
--- ============================================================
--- CHAPTERS
--- ============================================================
-create table if not exists public.chapters (
-  id             uuid primary key default gen_random_uuid(),
-  manga_id       uuid references public.manga(id) on delete cascade not null,
-  source         text not null,
-  language       text not null,
-  chapter_number float not null,
-  external_id    text,
-  published_at   timestamp with time zone,
-  cached_at      timestamp with time zone default now(),
-  unique(manga_id, chapter_number, language, source)
-);
-
-
 -- ============================================================
 -- READING PROGRESS
 -- ============================================================
@@ -91,27 +74,11 @@ create table if not exists public.reading_progress (
   user_id        uuid references public.profiles(id) on delete cascade not null,
   manga_id       uuid references public.manga(id) on delete cascade not null,
   chapter_number float not null,
+  chapter_id     text, 
   page_number    int default 1,
-  read_at        timestamp with time zone default now(),
   updated_at     timestamp with time zone default now(),
-  unique(user_id, manga_id, chapter_number)
+  unique(user_id, manga_id)
 );
-
-
--- ============================================================
--- READING SESSIONS
--- ============================================================
-create table if not exists public.reading_sessions (
-  id               uuid primary key default gen_random_uuid(),
-  user_id          uuid references public.profiles(id) on delete cascade not null,
-  manga_id         uuid references public.manga(id) on delete cascade not null,
-  chapters_read    int default 1,
-  duration_seconds int,
-  session_date     date default current_date,
-  created_at       timestamp with time zone default now(),
-  unique(user_id, manga_id, session_date)
-);
-
 
 -- ============================================================
 -- LISTS
@@ -147,7 +114,6 @@ create table if not exists public.list_items (
 create table if not exists public.user_stats (
   user_id         uuid references public.profiles(id) on delete cascade primary key,
   total_chapters  int default 0,
-  total_time_mins int default 0,
   updated_at      timestamp with time zone default now()
 );
 
@@ -217,33 +183,28 @@ create trigger on_profile_created
   after insert on public.profiles
   for each row execute function public.handle_new_profile();
 
--- 3. increment total_chapters on new reading session
-create or replace function public.update_user_stats()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
+-- 3. total_chapters
+create or replace function public.update_stats_on_progress()
+returns trigger language plpgsql security definer set search_path = ''
 as $$
 begin
-  insert into public.user_stats (user_id, total_chapters, total_time_mins)
-  values (
-    new.user_id,
-    new.chapters_read,
-    coalesce(new.duration_seconds, 0) / 60
-  )
-  on conflict (user_id) do update set
-    total_chapters  = public.user_stats.total_chapters + new.chapters_read,
-    total_time_mins = public.user_stats.total_time_mins + coalesce(new.duration_seconds, 0) / 60,
-    updated_at      = now();
-  return new;
+    update public.user_stats
+    set
+        total_chapters = (
+            select coalesce(sum(floor(chapter_number)), 0)
+            from public.reading_progress
+            where user_id = NEW.user_id
+        ),
+        updated_at = now()
+    where user_id = NEW.user_id;
+    return NEW;
 end;
 $$;
 
-drop trigger if exists on_reading_session on public.reading_sessions;
-create trigger on_reading_session
-  after insert on public.reading_sessions
-  for each row execute function public.update_user_stats();
-
+drop trigger if exists on_reading_progress_update on public.reading_progress;
+create trigger on_reading_progress_update
+  after insert or update on public.reading_progress
+  for each row execute function public.update_stats_on_progress();
 
 -- 4. auto-update updated_at on row update
 create or replace function public.update_timestamp()
@@ -284,10 +245,8 @@ create trigger set_progress_timestamp
 alter table public.profiles         enable row level security;
 alter table public.manga            enable row level security;
 alter table public.manga_sources    enable row level security;
-alter table public.chapters         enable row level security;
 alter table public.bookmarks        enable row level security;
 alter table public.reading_progress enable row level security;
-alter table public.reading_sessions enable row level security;
 alter table public.lists            enable row level security;
 alter table public.list_items       enable row level security;
 alter table public.user_stats       enable row level security;
@@ -298,45 +257,123 @@ alter table public.subscriptions    enable row level security;
 -- POLICIES
 -- ============================================================
 
--- public read
-create policy "manga public read"         on public.manga         for select using (true);
-create policy "manga_sources public read" on public.manga_sources for select using (true);
-create policy "chapters public read"      on public.chapters      for select using (true);
+create policy "manga public read"
+  on public.manga
+  for select
+  to authenticated
+  using (true);
 
--- profiles
-create policy "profiles public read" on public.profiles
-  for select using (is_public = true);
+create policy "manga insert (cache)"
+  on public.manga
+  for insert
+  to authenticated
+  with check (true);
 
-create policy "own profile" on public.profiles for all
+create policy "manga update (cache)"
+  on public.manga
+  for update
+  to authenticated
+  using (true)
+  with check (true);
+
+-- ============================================================
+-- MANGA_SOURCES (cache for authenticated)
+-- ============================================================
+create policy "manga_sources public read"
+  on public.manga_sources
+  for select
+  to authenticated
+  using (true);
+
+create policy "manga_sources insert (cache)"
+  on public.manga_sources
+  for insert
+  to authenticated
+  with check (true);
+
+create policy "manga_sources update (cache)"
+  on public.manga_sources
+  for update
+  to authenticated
+  using (true)
+  with check (true);
+
+-- Public read (only if is_public = true)
+create policy "profiles public read"
+  on public.profiles
+  for select
+  to authenticated
+  using (is_public = true);
+
+-- Own profile read
+create policy "own profile select"
+  on public.profiles
+  for select
+  to authenticated
+  using (auth.uid() = id);
+
+-- Own profile insert
+create policy "own profile insert"
+  on public.profiles
+  for insert
+  to authenticated
+  with check (auth.uid() = id);
+
+-- Own profile update
+create policy "own profile update"
+  on public.profiles
+  for update
+  to authenticated
   using (auth.uid() = id)
   with check (auth.uid() = id);
 
+-- Own profile delete
+create policy "own profile delete"
+  on public.profiles
+  for delete
+  to authenticated
+  using (auth.uid() = id);
+
 -- user owned
-create policy "own bookmarks" on public.bookmarks for all
+create policy "own bookmarks"
+  on public.bookmarks
+  for all
+  to authenticated
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
-create policy "own progress" on public.reading_progress for all
+create policy "own progress"
+  on public.reading_progress
+  for all
+  to authenticated
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
-create policy "own sessions" on public.reading_sessions for all
+create policy "own lists"
+  on public.lists
+  for all
+  to authenticated
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
-create policy "own lists" on public.lists for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-create policy "own list items" on public.list_items for all
+create policy "own list items"
+  on public.list_items
+  for all
+  to authenticated
   using (auth.uid() = (select user_id from public.lists where id = list_id))
   with check (auth.uid() = (select user_id from public.lists where id = list_id));
 
-create policy "own stats" on public.user_stats for all
+create policy "own stats"
+  on public.user_stats
+  for all
+  to authenticated
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
-create policy "own subscription" on public.subscriptions for all
+create policy "own subscription"
+  on public.subscriptions
+  for all
+  to authenticated
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
@@ -348,10 +385,7 @@ create index if not exists idx_bookmarks_user       on public.bookmarks (user_id
 create index if not exists idx_bookmarks_manga      on public.bookmarks (manga_id);
 create index if not exists idx_bookmarks_status     on public.bookmarks (user_id, read_status);
 create index if not exists idx_progress_user_manga  on public.reading_progress (user_id, manga_id);
-create index if not exists idx_sessions_user        on public.reading_sessions (user_id);
 create index if not exists idx_list_items_list      on public.list_items (list_id);
-create index if not exists idx_chapters_manga       on public.chapters (manga_id);
-create index if not exists idx_chapters_published   on public.chapters (published_at desc);
 create index if not exists idx_lists_user           on public.lists (user_id);
 create index if not exists idx_manga_sources_manga  on public.manga_sources (manga_id);
 create index if not exists idx_manga_sources_lookup on public.manga_sources (source, external_id);

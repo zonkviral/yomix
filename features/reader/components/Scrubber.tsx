@@ -3,12 +3,12 @@
 
 import { useRef, useState, memo, useCallback } from "react"
 
-import { useReader } from "./ReaderContext"
+import { useReaderPlayback } from "./ReaderContext"
 
 const MAX_DASHES = 60
 
 const ScrubberBase = () => {
-    const { index, setIndex, totalPages, pagesThumbs } = useReader()
+    const { pageIndex, setIndex, totalPages, pagesThumbs } = useReaderPlayback()
     const trackRef = useRef<HTMLDivElement>(null)
     const [hoverDash, setHoverDash] = useState<number | null>(null)
     const frame = useRef<number>(0)
@@ -17,7 +17,7 @@ const ScrubberBase = () => {
     const pagesPerDash = totalPages / dashCount
     const dashToPage = (d: number) =>
         Math.min(Math.round(d * pagesPerDash), totalPages - 1)
-    const activeDash = Math.floor(index / pagesPerDash)
+    const activeDash = Math.floor(pageIndex / pagesPerDash)
 
     const dashFromEvent = useCallback(
         (e: React.MouseEvent): number | null => {

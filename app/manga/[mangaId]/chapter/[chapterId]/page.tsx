@@ -8,13 +8,24 @@ import { getTitle } from "@/utils/getTitle"
 
 const ChapterPage = async ({
     params,
+    searchParams,
 }: {
     params: Promise<{ mangaId: string; chapterId: string }>
+    searchParams: Promise<{ page?: string }>
 }) => {
-    const { mangaId } = await params
-    const manga = await getMangaById(mangaId)
-    const chapterList = await getMangaChaptersList(mangaId)
-    const firstChapter = await getMangaChapter(chapterList[0].id)
+    const { mangaId, chapterId } = await params
+    const { page } = await searchParams
+
+    const initialPage = page ? parseInt(page) - 1 : 0
+
+    const [manga, chapterList] = await Promise.all([
+        getMangaById(mangaId),
+        getMangaChaptersList(mangaId),
+    ])
+
+    const mangaChapter = await getMangaChapter(
+        chapterId !== "1" ? chapterId : chapterList[0].id,
+    )
     const mangaTitle =
         getTitle(
             manga.attributes.title,
@@ -27,17 +38,18 @@ const ChapterPage = async ({
             "en",
         )?.[0] ??
         Object.values(manga.attributes.title)[0]
-    const initialPages = firstChapter.chapter.data.map(
+
+    const initialPages = mangaChapter.chapter.data.map(
         (file: string) =>
             `/api/mangadex-image?url=${encodeURIComponent(
-                `${firstChapter.baseUrl}/data/${firstChapter.chapter.hash}/${file}`,
+                `${mangaChapter.baseUrl}/data/${mangaChapter.chapter.hash}/${file}`,
             )}`,
     )
 
-    const initialPagesThumbs = firstChapter.chapter.dataSaver.map(
+    const initialPagesThumbs = mangaChapter.chapter.dataSaver.map(
         (file: string) =>
             `/api/mangadex-image?url=${encodeURIComponent(
-                `${firstChapter.baseUrl}/data-saver/${firstChapter.chapter.hash}/${file}`,
+                `${mangaChapter.baseUrl}/data-saver/${mangaChapter.chapter.hash}/${file}`,
             )}`,
     )
 
@@ -45,7 +57,8 @@ const ChapterPage = async ({
         <MangaReader
             mangaTitle={mangaTitle}
             mangaId={mangaId}
-            initialChapterId={chapterList[0].id}
+            initialChapterId={chapterId !== "1" ? chapterId : chapterList[0].id}
+            initialPage={initialPage}
             initialPages={initialPages}
             initialPagesThumbs={initialPagesThumbs}
             chapterList={chapterList}

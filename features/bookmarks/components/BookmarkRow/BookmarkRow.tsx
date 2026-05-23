@@ -10,6 +10,8 @@ import { Bookmark } from "@/lib/supabase/type"
 import {
     getExternalId,
     getLastChapter,
+    getLastChapterId,
+    getLastPage,
     getTotalChapters,
 } from "../../utils/helpers"
 
@@ -28,9 +30,11 @@ export const BookmarkRow = ({ bookmark }: BookmarkRowProps) => {
     const menuRef = useRef<HTMLDivElement>(null)
     const [isOpen, setIsOpen] = useState(false)
 
+    const lastReadChapterId = getLastChapterId(bookmark)
     const lastReadChapter = getLastChapter(bookmark)
     const totalChapters = getTotalChapters(bookmark)
     const externalId = getExternalId(bookmark)
+    const lastReadPage = getLastPage(bookmark)
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -93,7 +97,7 @@ export const BookmarkRow = ({ bookmark }: BookmarkRowProps) => {
                 {totalChapters && totalChapters > 0 ? (
                     <div>
                         <Link
-                            href={`/manga/${externalId}/chapter/${lastReadChapter ?? 1}`}
+                            href={`/manga/${externalId}/chapter/${lastReadChapterId ?? 1}?page=${lastReadPage !== undefined ? lastReadPage : 1}`}
                             className="relative z-20 mt-auto block rounded p-1 hover:bg-neutral-800"
                         >
                             <ProgressBar

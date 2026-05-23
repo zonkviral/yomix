@@ -1,6 +1,6 @@
 import { IconButton } from "@/components/ui/IconButton/IconButton"
 
-import { useReader } from "../ReaderContext"
+import { useReaderConfig, useReaderPlayback } from "../ReaderContext"
 import { useReaderUI } from "./ReaderUIContext"
 import { SettingsModal } from "./SettingsModal"
 
@@ -8,7 +8,8 @@ import { ChevronLeft, Maximize2, Menu, Settings, X } from "lucide-react"
 import Link from "next/link"
 
 export const ReaderTopBar = () => {
-    const { index, totalPages, mangaTitle } = useReader()
+    const { mangaTitle } = useReaderConfig()
+    const { pageIndex, totalPages } = useReaderPlayback()
     const {
         hudClass,
         sidebarOpen,
@@ -60,7 +61,7 @@ export const ReaderTopBar = () => {
             </div>
             <div className="flex items-center justify-end gap-1">
                 <span className="mr-2 font-mono text-sm text-white/60">
-                    Page {index + 1} of {totalPages}
+                    Page {pageIndex + 1} of {totalPages}
                 </span>
                 <IconButton onClick={toggleSettings}>
                     <Settings

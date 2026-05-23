@@ -5,14 +5,13 @@ import { createClient } from "@/lib/supabase/server"
 import { Manga } from "@/lib/supabase/type"
 
 export const addBookmark = async (manga: Manga) => {
+    const sourceData = manga.manga_sources[0]
     const supabase = await createClient()
     const {
         data: { user },
     } = await supabase.auth.getUser()
 
     if (!user) return { error: "Not authenticated" }
-
-    const sourceData = manga.manga_sources[0]
 
     const { data: existingSource } = await supabase
         .from("manga_sources")

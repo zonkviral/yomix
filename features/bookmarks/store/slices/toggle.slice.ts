@@ -118,7 +118,6 @@ const handleAdd = async ({
         })
         return
     }
-
     const result = await addBookmark(manga)
     if (result.error) {
         console.error("addBookmark failed:", result.error)

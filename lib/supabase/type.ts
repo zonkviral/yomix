@@ -6,9 +6,9 @@ export type ReadStatus =
     | "plan_to_read"
 
 export interface UserStats {
-    total_chapters: number
-    total_time_mins: number
-    total_manga: number
+    total_chapters?: number
+    total_manga_reading: number
+    total_manga_completed: number
 }
 
 export interface Manga {
@@ -31,9 +31,8 @@ export interface Collection {
 }
 
 export interface ReadingProgress {
-    user_id: string
-    manga_id: string
     chapter_number: number
+    chapter_id: string
     page_number?: number
     read_at?: string
     updated_at?: string
@@ -59,6 +58,7 @@ export interface MangaInfo {
 }
 
 export interface MangaSource {
+    id: string
     manga_id: string
     source: string
     external_id: string

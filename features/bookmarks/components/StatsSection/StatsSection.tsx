@@ -1,17 +1,13 @@
-interface Stat {
-    total_manga: number
-    total_chapters: number
-    total_time_mins: number
-}
+import { UserStats } from "@/lib/supabase/type"
 
 interface StatsSectionProps {
-    stats: Stat
+    stats: UserStats
 }
 
 const statItems = [
-    { key: "total_manga", label: "Манга" },
+    { key: "total_manga_completed", label: "Манга" },
+    { key: "total_manga_reading", label: "Читаю" },
     { key: "total_chapters", label: "Главы" },
-    { key: "total_time_mins", label: "Минуты" },
 ] as const
 
 export const StatsSection = ({ stats }: StatsSectionProps) => (

@@ -54,31 +54,32 @@ export const removeLocalBookmark = (mangaId: string) => {
 
 export const updateLocalReadingProgress = (
     mangaId: string,
+    chapterId: string,
     chapterNumber: number,
+    pageNumber: number,
 ) => {
     const bookmarks = getLocalBookmarks()
     const updated = bookmarks.map((b) => {
         if (b.id !== mangaId) return b
-        const existing = b.manga.reading_progress.find(
-            (p) => p.chapter_number === chapterNumber,
-        )
-        const newProgress = existing
-            ? b.manga.reading_progress
-            : [...b.manga.reading_progress, { chapter_number: chapterNumber }]
 
         return {
             ...b,
             updated_at: new Date().toISOString(),
             manga: {
                 ...b.manga,
-                reading_progress: newProgress.sort(
-                    (a, b) => a.chapter_number - b.chapter_number,
-                ),
+                reading_progress: [
+                    {
+                        chapter_number: chapterNumber,
+                        chapter_id: chapterId,
+                        page_number: pageNumber,
+                    },
+                ],
             },
         }
     })
     localStorage.setItem(KEY, JSON.stringify(updated))
 }
+
 export const updateLocalReadStatus = (mangaId: string, status: string) => {
     const bookmarks = getLocalBookmarks()
     const updated = bookmarks.map((b) => {

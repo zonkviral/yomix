@@ -1,8 +1,8 @@
-import { useReader } from "../components/ReaderContext"
+import { useReaderConfig, useReaderPlayback } from "../components/ReaderContext"
 
 export const useChapterNavigation = () => {
-    const { chapterList, currentChapterId, switchChapter, chapterLoading } =
-        useReader()
+    const { chapterList, currentChapterId, switchChapter } = useReaderConfig()
+    const { chapterLoading } = useReaderPlayback()
 
     const currentIndex = chapterList.findIndex((c) => c.id === currentChapterId)
     const prevChapter = chapterList[currentIndex - 1] ?? null

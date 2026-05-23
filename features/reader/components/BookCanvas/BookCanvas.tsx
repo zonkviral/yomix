@@ -7,7 +7,7 @@ import { PageFlip } from "page-flip"
 import { initBook, BookCache } from "./initConfig"
 import { BookStructure } from "./buildStructure"
 
-import { useReader } from "../ReaderContext"
+import { useReaderConfig } from "../ReaderContext"
 
 import { FILTER_MAP } from "../../constants"
 
@@ -20,7 +20,7 @@ interface Props {
 
 export const BookCanvas = memo(
     ({ pages, currentIndex, onFlip, cacheRef }: Props) => {
-        const { filter } = useReader()
+        const { filter } = useReaderConfig()
         const containerRef = useRef<HTMLDivElement>(null)
         const flipBookRef = useRef<PageFlip | null>(null)
         const pageToSlotRef = useRef<number[]>([])
@@ -33,7 +33,6 @@ export const BookCanvas = memo(
             onFlipRef.current = onFlip
         }, [onFlip])
 
-        // reinit only when pages array changes (chapter switch)
         useEffect(() => {
             const container = containerRef.current
             if (!container) return

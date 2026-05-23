@@ -2,28 +2,27 @@
 
 import { useEffect, useRef } from "react"
 
-import { useReader } from "./ReaderContext"
+import { useReaderConfig, useReaderPlayback } from "./ReaderContext"
 
 import { FILTER_MAP } from "../constants"
 
 export const WebtoonReader = ({ pages }: { pages: string[] }) => {
-    const { index, setIndex, filter } = useReader()
+    const { filter } = useReaderConfig()
+    const { pageIndex, setIndex } = useReaderPlayback()
     const imgRefs = useRef<(HTMLDivElement | null)[]>([])
     const observerRef = useRef<IntersectionObserver | null>(null)
     const isScrollingToRef = useRef(false)
 
-    // External index change (mode switch) → scroll to position
     useEffect(() => {
-        const el = imgRefs.current[index]
+        const el = imgRefs.current[pageIndex]
         if (!el) return
         isScrollingToRef.current = true
         el.scrollIntoView({ behavior: "smooth", block: "start" })
         setTimeout(() => {
             isScrollingToRef.current = false
         }, 800)
-    }, [index])
+    }, [pageIndex])
 
-    // Track visible page → report to context
     useEffect(() => {
         observerRef.current?.disconnect()
 

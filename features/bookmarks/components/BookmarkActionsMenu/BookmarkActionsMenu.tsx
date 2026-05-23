@@ -39,7 +39,7 @@ export const BookmarkActionsMenu = ({
     return (
         <List
             items={menuItems}
-            className="absolute right-7 z-30 rounded bg-neutral-800 p-2 text-sm text-white shadow"
+            className="absolute right-7 z-20 z-30 w-54 rounded bg-neutral-800 p-2 text-sm text-white shadow"
             keyExtractor={(item) => item.label}
             listClassName="relative"
             renderItem={(item) => {

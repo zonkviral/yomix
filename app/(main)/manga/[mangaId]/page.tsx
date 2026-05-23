@@ -88,6 +88,7 @@ export const MangaPageInfo = async ({
                 id: mangaId,
                 manga_sources: [
                     {
+                        id: "",
                         source: manga.source,
                         external_id: mangaId,
                         manga_id: mangaId,
@@ -96,7 +97,10 @@ export const MangaPageInfo = async ({
                 author: getAuthor(manga),
                 title: fullTitle,
                 cover_url: getCoverUrl(manga, 256) ?? "",
-                total_chapters: chapterList.length,
+                total_chapters: parseFloat(
+                    chapterList[chapterList.length - 1]?.attributes.chapter ||
+                        "0",
+                ),
                 reading_progress: [],
             }}
             info={{

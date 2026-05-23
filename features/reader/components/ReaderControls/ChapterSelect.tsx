@@ -2,7 +2,7 @@
 
 import * as Select from "@radix-ui/react-select"
 
-import { useReader } from "../ReaderContext"
+import { useReaderConfig, useReaderPlayback } from "../ReaderContext"
 import { useReaderUI } from "./ReaderUIContext"
 
 import { cn } from "@/utils/cn"
@@ -10,8 +10,8 @@ import { cn } from "@/utils/cn"
 import { ChevronDown, Check } from "lucide-react"
 
 export const ChapterSelect = () => {
-    const { chapterList, currentChapterId, switchChapter, chapterLoading } =
-        useReader()
+    const { chapterList, currentChapterId, switchChapter } = useReaderConfig()
+    const { chapterLoading } = useReaderPlayback()
     const { setSelectOpen } = useReaderUI()
     const current = chapterList.find((c) => c.id === currentChapterId)
     return (

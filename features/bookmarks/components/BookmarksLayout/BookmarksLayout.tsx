@@ -17,7 +17,7 @@ interface BookmarksLayoutProps {
     bookmarks: Bookmark[]
     collections?: Collection[]
     showSavePrompt?: boolean
-    stats?: UserStats | null
+    stats?: { total_chapters: number } | null
     loading?: boolean
 }
 
@@ -37,6 +37,16 @@ export const BookmarksLayout = ({
         )
         .slice(0, 10)
     const recentlyAdded = bookmarks.slice(0, 4)
+
+    const userStats: UserStats = {
+        ...stats,
+        total_manga_completed: bookmarks.filter(
+            (b) => b.read_status === "completed",
+        ).length,
+        total_manga_reading: bookmarks.filter(
+            (b) => b.read_status === "reading",
+        ).length,
+    }
 
     return (
         <div className="grid grid-cols-[1fr_17.5rem] gap-8 p-4">
@@ -107,9 +117,11 @@ export const BookmarksLayout = ({
                 {stats && (
                     <StatsSection
                         stats={{
-                            total_manga: stats?.total_manga ?? 0,
-                            total_chapters: stats?.total_chapters ?? 0,
-                            total_time_mins: stats?.total_time_mins ?? 0,
+                            total_manga_completed:
+                                userStats?.total_manga_completed ?? 0,
+                            total_chapters: userStats?.total_chapters ?? 0,
+                            total_manga_reading:
+                                userStats?.total_manga_reading ?? 0,
                         }}
                     />
                 )}

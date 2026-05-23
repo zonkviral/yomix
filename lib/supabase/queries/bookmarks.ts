@@ -10,19 +10,17 @@ export const getUserBookmarks = async (userId: string): Promise<Bookmark[]> => {
             `
             id, read_status, score, updated_at, created_at, completed_at, started_at,
             manga (
-                id, title, manga_sources (source, external_id), cover_url, total_chapters, author,
-                reading_progress (chapter_number)
+                id, title, cover_url, total_chapters, author,
+                manga_sources (id, source, external_id),
+                reading_progress (chapter_id, chapter_number, page_number)
             )
         `,
         )
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
 
-    if (error) {
-        console.error("SUPABASE ERROR:", error.message)
-    }
+    if (error) console.error("getUserBookmarks error:", error.message)
 
-    console.log("Fetched bookmarks:", data)
     return (data ?? []) as unknown as Bookmark[]
 }
 
