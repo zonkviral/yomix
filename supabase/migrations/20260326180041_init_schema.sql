@@ -13,7 +13,6 @@ create table if not exists public.profiles (
   avatar_url text,
   bio        text,
   banner_url text,
-  plan       text default 'free',
   is_public  boolean default true,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
@@ -26,6 +25,7 @@ create table if not exists public.profiles (
 create table if not exists public.manga (
   id        uuid primary key default gen_random_uuid(),
   title     text not null,
+  title_en  text,
   author    text,
   status    text,
   total_chapters float,
@@ -87,11 +87,14 @@ create table if not exists public.lists (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid references public.profiles(id) on delete cascade not null,
   name        text not null,
-  description text,
+  icon        text,
+  color       text,
   is_public   boolean default false,
   position    int default 0,
   created_at  timestamp with time zone default now(),
   updated_at  timestamp with time zone default now()
+  
+  constraint lists_name_length check (char_length(name) <= 32)
 );
 
 
@@ -102,7 +105,6 @@ create table if not exists public.list_items (
   id       uuid primary key default gen_random_uuid(),
   list_id  uuid references public.lists(id) on delete cascade not null,
   manga_id uuid references public.manga(id) on delete cascade not null,
-  position int default 0,
   added_at timestamp with time zone default now(),
   unique(list_id, manga_id)
 );
@@ -217,6 +219,33 @@ begin
   return NEW;
 end;
 $$;
+
+-- 5. limit lists to 12 per user
+create or replace function public.check_lists_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  list_count int;
+begin
+  select count(*) into list_count
+  from public.lists
+  where user_id = NEW.user_id;
+
+  if list_count >= 12 then
+    raise exception 'Collection limit reached (12 max)';
+  end if;
+
+  return NEW;
+end;
+$$;
+
+drop trigger if exists on_list_insert_limit on public.lists;
+create trigger on_list_insert_limit
+  before insert on public.lists
+  for each row execute function public.check_lists_limit();
 
 drop trigger if exists set_profile_timestamp on public.profiles;
 create trigger set_profile_timestamp
@@ -381,6 +410,7 @@ create policy "own subscription"
 -- ============================================================
 -- INDEXES
 -- ============================================================
+create index if not exists idx_bookmarks_score      on public.bookmarks (user_id, score);
 create index if not exists idx_bookmarks_user       on public.bookmarks (user_id);
 create index if not exists idx_bookmarks_manga      on public.bookmarks (manga_id);
 create index if not exists idx_bookmarks_status     on public.bookmarks (user_id, read_status);
@@ -389,3 +419,5 @@ create index if not exists idx_list_items_list      on public.list_items (list_i
 create index if not exists idx_lists_user           on public.lists (user_id);
 create index if not exists idx_manga_sources_manga  on public.manga_sources (manga_id);
 create index if not exists idx_manga_sources_lookup on public.manga_sources (source, external_id);
+create index if not exists idx_manga_title_ru       on public.manga using gin(to_tsvector('russian', title));
+create index if not exists idx_manga_title_en       on public.manga using gin(to_tsvector('english', coalesce(title_en, '')));
