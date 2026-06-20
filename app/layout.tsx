@@ -20,7 +20,11 @@ export default function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <html lang="en" className={`${inter.variable} ${nunito.variable}`}>
+        <html
+            lang="en"
+            className={`${inter.variable} ${nunito.variable}`}
+            suppressHydrationWarning
+        >
             <body>
                 <AuthProvider>{children}</AuthProvider>
             </body>

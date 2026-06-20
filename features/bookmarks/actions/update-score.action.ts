@@ -16,5 +16,6 @@ export const updateScore = async (mangaId: string, score: number) => {
         .eq("manga_id", mangaId)
 
     if (error) return { error: error.message }
+
     return { success: true }
 }

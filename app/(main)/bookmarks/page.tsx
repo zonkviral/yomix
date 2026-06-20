@@ -1,13 +1,14 @@
 import { Suspense } from "react"
-
 import { BookmarksPageGuest } from "@/features/bookmarks/components/BookmarksPageGuest/BookmarksPageGuest"
 import { BookmarksPageAuth } from "@/features/bookmarks/components/BookmarksPageAuth/BookmarksPageAuth"
 import { BookmarksSkeleton } from "@/features/bookmarks/components/BookmarksSkeleton/BookmarksSkeleton"
 
-import { getUserBookmarks } from "@/lib/supabase/queries/bookmarks"
+import { getBookmarkStatusCounts } from "@/lib/supabase/queries/getBookmarksCounts"
 import { getUserCollections } from "@/lib/supabase/queries/collections"
 import { getUserStats } from "@/lib/supabase/queries/stats"
 import { createClient } from "@/lib/supabase/server"
+import { getContinueReading } from "@/lib/supabase/queries/continue-reading"
+import { getRecentlyAdded } from "@/lib/supabase/queries/recently-added"
 
 const BookmarksContent = async () => {
     const supabase = await createClient()
@@ -17,17 +18,22 @@ const BookmarksContent = async () => {
 
     if (!user) return <BookmarksPageGuest />
 
-    const [bookmarks, stats, collections] = await Promise.all([
-        getUserBookmarks(user.id),
-        getUserStats(user.id),
-        getUserCollections(user.id),
-    ])
+    const [continueReading, recentlyAdded, stats, collections, statusCounts] =
+        await Promise.all([
+            getContinueReading(user.id),
+            getRecentlyAdded(user.id),
+            getUserStats(user.id),
+            getUserCollections(user.id),
+            getBookmarkStatusCounts(user.id),
+        ])
 
     return (
         <BookmarksPageAuth
-            bookmarks={bookmarks}
+            continueReading={continueReading}
+            recentlyAdded={recentlyAdded}
             stats={stats}
             collections={collections}
+            statusCounts={statusCounts}
         />
     )
 }

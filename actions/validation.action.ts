@@ -9,7 +9,6 @@ export const register = async (formData: {
 }) => {
     const { email, password, username } = formData
 
-    // Server-side validation — never trust the client
     if (!username || username.trim().length < 3)
         return { error: "Имя пользователя слишком короткое" }
 
@@ -24,7 +23,7 @@ export const register = async (formData: {
 
     const supabase = await createClient()
 
-    // 1. Create auth user
+    // Create auth user
     const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
@@ -36,7 +35,7 @@ export const register = async (formData: {
     if (authError) return { error: authError.message }
     if (!authData.user) return { error: "Не удалось создать аккаунт" }
 
-    // 2. Upsert profile — don't rely on trigger alone
+    // Upsert profile
     const { error: profileError } = await supabase
         .from("profiles")
         .upsert({ id: authData.user.id, username: username.trim() })

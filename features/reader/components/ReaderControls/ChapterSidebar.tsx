@@ -20,6 +20,7 @@ export const ChapterSidebar = () => {
     const { sidebarOpen } = useReaderUI()
     const activeRef = useRef<HTMLButtonElement>(null)
     const isRead = findByExternalId(bookmarks, mangaId)
+
     useEffect(() => {
         if (!sidebarOpen) return
 

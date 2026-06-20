@@ -1,10 +1,46 @@
 import { createClient } from "@/lib/supabase/server"
 import { Bookmark } from "../type"
+import { PAGE_SIZE } from "./bookmarks.constants"
 
-export const getUserBookmarks = async (userId: string): Promise<Bookmark[]> => {
+export interface BookmarkFilters {
+    q?: string
+    status?: string
+    collectionId?: string
+    sort?: string
+    page?: number
+}
+
+export interface BookmarksResult {
+    data: Bookmark[]
+    count: number
+}
+
+export const getUserBookmarks = async (
+    userId: string,
+    filters: BookmarkFilters = {},
+): Promise<BookmarksResult> => {
+    const {
+        q,
+        status,
+        sort = "created_at:desc",
+        collectionId,
+        page = 0,
+    } = filters
+
     const supabase = await createClient()
+    const [sortBy, sortDir] = sort.split(":") as [string, "asc" | "desc"]
 
-    const { data, error } = await supabase
+    let collectionMangaIds: string[] | null = null
+    if (collectionId) {
+        const { data } = await supabase
+            .from("list_items")
+            .select("manga_id")
+            .eq("list_id", collectionId)
+        collectionMangaIds = data?.map((i) => i.manga_id) ?? []
+        if (collectionMangaIds.length === 0) return { data: [], count: 0 }
+    }
+
+    let query = supabase
         .from("bookmarks")
         .select(
             `
@@ -15,53 +51,42 @@ export const getUserBookmarks = async (userId: string): Promise<Bookmark[]> => {
                 reading_progress (chapter_id, chapter_number, page_number)
             )
         `,
-        )
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-
-    if (error) console.error("getUserBookmarks error:", error.message)
-
-    return (data ?? []) as unknown as Bookmark[]
-}
-
-export const getUserBookmarkedIds = async (
-    userId: string,
-): Promise<Set<string>> => {
-    const supabase = await createClient()
-
-    const { data, error } = await supabase
-        .from("bookmarks")
-        .select(
-            `
-            manga!inner (
-                manga_sources (
-                    external_id
-                )
-            )
-        `,
+            { count: "exact" },
         )
         .eq("user_id", userId)
 
-    if (error) {
-        console.error("SUPABASE ERROR (Bookmarked IDs):", error.message)
-        return new Set()
+    if (!collectionId && status && status !== "all") {
+        query = query.eq("read_status", status)
+    }
+    if (collectionMangaIds) {
+        query = query.in("manga_id", collectionMangaIds)
     }
 
-    const ids = new Set<string>()
+    if (q) {
+        const { data: mangaData } = await supabase
+            .from("manga")
+            .select("id")
+            .ilike("title", `%${q.trim()}%`)
 
-    data?.forEach(
-        (item: { manga: { manga_sources: { external_id: string }[] }[] }) => {
-            item.manga?.forEach((manga) => {
-                manga.manga_sources?.forEach(
-                    (source: { external_id: string }) => {
-                        if (source.external_id) {
-                            ids.add(source.external_id)
-                        }
-                    },
-                )
-            })
-        },
-    )
+        const ids = mangaData?.map((m) => m.id) ?? []
+        if (ids.length === 0) return { data: [], count: 0 }
+        query = query.in("manga_id", ids)
+    }
 
-    return ids
+    const dbSort = sortBy === "title" ? "created_at" : sortBy
+    query = query
+        .order(dbSort, { ascending: sortDir === "asc" })
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+
+    const { data, error, count } = await query
+    if (error) console.error("getUserBookmarks error:", error.message)
+
+    let result = (data ?? []) as unknown as Bookmark[]
+    if (sortBy === "title") {
+        result = result.sort((a, b) =>
+            a.manga.title.localeCompare(b.manga.title, "ru"),
+        )
+    }
+
+    return { data: result, count: count ?? 0 }
 }
