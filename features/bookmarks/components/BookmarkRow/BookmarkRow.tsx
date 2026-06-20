@@ -1,8 +1,9 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+
+import Image from "next/image"
+import Link from "next/link"
 
 import { BookmarkActionsMenu } from "../BookmarkActionsMenu/BookmarkActionsMenu"
-
 import { ProgressBar } from "@/components/feedback/ProgressBar/ProgressBar"
 
 import { Bookmark } from "@/lib/supabase/type"
@@ -15,73 +16,36 @@ import {
     getTotalChapters,
 } from "../../utils/helpers"
 
-import { EllipsisVertical } from "lucide-react"
-
 import noCover from "@/assets/no_cover.webp"
-
-import Image from "next/image"
-import Link from "next/link"
 
 interface BookmarkRowProps {
     bookmark: Bookmark
+    priority?: boolean
 }
 
-export const BookmarkRow = ({ bookmark }: BookmarkRowProps) => {
-    const menuRef = useRef<HTMLDivElement>(null)
-    const [isOpen, setIsOpen] = useState(false)
-
+export const BookmarkRow = ({ bookmark, priority }: BookmarkRowProps) => {
     const lastReadChapterId = getLastChapterId(bookmark)
     const lastReadChapter = getLastChapter(bookmark)
     const totalChapters = getTotalChapters(bookmark)
     const externalId = getExternalId(bookmark)
     const lastReadPage = getLastPage(bookmark)
 
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (
-                menuRef.current &&
-                !menuRef.current.contains(e.target as Node)
-            ) {
-                setIsOpen(false)
-            }
-        }
-        if (isOpen) document.addEventListener("mousedown", handleClickOutside)
-        return () =>
-            document.removeEventListener("mousedown", handleClickOutside)
-    }, [isOpen])
-
     return (
-        <div
-            className="relative flex gap-4 rounded p-1 hover:bg-neutral-900"
-            ref={menuRef}
-        >
+        <div className="group/actionMenu relative flex gap-4 rounded p-1 hover:bg-neutral-900">
             <Link
                 href={`/manga/${externalId}`}
                 className="absolute inset-0 z-10"
                 aria-label={bookmark.manga.title}
             />
-            <button
-                onClick={(e) => {
-                    e.preventDefault()
-                    setIsOpen(!isOpen)
-                }}
-                className="absolute top-1 right-1 z-30 rounded p-1 hover:bg-neutral-800/70"
-            >
-                <EllipsisVertical className="w-4 text-gray-500" />
-            </button>
-            {isOpen && (
-                <BookmarkActionsMenu
-                    bookmark={bookmark}
-                    setIsOpen={setIsOpen}
-                />
-            )}
+            <BookmarkActionsMenu bookmark={bookmark} />
             <div className="relative isolate flex aspect-2/3 w-30 shrink-0 rounded">
                 <Image
                     src={bookmark.manga.cover_url || noCover}
                     alt={bookmark.manga.title}
                     loading="lazy"
                     fill
-                    sizes="120px"
+                    priority={priority}
+                    sizes="256px"
                     className="rounded object-cover"
                 />
             </div>
