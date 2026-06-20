@@ -1,26 +1,23 @@
 import { ReadStatus } from "@/lib/supabase/type"
 
 import {
+    BookA,
     Bookmark,
     BookmarkX,
     BookOpen,
-    BookPlus,
     Check,
-    ListCheck,
     LucideIcon,
     Pause,
-    PenIcon,
-    Trash,
 } from "lucide-react"
 
-export interface DefaultCollection {
+export interface statusCollection {
     value: ReadStatus
     label: string
     icon: LucideIcon
     color: string
 }
 
-export const defaultCollections = [
+export const statusCollections = [
     {
         value: "reading",
         label: "Читаю",
@@ -51,25 +48,9 @@ export const defaultCollections = [
         icon: Pause,
         color: "text-amber-400",
     },
-] as DefaultCollection[]
+] as statusCollection[]
 
-interface MenuItem {
-    id: string
-    label: string
-    icon?: LucideIcon
-    danger?: boolean
-    onClick?: (value: string) => void
-    options?: DefaultCollection[]
-}
-
-export const menuItems: MenuItem[] = [
-    {
-        id: "change-read-status",
-        label: "Пометить как...",
-        icon: ListCheck,
-        options: defaultCollections,
-    },
-    { id: "add-to-collection", label: "Добавить в коллекцию", icon: BookPlus },
-    { id: "edit", label: "Редактировать", icon: PenIcon },
-    { id: "remove", label: "Удалить из закладок", danger: true, icon: Trash },
-]
+export const defaultCollections = [
+    { value: "all", label: "Все", icon: BookA, color: "text-sky-400" },
+    ...statusCollections,
+] as statusCollection[]

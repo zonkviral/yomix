@@ -1,7 +1,7 @@
 import { Bookmark } from "@/lib/supabase/type"
 
 export const findByExternalId = (bookmarks: Bookmark[], externalId: string) =>
-    bookmarks.find((b) =>
+    bookmarks?.find((b) =>
         b.manga.manga_sources?.some((ms) => ms.external_id === externalId),
     )
 

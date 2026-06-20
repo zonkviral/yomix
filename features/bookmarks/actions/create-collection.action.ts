@@ -2,17 +2,41 @@
 
 import { createClient } from "@/lib/supabase/server"
 
-export const createCollection = async (name: string, isPublic = false) => {
+export const createCollection = async (
+    name: string,
+    icon: string,
+    color: string,
+    isPublic = false,
+) => {
     const supabase = await createClient()
     const {
         data: { user },
     } = await supabase.auth.getUser()
     if (!user) return { error: "Not authenticated" }
 
-    const { error } = await supabase
+    const { data: existing } = await supabase
         .from("lists")
-        .insert({ user_id: user.id, name, is_public: isPublic })
+        .select("position")
+        .eq("user_id", user.id)
+        .order("position", { ascending: false })
+        .limit(1)
+        .single()
+
+    const nextPosition = (existing?.position ?? -1) + 1
+
+    const { data, error } = await supabase
+        .from("lists")
+        .insert({
+            user_id: user.id,
+            name,
+            icon,
+            color,
+            is_public: isPublic,
+            position: nextPosition,
+        })
+        .select("id")
+        .single()
 
     if (error) return { error: error.message }
-    return { success: true }
+    return { success: true, id: data.id }
 }

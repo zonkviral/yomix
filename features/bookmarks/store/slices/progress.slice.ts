@@ -52,7 +52,6 @@ export const createProgressSlice = (
             return
         }
 
-        console.log("Saving progress for", bookmark?.manga.id)
         if (!bookmark?.manga.id) return
 
         const payload = {

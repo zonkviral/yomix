@@ -26,8 +26,13 @@ export interface Manga {
 export interface Collection {
     id: string
     name: string
+    icon: string
+    color: string
     is_public: boolean
     position: number
+    list_items?: {
+        count: number
+    }[]
 }
 
 export interface ReadingProgress {
