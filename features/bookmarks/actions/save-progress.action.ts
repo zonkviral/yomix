@@ -1,8 +1,8 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { revalidatePath, updateTag } from "next/cache"
 
-import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/supabase/server"
 
 type ProgressPayload = {
     mangaId: string
@@ -30,6 +30,7 @@ export const saveProgress = async (payload: ProgressPayload) => {
     )
 
     if (error) return { error: error.message }
+    updateTag(`continue-reading-${user.id}`)
     revalidatePath("/bookmarks")
     return { success: true }
 }

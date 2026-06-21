@@ -26,7 +26,6 @@ const BookmarksContent = async () => {
             getUserCollections(user.id),
             getBookmarkStatusCounts(user.id),
         ])
-
     return (
         <BookmarksPageAuth
             continueReading={continueReading}

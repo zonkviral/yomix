@@ -1,5 +1,7 @@
 "use server"
 
+import { updateTag } from "next/cache"
+
 import { createClient } from "@/lib/supabase/server"
 
 export const updateCollection = async (
@@ -10,11 +12,16 @@ export const updateCollection = async (
     isPublic: boolean,
 ) => {
     const supabase = await createClient()
+    const {
+        data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { error: "Not authenticated" }
     const { error } = await supabase
         .from("lists")
         .update({ name, icon, color, is_public: isPublic })
         .eq("id", id)
 
     if (error) return { error: error.message }
+    updateTag(`collections-${user.id}`)
     return { success: true }
 }

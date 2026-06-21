@@ -1,4 +1,7 @@
 "use server"
+
+import { updateTag } from "next/cache"
+
 import { createClient } from "@/lib/supabase/server"
 
 export const reorderCollectionsAction = async (
@@ -22,6 +25,6 @@ export const reorderCollectionsAction = async (
 
     const error = results.find((r) => r.error)?.error
     if (error) return { error: error.message }
-
+    updateTag(`collections-${user.id}`)
     return { success: true }
 }

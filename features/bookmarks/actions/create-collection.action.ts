@@ -1,5 +1,7 @@
 "use server"
 
+import { updateTag } from "next/cache"
+
 import { createClient } from "@/lib/supabase/server"
 
 export const createCollection = async (
@@ -38,5 +40,6 @@ export const createCollection = async (
         .single()
 
     if (error) return { error: error.message }
+    updateTag(`collections-${user.id}`)
     return { success: true, id: data.id }
 }

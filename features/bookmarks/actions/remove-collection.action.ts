@@ -2,6 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server"
 
+import { updateTag } from "next/cache"
+
 export const removeCollection = async (collectionId: string) => {
     const supabase = await createClient()
     const {
@@ -16,5 +18,6 @@ export const removeCollection = async (collectionId: string) => {
         .eq("user_id", user.id)
 
     if (error) return { error: error.message }
+    updateTag(`collections-${user.id}`)
     return { success: true }
 }

@@ -38,7 +38,7 @@ export interface BookmarksStore {
     ) => Promise<{ error?: string }>
 
     removeCollection: (collectionId: string) => Promise<{ error?: string }>
-    reorderCollections: (reordered: Collection[]) => void
+    reorderCollections: (reordered: Collection[]) => Promise<void>
 }
 
 export type StoreSet = (

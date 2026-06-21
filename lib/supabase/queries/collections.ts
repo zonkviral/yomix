@@ -1,27 +1,27 @@
 import { PostgrestError } from "@supabase/supabase-js"
 
-import { createClient } from "../server"
-
+import { unstable_cache } from "next/cache"
+import { createServiceClient } from "../service"
 import { Collection } from "../type"
 
-export const getUserCollections = async (userId: string) => {
-    const supabase = await createClient()
+export const getUserCollections = (userId: string) =>
+    unstable_cache(
+        async () => {
+            const supabase = createServiceClient()
 
-    const {
-        data,
-        error,
-    }: { data: Collection[] | null; error: PostgrestError | null } =
-        await supabase
-            .from("lists")
-            .select(
-                "id, name, color, icon, is_public, position, list_items (count)",
-            )
-            .eq("user_id", userId)
-            .order("position", { ascending: true })
-
-    if (error) return []
-    return (data ?? []).map((col) => ({
-        ...col,
-        item_count: col.list_items?.[0]?.count ?? 0,
-    }))
-}
+            const {
+                data,
+                error,
+            }: { data: Collection[] | null; error: PostgrestError | null } =
+                await supabase.rpc("get_user_collections", {
+                    p_user_id: userId,
+                })
+            if (error) {
+                console.error("getUserCollections error:", error.message)
+                return []
+            }
+            return data ?? []
+        },
+        [`collections-${userId}`],
+        { tags: [`collections-${userId}`] },
+    )()

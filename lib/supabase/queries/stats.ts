@@ -1,21 +1,26 @@
-import { createClient } from "../server"
+import { unstable_cache } from "next/cache"
 
-export const getUserStats = async (
-    userId: string,
-): Promise<{ total_chapters: number } | null> => {
-    const supabase = await createClient()
+import { createServiceClient } from "../service"
 
-    const [statsResult] = await Promise.all([
-        supabase
-            .from("user_stats")
-            .select("total_chapters")
-            .eq("user_id", userId)
-            .single(),
-    ])
+export const getUserStats = (userId: string) =>
+    unstable_cache(
+        async () => {
+            const supabase = createServiceClient()
 
-    if (statsResult.error) return null
+            const [statsResult] = await Promise.all([
+                supabase
+                    .from("user_stats")
+                    .select("total_chapters")
+                    .eq("user_id", userId)
+                    .single(),
+            ])
 
-    return {
-        total_chapters: statsResult.data.total_chapters || 0,
-    }
-}
+            if (statsResult.error) return null
+
+            return {
+                total_chapters: statsResult.data.total_chapters || 0,
+            }
+        },
+        [`user-stats-${userId}`],
+        { tags: [`user-stats-${userId}`] },
+    )()
