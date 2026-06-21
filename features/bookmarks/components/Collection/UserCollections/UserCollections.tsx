@@ -1,10 +1,11 @@
 import { useState } from "react"
 
+import { SortableList } from "@/components/ui/SortableList/SortableList"
+
 import { colorsMap } from "@/features/bookmarks/constants/collection-colors"
 import { iconMap } from "@/features/bookmarks/constants/icons"
 import { useBookmarksStore } from "@/features/bookmarks/store/bookmarks.store"
 
-import { List } from "@/components/ui/List/List"
 import { Modal } from "@/components/ui/Modal/Modal"
 
 import { CollectionButton } from "../CollectionButton/CollectionButton"
@@ -14,7 +15,7 @@ import { useModal } from "@/hooks/useModal"
 
 import { Collection } from "@/lib/supabase/type"
 
-import { GripHorizontal, PenBox, Trash2 } from "lucide-react"
+import { PenBox, Trash2 } from "lucide-react"
 
 interface UserCollectionsProps {
     collections: Collection[]
@@ -30,7 +31,8 @@ export const UserCollections = ({
     onFilterChange,
 }: UserCollectionsProps) => {
     const { close, open, isOpen } = useModal()
-    const { removeCollection } = useBookmarksStore()
+
+    const { reorderCollections, removeCollection } = useBookmarksStore()
 
     const [selectedCollection, setSelectedCollection] =
         useState<Collection | null>(null)
@@ -41,22 +43,22 @@ export const UserCollections = ({
             status: "",
         })
     }
-
     return (
         <div className="mt-2 border-t border-neutral-800 pt-2">
             <h3 className="text-lg font-bold text-neutral-200">
                 Мои коллекции
             </h3>
-            <List
-                className="flex flex-col"
+
+            <SortableList
                 items={collections}
-                keyExtractor={(col) => col.id}
-                renderItem={(col) => {
+                className="flex flex-col"
+                onReorder={reorderCollections}
+                renderItem={(col, dragHandle) => {
                     const isActive = activeCollectionId === col.id
                     const Icon = iconMap[col.icon]
                     const color = colorsMap[col.color]
                     return (
-                        <div key={col.id} className="flex">
+                        <div className="flex">
                             <CollectionButton
                                 isActive={isActive}
                                 icon={
@@ -78,9 +80,7 @@ export const UserCollections = ({
                                     >
                                         <PenBox className="w-4" />
                                     </button>
-                                    <button className="ml-1 rounded text-sm text-neutral-500 hover:bg-rose-500/10">
-                                        <GripHorizontal className="w-4" />
-                                    </button>
+                                    {dragHandle}
                                     <button
                                         className="ml-1 rounded text-sm text-red-400 hover:bg-rose-500/10"
                                         onClick={() => removeCollection(col.id)}

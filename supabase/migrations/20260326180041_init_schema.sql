@@ -90,7 +90,7 @@ create table if not exists public.lists (
   icon        text,
   color       text,
   is_public   boolean default false,
-  position    int default 0,
+  position    int not null default 0,
   created_at  timestamp with time zone default now(),
   updated_at  timestamp with time zone default now()
   
@@ -220,7 +220,7 @@ begin
 end;
 $$;
 
--- 5. limit lists to 12 per user
+-- 5. limit on lists - 12 per user
 create or replace function public.check_lists_limit()
 returns trigger
 language plpgsql

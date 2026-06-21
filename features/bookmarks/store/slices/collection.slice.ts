@@ -1,6 +1,9 @@
 import { createCollection } from "../../actions/create-collection.action"
 import { removeCollection } from "../../actions/remove-collection.action"
 import { updateCollection } from "../../actions/update-collection.action"
+import { reorderCollectionsAction } from "../../actions/reorder-collection.action"
+
+import { Collection } from "@/lib/supabase/type"
 
 import { StoreSet } from "../types"
 
@@ -85,5 +88,14 @@ export const collectionSlice = (set: StoreSet) => ({
         }
 
         return result
+    },
+
+    reorderCollections: async (reordered: Collection[]) => {
+        set({ collections: reordered })
+        const payload = reordered.map((col, index) => ({
+            id: col.id,
+            position: index,
+        }))
+        await reorderCollectionsAction(payload)
     },
 })
