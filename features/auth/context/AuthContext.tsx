@@ -62,11 +62,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 setUser(currentUser)
 
                 if (currentUser) {
-                    const bookmarks = await fetch("/api/bookmarks")
-                        .then((r) => r.json())
-                        .catch(() => [])
-
-                    useBookmarksStore.getState().init(false, bookmarks)
                     await fetchProfile(currentUser.id)
                 } else {
                     useBookmarksStore.getState().init(true)
