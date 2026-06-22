@@ -51,10 +51,10 @@ const SortableItem = <T extends { id: string }>({
         <button
             {...attributes}
             {...listeners}
-            className="cursor-grab text-white/20 hover:text-white/50 active:cursor-grabbing"
+            className="h-fit rounded px-1 py-0.5 text-white/20 hover:bg-neutral-700 hover:text-white/50"
             onClick={(e) => e.stopPropagation()}
         >
-            <GripHorizontal className="w-4" />
+            <GripHorizontal className="h-fit w-4" />
         </button>
     )
 
