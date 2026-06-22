@@ -83,7 +83,7 @@ export const CollectionsSection = ({
                     )
                 }}
             />
-            {collections && (
+            {collections && collections.length !== 0 && (
                 <UserCollections
                     collections={collections}
                     activeCollectionId={activeCollectionId}
@@ -91,7 +91,7 @@ export const CollectionsSection = ({
                     onFilterChange={onFilterChange}
                 />
             )}
-            {isAuth && (
+            {isAuth && collections && collections.length < 12 && (
                 <>
                     <div className="flex justify-center border-t border-neutral-800">
                         <button

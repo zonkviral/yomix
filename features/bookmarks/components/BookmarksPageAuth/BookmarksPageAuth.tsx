@@ -1,11 +1,16 @@
 "use client"
 
 import { useEffect } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { BookmarksLayout } from "../BookmarksLayout/BookmarksLayout"
-import { useBookmarksStore } from "../../store/bookmarks.store"
-import { Bookmark, Collection } from "@/lib/supabase/type"
+
 import useSWR from "swr"
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+
+import { BookmarksLayout } from "../BookmarksLayout/BookmarksLayout"
+
+import { useBookmarksStore } from "../../store/bookmarks.store"
+
+import { Bookmark, Collection } from "@/lib/supabase/type"
 
 interface BookmarksPageAuthProps {
     continueReading?: Bookmark[]
@@ -43,7 +48,7 @@ export const BookmarksPageAuth = ({
 
     useEffect(() => {
         init(false, data?.bookmarks ?? [], collections)
-    }, [data?.bookmarks, collections])
+    }, [data?.bookmarks, collections, init])
 
     const navigate = (updates: Record<string, string>) => {
         const params = new URLSearchParams(searchParams.toString())

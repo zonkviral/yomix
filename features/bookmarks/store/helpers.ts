@@ -1,4 +1,4 @@
-import { Bookmark } from "@/lib/supabase/type"
+import { Bookmark, Collection } from "@/lib/supabase/type"
 
 export const findByExternalId = (bookmarks: Bookmark[], externalId: string) =>
     bookmarks?.find((b) =>
@@ -22,3 +22,8 @@ export const removeFromToggling = (set: Set<string>, id: string) => {
     next.delete(id)
     return next
 }
+
+export const isInCollectionHandler = (
+    collection: Collection,
+    mangaId: string,
+) => collection.manga_ids?.includes(mangaId) ?? false

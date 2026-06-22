@@ -1,3 +1,4 @@
+import "server-only"
 import { PostgrestError } from "@supabase/supabase-js"
 
 import { unstable_cache } from "next/cache"

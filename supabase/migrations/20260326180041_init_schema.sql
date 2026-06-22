@@ -242,6 +242,32 @@ begin
 end;
 $$;
 
+create or replace function public.get_user_collections(p_user_id uuid)
+returns table (
+  id uuid,
+  name text,
+  color text,
+  icon text,
+  is_public boolean,
+  "position" int,
+  manga_ids uuid[]
+)
+language sql
+stable
+security invoker as $$
+  select
+    l.id, l.name, l.color, l.icon,
+    l.is_public, l.position,
+    array_agg(li.manga_id order by li.id) filter (where li.manga_id is not null) as manga_ids
+  from public.lists l
+  left join public.list_items li on li.list_id = l.id
+  where l.user_id = p_user_id
+  group by l.id
+  order by l.position asc;
+$$;
+
+grant execute on function public.get_user_collections(uuid) to authenticated;
+
 drop trigger if exists on_list_insert_limit on public.lists;
 create trigger on_list_insert_limit
   before insert on public.lists

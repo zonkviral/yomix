@@ -30,9 +30,7 @@ export interface Collection {
     color: string
     is_public: boolean
     position: number
-    list_items?: {
-        count: number
-    }[]
+    manga_ids?: string[]
 }
 
 export interface ReadingProgress {

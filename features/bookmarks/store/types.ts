@@ -36,7 +36,10 @@ export interface BookmarksStore {
         color: string,
         isPublic: boolean,
     ) => Promise<{ error?: string }>
-
+    toggleCollection: (
+        collectionId: string,
+        mangaId: string,
+    ) => Promise<{ error?: string }>
     removeCollection: (collectionId: string) => Promise<{ error?: string }>
     reorderCollections: (reordered: Collection[]) => Promise<void>
 }

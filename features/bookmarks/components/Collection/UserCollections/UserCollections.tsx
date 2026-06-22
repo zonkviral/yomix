@@ -1,12 +1,11 @@
 import { useState } from "react"
 
+import { Modal } from "@/components/ui/Modal/Modal"
 import { SortableList } from "@/components/ui/SortableList/SortableList"
 
 import { colorsMap } from "@/features/bookmarks/constants/collection-colors"
 import { iconMap } from "@/features/bookmarks/constants/icons"
 import { useBookmarksStore } from "@/features/bookmarks/store/bookmarks.store"
-
-import { Modal } from "@/components/ui/Modal/Modal"
 
 import { CollectionButton } from "../CollectionButton/CollectionButton"
 import { CollectionForm } from "../CollectionForm/CollectionForm"
@@ -58,34 +57,41 @@ export const UserCollections = ({
                     const Icon = iconMap[col.icon]
                     const color = colorsMap[col.color]
                     return (
-                        <div className="flex">
+                        <div className="relative flex">
                             <CollectionButton
                                 isActive={isActive}
                                 icon={
                                     Icon && <Icon className={`w-4 ${color}`} />
                                 }
-                                isEditable={edit}
                                 label={col.name}
-                                count={col.list_items?.[0]?.count ?? 0}
-                                onClick={() => handleCollectionClick(col.id)}
+                                count={
+                                    edit
+                                        ? undefined
+                                        : (col.manga_ids?.length ?? 0)
+                                }
+                                onClick={
+                                    edit
+                                        ? () => {}
+                                        : () => handleCollectionClick(col.id)
+                                }
                             />
                             {edit && (
-                                <div className="ml-auto flex gap-2">
+                                <div className="flex items-center gap-2">
                                     <button
-                                        className="ml-2 rounded text-sm text-neutral-200 hover:bg-rose-500/10"
+                                        className="h-fit rounded px-1 py-0.5 text-sm text-neutral-200 hover:bg-neutral-700"
                                         onClick={() => {
                                             setSelectedCollection(col)
                                             open()
                                         }}
                                     >
-                                        <PenBox className="w-4" />
+                                        <PenBox className="h-fit w-4" />
                                     </button>
                                     {dragHandle}
                                     <button
-                                        className="ml-1 rounded text-sm text-red-400 hover:bg-rose-500/10"
+                                        className="h-fit rounded px-1 py-0.5 text-sm text-red-400 hover:bg-neutral-700"
                                         onClick={() => removeCollection(col.id)}
                                     >
-                                        <Trash2 className="w-4" />
+                                        <Trash2 className="h-fit w-4" />
                                     </button>
                                 </div>
                             )}
