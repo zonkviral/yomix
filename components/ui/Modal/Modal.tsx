@@ -13,6 +13,7 @@ interface Props {
     onClose: () => void
     children: React.ReactNode
     className?: string
+    contentClassName?: string
     hideCloseButton?: boolean
 }
 
@@ -21,6 +22,7 @@ export const Modal = ({
     onClose,
     children,
     className,
+    contentClassName,
     hideCloseButton,
 }: Props) => {
     const ref = useRef<HTMLDialogElement>(null)
@@ -45,12 +47,17 @@ export const Modal = ({
         <dialog
             ref={ref}
             className={cn(
-                "open:animate-in open:fade-in open:zoom-in-95 mt-0 items-center justify-center overflow-hidden bg-transparent outline-none backdrop:bg-black/50 backdrop:backdrop-blur-sm sm:my-0 md:my-px md:max-h-screen lg:mt-8",
+                "open:animate-in open:fade-in open:zoom-in-95 m-auto min-w-2xs items-center justify-center overflow-hidden bg-transparent outline-none backdrop:bg-black/50 backdrop:backdrop-blur-sm md:max-h-screen",
                 className,
             )}
             onClick={(e) => e.target === ref.current && onClose()}
         >
-            <div className="bg-surface relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl p-4 sm:max-h-[85vh] md:max-h-screen">
+            <div
+                className={cn(
+                    "bg-surface relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl p-4 sm:max-h-[85vh] md:max-h-screen",
+                    contentClassName,
+                )}
+            >
                 {!hideCloseButton && (
                     <button
                         onClick={onClose}
