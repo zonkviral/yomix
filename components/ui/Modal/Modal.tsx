@@ -61,7 +61,7 @@ export const Modal = ({
                 {!hideCloseButton && (
                     <button
                         onClick={onClose}
-                        className="bg-primary absolute top-2 right-2 z-10 shrink-0 rounded px-3 py-2 text-white/40 hover:bg-white/10 hover:text-white/80"
+                        className="absolute top-2 right-2 z-10 shrink-0 rounded px-3 py-2 text-white/40 hover:bg-white/10 hover:text-white/80"
                     >
                         <X className="w-4 text-white/40" />
                     </button>
