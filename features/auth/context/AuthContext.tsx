@@ -26,7 +26,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [username, setUsername] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
 
-    const fetchProfile = async (userId: string, retries = 3): Promise<void> => {
+    const fetchProfile = async (
+        userId: string,
+        retries = 3,
+    ): Promise<string | null> => {
         const { data, error } = await supabase
             .from("profiles")
             .select("username")
@@ -35,18 +38,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (error) console.error("Error fetching profile:", error)
 
-        if (data?.username) {
-            setUsername(data.username)
-            return
-        }
+        if (data?.username) return data.username
 
         if (retries > 0) {
             await new Promise((r) => setTimeout(r, 600))
             return fetchProfile(userId, retries - 1)
         }
 
-        setUsername(null)
-        setLoading(false)
+        return null
     }
 
     useEffect(() => {
@@ -55,20 +54,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(
-            async (event: string, session: Session) => {
+            async (event: string, session: Session | null) => {
                 if (!mounted) return
 
                 const currentUser = session?.user ?? null
                 setUser(currentUser)
 
                 if (currentUser) {
-                    await fetchProfile(currentUser.id)
+                    const fetchedUsername = await fetchProfile(currentUser.id)
+                    if (mounted) setUsername(fetchedUsername)
                 } else {
                     useBookmarksStore.getState().init(true)
                     setUsername(null)
                 }
 
-                setLoading(false)
+                if (mounted) setLoading(false)
             },
         )
 
@@ -83,11 +83,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const { data } = await supabase.auth.getUser()
         const currentUser = data.user ?? null
         setUser(currentUser)
+
         if (currentUser) {
-            await fetchProfile(currentUser.id)
+            const fetchedUsername = await fetchProfile(currentUser.id)
+            setUsername(fetchedUsername)
         } else {
             setUsername(null)
         }
+
         setLoading(false)
     }
 
