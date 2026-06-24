@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
             { hostname: remangaImgUrl.hostname },
         ],
     },
+    poweredByHeader: false,
     allowedDevOrigins: ["192.168.1.33"],
 }
 
