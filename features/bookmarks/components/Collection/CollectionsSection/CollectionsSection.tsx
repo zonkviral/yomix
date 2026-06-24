@@ -1,16 +1,15 @@
 import { useState } from "react"
 
-import { Modal } from "@/components/ui/Modal/Modal"
+import { useModal } from "@/hooks/useModal"
+
 import { List } from "@/components/ui/List/List"
 
 import { SideSectionWrapper } from "../../SideSectionWrapper/SideSectionWrapper"
-import { CollectionForm } from "../CollectionForm/CollectionForm"
+import { CollectionFormModal } from "../CollectionFormModal/CollectionFormModal"
 import { CollectionButton } from "../CollectionButton/CollectionButton"
 import { UserCollections } from "../UserCollections/UserCollections"
 
-import { useModal } from "@/hooks/useModal"
-
-import { Collection } from "@/lib/supabase/type"
+import { useBookmarksStore } from "../../../store/bookmarks.store"
 
 import { defaultCollections } from "../../../constants/status"
 
@@ -18,7 +17,6 @@ import { Plus } from "lucide-react"
 
 interface CollectionsSectionProps {
     isAuth?: boolean
-    collections?: Collection[]
     statusCounts?: Record<string, number>
     activeStatus?: string
     activeCollectionId?: string
@@ -27,7 +25,6 @@ interface CollectionsSectionProps {
 
 export const CollectionsSection = ({
     isAuth = false,
-    collections,
     statusCounts,
     activeStatus = "all",
     activeCollectionId = "",
@@ -35,6 +32,7 @@ export const CollectionsSection = ({
 }: CollectionsSectionProps) => {
     const { close, open, isOpen } = useModal()
     const [edit, setEdit] = useState(false)
+    const collections = useBookmarksStore((s) => s.collections)
 
     const handleStatusClick = (value: string) => {
         onFilterChange?.({
@@ -102,13 +100,7 @@ export const CollectionsSection = ({
                             <span>Создать коллекцию</span>
                         </button>
                     </div>
-                    <Modal
-                        isOpen={isOpen}
-                        onClose={close}
-                        className="mx-auto flex w-full text-amber-50"
-                    >
-                        <CollectionForm onSuccess={close} />
-                    </Modal>
+                    <CollectionFormModal isOpen={isOpen} close={close} />
                 </>
             )}
         </SideSectionWrapper>

@@ -1,6 +1,7 @@
 import { useState } from "react"
 
-import { Modal } from "@/components/ui/Modal/Modal"
+import { useModal } from "@/hooks/useModal"
+
 import { SortableList } from "@/components/ui/SortableList/SortableList"
 
 import { colorsMap } from "@/features/bookmarks/constants/collection-colors"
@@ -8,9 +9,7 @@ import { iconMap } from "@/features/bookmarks/constants/icons"
 import { useBookmarksStore } from "@/features/bookmarks/store/bookmarks.store"
 
 import { CollectionButton } from "../CollectionButton/CollectionButton"
-import { CollectionForm } from "../CollectionForm/CollectionForm"
-
-import { useModal } from "@/hooks/useModal"
+import { CollectionFormModal } from "../CollectionFormModal/CollectionFormModal"
 
 import { Collection } from "@/lib/supabase/type"
 
@@ -99,18 +98,14 @@ export const UserCollections = ({
                     )
                 }}
             />
-            <Modal
-                isOpen={isOpen}
-                onClose={close}
-                className="mx-auto flex max-w-xl text-amber-50"
-            >
-                {selectedCollection && (
-                    <CollectionForm
-                        onSuccess={close}
-                        collection={selectedCollection}
-                    />
-                )}
-            </Modal>
+
+            {selectedCollection && (
+                <CollectionFormModal
+                    isOpen={isOpen}
+                    close={close}
+                    collection={selectedCollection}
+                />
+            )}
         </div>
     )
 }
