@@ -7,7 +7,7 @@ export const BookmarksSkeleton = ({
     rowBookmarks?: boolean
     colBookmarks?: boolean
 }) => (
-    <div className="grid animate-pulse grid-cols-[1fr_17.5rem] gap-8 p-4">
+    <div className="grid animate-pulse gap-8 p-4">
         <div className="flex flex-col gap-5">
             {colBookmarks && (
                 <>
@@ -25,9 +25,8 @@ export const BookmarksSkeleton = ({
             )}
             {rowBookmarks && (
                 <>
-                    <div className="h-6 w-32 rounded bg-neutral-800" />
-                    <div className="flex flex-col gap-3">
-                        {[...Array(3)].map((_, i) => (
+                    <div className="grid grid-cols-2 gap-3">
+                        {[...Array(2)].map((_, i) => (
                             <div
                                 key={i}
                                 className="h-20 w-full rounded bg-neutral-800"
