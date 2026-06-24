@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 
 import { useDebounce } from "@/hooks/useDebounce"
 
-import { Search, ChevronDown, Check } from "lucide-react"
+import { Search, ChevronDown, Check, X } from "lucide-react"
 
 const SORT_OPTIONS = [
     { value: "created_at:desc", label: "Сначала новые" },
@@ -29,31 +29,55 @@ export const BookmarksFilters = ({
     onFilterChange,
 }: BookmarksFiltersProps) => {
     const [searchValue, setSearchValue] = useState(currentQ)
-    const debouncedSearch = useDebounce(searchValue, 300)
+    const debouncedSearch = useDebounce(searchValue, 350)
+    const inputRef = useRef<HTMLInputElement>(null)
+    const isFocused = useRef(false)
 
-    const currentLabel =
-        SORT_OPTIONS.find((o) => o.value === currentSort)?.label ?? "Сортировка"
+    useEffect(() => {
+        if (isFocused.current) return
+        setSearchValue(currentQ)
+    }, [currentQ])
 
     useEffect(() => {
         if (debouncedSearch === currentQ) return
         onFilterChange({ q: debouncedSearch })
     }, [debouncedSearch])
 
-    useEffect(() => {
-        setSearchValue(currentQ)
-    }, [currentQ])
+    const handleClear = () => {
+        setSearchValue("")
+        onFilterChange({ q: "" })
+        inputRef.current?.focus()
+    }
+
+    const currentLabel =
+        SORT_OPTIONS.find((o) => o.value === currentSort)?.label ?? "Сортировка"
 
     return (
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3 not-xl:w-full">
             <div className="relative flex-1">
                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <input
+                    ref={inputRef}
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
+                    onFocus={() => {
+                        isFocused.current = true
+                    }}
+                    onBlur={() => {
+                        isFocused.current = false
+                    }}
                     placeholder="Поиск по названию..."
-                    className="w-full rounded-lg bg-[#17151a] py-2 pr-4 pl-9 text-sm outline-none placeholder:text-gray-500 focus:ring-1 focus:ring-rose-500/50"
+                    className="w-full rounded-lg bg-[#17151a] py-2 pr-8 pl-9 text-sm outline-none placeholder:text-gray-500 focus:ring-1 focus:ring-rose-500/50"
                 />
-                {isPending && (
+                {searchValue && (
+                    <button
+                        onClick={handleClear}
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-white"
+                    >
+                        <X className="h-3.5 w-3.5" />
+                    </button>
+                )}
+                {isPending && !searchValue && (
                     <span className="absolute top-1/2 right-3 h-3 w-3 -translate-y-1/2 animate-spin rounded-full border border-gray-500 border-t-transparent" />
                 )}
             </div>
