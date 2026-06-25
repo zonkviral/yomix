@@ -1,5 +1,5 @@
 "use client"
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { useBookmark } from "../../hooks/useBookmark"
 
@@ -16,13 +16,14 @@ interface BookmarkButtonProps {
 }
 
 export const BookmarkButton = ({ mangaId, manga }: BookmarkButtonProps) => {
-    const { isBookmarked, isToggling, toggle, hasMounted } = useBookmark(
-        mangaId,
-        manga,
-    )
+    const [hasMounted, setHasMounted] = useState(false)
+    const { isBookmarked, isToggling, toggle } = useBookmark(mangaId, manga)
     const btnRef = useRef<HTMLButtonElement>(null)
     const heartRef = useRef<SVGSVGElement>(null)
 
+    useEffect(() => {
+        setHasMounted(true)
+    }, [])
     const handleClick = async () => {
         if (isToggling) return
 
