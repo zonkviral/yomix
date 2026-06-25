@@ -10,49 +10,43 @@ export const getContinueReading = (userId: string) =>
         async () => {
             const supabase = createServiceClient()
 
-            const { data: progressData } = await supabase
-                .from("reading_progress")
-                .select("manga_id, chapter_id, chapter_number, page_number")
-                .eq("user_id", userId)
-                .order("updated_at", { ascending: false })
-                .limit(10)
+            const { data, error } = await supabase.rpc("get_continue_reading", {
+                p_user_id: userId,
+            })
 
-            if (!progressData?.length) return []
+            if (error) {
+                console.error("getContinueReading error:", error.message)
+                return []
+            }
 
-            const mangaIds = progressData.map((p) => p.manga_id)
-
-            const { data } = await supabase
-                .from("bookmarks")
-                .select(
-                    `
-            id, read_status, created_at, updated_at,
-            manga (
-                id, title, cover_url, total_chapters, author,
-                manga_sources (id, source, external_id)
-            )
-        `,
-                )
-                .eq("user_id", userId)
-                .in("manga_id", mangaIds)
-
-            return mangaIds
-                .map((mangaId) => {
-                    const bookmark = (data ?? []).find(
-                        (b) => b.manga?.id === mangaId,
-                    )
-                    const progress = progressData.find(
-                        (p) => p.manga_id === mangaId,
-                    )
-                    if (!bookmark || !progress) return null
-                    return {
-                        ...bookmark,
-                        manga: {
-                            ...bookmark.manga,
-                            reading_progress: [progress],
+            return (data ?? []).map((row) => ({
+                id: row.id,
+                read_status: row.read_status,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                manga: {
+                    id: row.manga_id,
+                    title: row.manga_title,
+                    cover_url: row.manga_cover_url,
+                    total_chapters: row.manga_total_chapters,
+                    author: row.manga_author,
+                    manga_sources: row.external_id
+                        ? [
+                              {
+                                  source: row.source,
+                                  external_id: row.external_id,
+                              },
+                          ]
+                        : [],
+                    reading_progress: [
+                        {
+                            chapter_id: row.chapter_id,
+                            chapter_number: row.chapter_number,
+                            page_number: row.page_number,
                         },
-                    }
-                })
-                .filter(Boolean) as unknown as Bookmark[]
+                    ],
+                },
+            })) as unknown as Bookmark[]
         },
         [`continue-reading-${userId}`],
         { tags: [`continue-reading-${userId}`] },
