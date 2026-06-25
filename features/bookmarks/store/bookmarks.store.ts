@@ -13,8 +13,13 @@ import { findByExternalId } from "./helpers"
 export const useBookmarksStore = create<BookmarksStore>((set, get) => ({
     bookmarks: [],
     collections: [],
+    continueReading: [],
+    recentlyAdded: [],
+    statusCounts: {},
+    mutateBookmarks: null,
+    setMutateBookmarks: (fn) => set({ mutateBookmarks: fn }),
+    stats: null,
     isGuest: false,
-    hydrated: false,
     toggling: new Set(),
 
     isBookmarked: (externalId) =>

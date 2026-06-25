@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useTransition } from "react"
 
 import useSWR from "swr"
 
@@ -13,8 +13,8 @@ import { useBookmarksStore } from "../../store/bookmarks.store"
 import { Bookmark, Collection } from "@/lib/supabase/type"
 
 interface BookmarksPageAuthProps {
-    continueReading?: Bookmark[]
-    recentlyAdded?: Bookmark[]
+    continueReading: Bookmark[]
+    recentlyAdded: Bookmark[]
     stats: { total_chapters: number } | null
     collections: Collection[]
     statusCounts: Record<string, number>
@@ -35,20 +35,50 @@ export const BookmarksPageAuth = ({
     collections,
     statusCounts,
 }: BookmarksPageAuthProps) => {
+    const [isPending, startTransition] = useTransition()
+
     const init = useBookmarksStore((s) => s.init)
+    const setMutateBookmarks = useBookmarksStore((s) => s.setMutateBookmarks)
+
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
-    const storeCollections = useBookmarksStore((s) => s.collections)
-
+    const storeBookmarks = useBookmarksStore((s) => s.bookmarks)
     const apiUrl = `/api/bookmarks?${searchParams.toString()}`
-    const { data, isLoading } = useSWR<BookmarksResponse>(apiUrl, fetcher, {
-        keepPreviousData: true,
-    })
+
+    const { data, isLoading, mutate } = useSWR<BookmarksResponse>(
+        apiUrl,
+        fetcher,
+        {
+            keepPreviousData: true,
+            revalidateOnFocus: false,
+        },
+    )
+    useEffect(() => {
+        setMutateBookmarks(mutate)
+    }, [mutate])
 
     useEffect(() => {
-        init(false, data?.bookmarks ?? [], collections)
-    }, [data?.bookmarks, collections, init])
+        init(false, [], collections, {
+            continueReading,
+            recentlyAdded,
+            statusCounts,
+            stats,
+        })
+    }, [])
+    useEffect(() => {
+        useBookmarksStore.setState({
+            continueReading,
+            recentlyAdded,
+            stats,
+        })
+    }, [continueReading, recentlyAdded, stats])
+
+    useEffect(() => {
+        if (data?.bookmarks) {
+            useBookmarksStore.setState({ bookmarks: data.bookmarks })
+        }
+    }, [data?.bookmarks])
 
     const navigate = (updates: Record<string, string>) => {
         const params = new URLSearchParams(searchParams.toString())
@@ -56,14 +86,23 @@ export const BookmarksPageAuth = ({
             v ? params.set(k, v) : params.delete(k),
         )
         params.delete("page")
-        router.push(`${pathname}?${params.toString()}`)
+        if ("q" in updates) {
+            router.push(`${pathname}?${params.toString()}`, { scroll: false })
+            return
+        }
+        startTransition(() => {
+            router.push(`${pathname}?${params.toString()}`, { scroll: false })
+        })
     }
 
     const handlePageChange = (newPage: number) => {
         const params = new URLSearchParams(searchParams.toString())
         params.set("page", String(newPage))
-        router.push(`${pathname}?${params.toString()}`)
+        startTransition(() => {
+            router.push(`${pathname}?${params.toString()}`, { scroll: false })
+        })
     }
+
     const filters = {
         q: searchParams.get("q") ?? undefined,
         status: searchParams.get("status") ?? undefined,
@@ -74,16 +113,12 @@ export const BookmarksPageAuth = ({
 
     return (
         <BookmarksLayout
-            continueReading={continueReading}
-            recentlyAdded={recentlyAdded}
-            bookmarks={data?.bookmarks ?? []}
+            bookmarks={storeBookmarks}
             totalCount={data?.total ?? 0}
-            collections={storeCollections}
-            statusCounts={statusCounts}
-            stats={stats}
             filters={filters}
             page={page}
-            isPending={isLoading}
+            loading={isLoading}
+            isPending={isPending}
             onFilterChange={navigate}
             onPageChange={handlePageChange}
         />

@@ -3,22 +3,33 @@ import { Bookmark, Collection, Manga, ReadStatus } from "@/lib/supabase/type"
 export interface BookmarksStore {
     bookmarks: Bookmark[]
     collections: Collection[]
+    continueReading: Bookmark[]
+    recentlyAdded: Bookmark[]
+    statusCounts: Record<string, number>
+    stats: { total_chapters: number } | null
     isGuest: boolean
-    hydrated: boolean
     toggling: Set<string>
 
     init: (
         isGuest: boolean,
         bookmarks?: Bookmark[],
         collections?: Collection[],
+        sidebarData?: {
+            continueReading?: Bookmark[]
+            recentlyAdded?: Bookmark[]
+            statusCounts?: Record<string, number>
+            stats?: { total_chapters: number } | null
+        },
     ) => void
+    mutateBookmarks: (() => void) | null
+    setMutateBookmarks: (fn: () => void) => void
     isBookmarked: (externalId: string) => boolean
     getByExternalId: (externalId: string) => Bookmark | undefined
     toggle: (externalId: string, manga: Manga) => Promise<void>
     updateStatus: (mangaId: string, status: ReadStatus) => Promise<void>
     remove: (externalId: string) => Promise<void>
     saveProgress: (
-        mangaId: string,
+        externalId: string,
         chapterId: string,
         chapterNumber: number,
         pageNumber: number,
@@ -28,7 +39,7 @@ export interface BookmarksStore {
         icon: string,
         color: string,
         isPublic?: boolean,
-    ) => Promise<{ error?: string }>
+    ) => Promise<{ error?: string; id?: string }>
     updateCollection: (
         id: string,
         name: string,

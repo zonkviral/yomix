@@ -1,5 +1,9 @@
 import { useState } from "react"
 
+import { useSearchParams } from "next/navigation"
+
+import { useSWRConfig } from "swr"
+
 import { List } from "@/components/ui/List/List"
 import { Modal } from "@/components/ui/Modal/Modal"
 
@@ -28,6 +32,11 @@ export const AddToCollectionModal = ({
 }: AddtoCollectionModalProps) => {
     const { collections, toggleCollection } = useBookmarksStore()
     const [loadingId, setLoadingId] = useState<string | null>(null)
+
+    const searchParams = useSearchParams()
+    const { mutate } = useSWRConfig()
+    const apiUrl = `/api/bookmarks?${searchParams.toString()}`
+
     const toggleCollectionHandler = async (
         collectionId: string,
         mangaId: string,
@@ -35,6 +44,11 @@ export const AddToCollectionModal = ({
         setLoadingId(collectionId)
         await toggleCollection(collectionId, mangaId)
         setLoadingId(null)
+
+        const activeCollection = searchParams.get("collection")
+        if (activeCollection === collectionId) {
+            mutate(apiUrl)
+        }
     }
 
     return (
@@ -67,7 +81,6 @@ export const AddToCollectionModal = ({
                         )
                         return (
                             <label
-                                htmlFor={`collection-${col.id}`}
                                 className={cn(
                                     "group/checkbox",
                                     "focus-within:ring-2 focus-within:ring-rose-500/80 focus-within:outline-none",
@@ -79,7 +92,6 @@ export const AddToCollectionModal = ({
                                 )}
                             >
                                 <input
-                                    id={`collection-${col.id}`}
                                     type="checkbox"
                                     className="sr-only"
                                     checked={isInCollection}

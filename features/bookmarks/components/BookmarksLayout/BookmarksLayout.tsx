@@ -1,5 +1,9 @@
 "use client"
 
+import { useCallback, useState } from "react"
+
+import { useModal } from "@/hooks/useModal"
+
 import { CarouselWrapper } from "@/components/ui/CarouselWrapper/CarouselWrapper"
 import { List } from "@/components/ui/List/List"
 import { Pagination } from "@/components/ui/Pagination/Pagination"
@@ -12,6 +16,9 @@ import { CollectionsSection } from "../Collection/CollectionsSection/Collections
 import { SideSectionWrapper } from "../SideSectionWrapper/SideSectionWrapper"
 import { BookmarksSkeleton } from "../BookmarksSkeleton/BookmarksSkeleton"
 import { BookmarksFilters } from "../BookmarksFilters/BookmarksFilters"
+import { AddToCollectionModal } from "../AddToCollectionModal/AddToCollectionModal"
+
+import { useBookmarksStore } from "../../store/bookmarks.store"
 
 import { Bookmark, Collection } from "@/lib/supabase/type"
 import { BookmarkFilters } from "@/lib/supabase/queries/bookmarks"
@@ -20,14 +27,10 @@ import { PAGE_SIZE } from "@/lib/supabase/queries/bookmarks.constants"
 import { BookAlert } from "lucide-react"
 
 interface BookmarksLayoutProps {
-    continueReading?: Bookmark[]
-    recentlyAdded?: Bookmark[]
     bookmarks: Bookmark[]
     totalCount: number
     collections?: Collection[]
     showSavePrompt?: boolean
-    stats?: { total_chapters: number } | null
-    statusCounts?: Record<string, number>
     loading?: boolean
     isPending?: boolean
     filters: Pick<BookmarkFilters, "q" | "status" | "collectionId" | "sort">
@@ -37,14 +40,9 @@ interface BookmarksLayoutProps {
 }
 
 export const BookmarksLayout = ({
-    continueReading,
-    recentlyAdded,
     bookmarks,
     totalCount,
-    collections,
     showSavePrompt = false,
-    stats,
-    statusCounts,
     loading = false,
     isPending = false,
     filters,
@@ -52,15 +50,37 @@ export const BookmarksLayout = ({
     onFilterChange,
     onPageChange,
 }: BookmarksLayoutProps) => {
+    const { open, close, isOpen } = useModal()
+    const [selectedBookmark, setSelectedBookmark] = useState<Bookmark>(
+        {} as Bookmark,
+    )
+
+    const handleOpenAddToCollection = useCallback(
+        (bookmark: Bookmark) => {
+            setSelectedBookmark(bookmark)
+            open()
+        },
+        [open],
+    )
+
+    const continueReading = useBookmarksStore((s) => s.continueReading)
+    const recentlyAdded = useBookmarksStore((s) => s.recentlyAdded)
+    const stats = useBookmarksStore((s) => s.stats)
+    const statusCounts = useBookmarksStore((s) => s.statusCounts)
+    const storeCollections = useBookmarksStore((s) => s.collections)
+
     const isFiltered = !!(
         filters.q ||
         (filters.status && filters.status !== "all") ||
         filters.collectionId
     )
+    const currentCollection = storeCollections?.find(
+        (col) => filters.collectionId === col.id,
+    )
     const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
     return (
-        <div className="grid grid-cols-[1fr_17.5rem] gap-8 p-4">
+        <div className="grid grid-cols-[1fr_17.5rem] gap-8 p-1">
             <div className="flex min-w-0 grow flex-col gap-5">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-1">
@@ -70,9 +90,6 @@ export const BookmarksLayout = ({
                         </span>
                     </div>
                 </div>
-
-                {loading && <BookmarksSkeleton rowBookmarks={false} />}
-
                 {continueReading && continueReading.length > 0 && (
                     <section>
                         <h2 className="text-xl">Продолжить читать</h2>
@@ -81,7 +98,10 @@ export const BookmarksLayout = ({
                                 className="mt-4 flex gap-4"
                                 items={continueReading}
                                 renderItem={(bookmark) => (
-                                    <BookmarkCard bookmark={bookmark} />
+                                    <BookmarkCard
+                                        bookmark={bookmark}
+                                        openModal={handleOpenAddToCollection}
+                                    />
                                 )}
                             />
                         </CarouselWrapper>
@@ -89,8 +109,10 @@ export const BookmarksLayout = ({
                 )}
 
                 <section className="my-6">
-                    <div className="mb-4 flex items-center justify-between gap-2">
-                        <h2 className="text-xl">Все закладки</h2>
+                    <div className="mb-4 flex w-full flex-wrap items-start justify-between gap-2">
+                        <h2 className="min-w-0 text-xl wrap-break-word">
+                            {currentCollection?.name ?? "Все закладки"}
+                        </h2>
                         <BookmarksFilters
                             currentQ={filters.q ?? ""}
                             currentSort={filters.sort ?? "created_at:desc"}
@@ -104,7 +126,10 @@ export const BookmarksLayout = ({
                                 className="mt-4 mb-6 grid grid-cols-1 gap-2 md:grid-cols-2 2xl:grid-cols-3"
                                 items={bookmarks}
                                 renderItem={(bookmark) => (
-                                    <BookmarkRow bookmark={bookmark} />
+                                    <BookmarkRow
+                                        bookmark={bookmark}
+                                        openModal={handleOpenAddToCollection}
+                                    />
                                 )}
                             />
                             {totalPages > 1 && (
@@ -116,6 +141,8 @@ export const BookmarksLayout = ({
                                 />
                             )}
                         </>
+                    ) : loading ? (
+                        <BookmarksSkeleton colBookmarks={false} />
                     ) : (
                         <p className="mt-2 text-sm text-gray-500">
                             {isFiltered
@@ -123,7 +150,6 @@ export const BookmarksLayout = ({
                                 : "Нет закладок. Добавьте мангу в закладки."}
                         </p>
                     )}
-                    {loading && <BookmarksSkeleton colBookmarks={false} />}
                 </section>
             </div>
 
@@ -153,7 +179,6 @@ export const BookmarksLayout = ({
                 )}
                 <CollectionsSection
                     isAuth={!showSavePrompt}
-                    collections={collections}
                     statusCounts={statusCounts}
                     activeStatus={filters.status ?? "all"}
                     activeCollectionId={filters.collectionId ?? ""}
@@ -163,6 +188,11 @@ export const BookmarksLayout = ({
                     <RecentlySection bookmarks={recentlyAdded} />
                 )}
             </div>
+            <AddToCollectionModal
+                isOpen={isOpen}
+                close={close}
+                bookmark={selectedBookmark}
+            />
         </div>
     )
 }
