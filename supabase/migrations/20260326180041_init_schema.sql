@@ -3,7 +3,6 @@
 -- ============================================================
 create extension if not exists pgcrypto;
 
-
 -- ============================================================
 -- PROFILES
 -- ============================================================
@@ -92,8 +91,7 @@ create table if not exists public.lists (
   is_public   boolean default false,
   position    int not null default 0,
   created_at  timestamp with time zone default now(),
-  updated_at  timestamp with time zone default now()
-  
+  updated_at  timestamp with time zone default now(),
   constraint lists_name_length check (char_length(name) <= 32)
 );
 
@@ -160,10 +158,13 @@ begin
 end;
 $$;
 
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-  after insert or update on auth.users
+create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
+
+create trigger on_auth_user_metadata_updated after update on auth.users
+  for each row
+  when (old.raw_user_meta_data->>'username' is distinct from new.raw_user_meta_data->>'username')
+  execute function public.handle_new_user();
 
 -- 2. auto-create user_stats row when profile is created
 create or replace function public.handle_new_profile()
@@ -180,7 +181,6 @@ begin
 end;
 $$;
 
-drop trigger if exists on_profile_created on public.profiles;
 create trigger on_profile_created
   after insert on public.profiles
   for each row execute function public.handle_new_profile();
@@ -203,7 +203,6 @@ begin
 end;
 $$;
 
-drop trigger if exists on_reading_progress_update on public.reading_progress;
 create trigger on_reading_progress_update
   after insert or update on public.reading_progress
   for each row execute function public.update_stats_on_progress();
@@ -242,6 +241,7 @@ begin
 end;
 $$;
 
+-- 6. get user collections with manga_ids
 create or replace function public.get_user_collections(p_user_id uuid)
 returns table (
   id uuid,
@@ -268,27 +268,73 @@ $$;
 
 grant execute on function public.get_user_collections(uuid) to authenticated;
 
-drop trigger if exists on_list_insert_limit on public.lists;
+-- 7. get continue reading
+create or replace function public.get_continue_reading(p_user_id uuid)
+returns table (
+    id uuid,
+    read_status text,
+    created_at timestamptz,
+    updated_at timestamptz,
+    manga_id uuid,
+    manga_title text,
+    manga_cover_url text,
+    manga_total_chapters float,
+    manga_author text,
+    source text,
+    external_id text,
+    chapter_id text,
+    chapter_number float,
+    page_number int,
+    progress_updated_at timestamptz
+)
+language sql stable security invoker
+set search_path = '' as $$
+    select
+        b.id,
+        b.read_status,
+        b.created_at,
+        b.updated_at,
+        m.id as manga_id,
+        m.title as manga_title,
+        m.cover_url as manga_cover_url,
+        m.total_chapters as manga_total_chapters,
+        m.author as manga_author,
+        ms.source,
+        ms.external_id,
+        rp.chapter_id,
+        rp.chapter_number,
+        rp.page_number,
+        rp.updated_at as progress_updated_at
+    from public.bookmarks b
+    inner join public.manga m on m.id = b.manga_id
+    inner join public.reading_progress rp
+        on rp.manga_id = b.manga_id
+        and rp.user_id = b.user_id
+    left join public.manga_sources ms on ms.manga_id = m.id
+    where b.user_id = p_user_id
+    order by rp.updated_at desc
+    limit 10;
+$$;
+
+grant execute on function public.get_continue_reading(uuid) to service_role;
+grant execute on function public.get_continue_reading(uuid) to authenticated;
+
 create trigger on_list_insert_limit
   before insert on public.lists
   for each row execute function public.check_lists_limit();
 
-drop trigger if exists set_profile_timestamp on public.profiles;
 create trigger set_profile_timestamp
   before update on public.profiles
   for each row execute function public.update_timestamp();
 
-drop trigger if exists set_bookmarks_timestamp on public.bookmarks;
 create trigger set_bookmarks_timestamp
   before update on public.bookmarks
   for each row execute function public.update_timestamp();
 
-drop trigger if exists set_lists_timestamp on public.lists;
 create trigger set_lists_timestamp
   before update on public.lists
   for each row execute function public.update_timestamp();
 
-drop trigger if exists set_progress_timestamp on public.reading_progress;
 create trigger set_progress_timestamp
   before update on public.reading_progress
   for each row execute function public.update_timestamp();
@@ -318,19 +364,6 @@ create policy "manga public read"
   to authenticated
   using (true);
 
-create policy "manga insert (cache)"
-  on public.manga
-  for insert
-  to authenticated
-  with check (true);
-
-create policy "manga update (cache)"
-  on public.manga
-  for update
-  to authenticated
-  using (true)
-  with check (true);
-
 -- ============================================================
 -- MANGA_SOURCES (cache for authenticated)
 -- ============================================================
@@ -339,19 +372,6 @@ create policy "manga_sources public read"
   for select
   to authenticated
   using (true);
-
-create policy "manga_sources insert (cache)"
-  on public.manga_sources
-  for insert
-  to authenticated
-  with check (true);
-
-create policy "manga_sources update (cache)"
-  on public.manga_sources
-  for update
-  to authenticated
-  using (true)
-  with check (true);
 
 -- Public read (only if is_public = true)
 create policy "profiles public read"
@@ -418,20 +438,13 @@ create policy "own list items"
   using (auth.uid() = (select user_id from public.lists where id = list_id))
   with check (auth.uid() = (select user_id from public.lists where id = list_id));
 
-create policy "own stats"
-  on public.user_stats
-  for all
-  to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
 create policy "own subscription"
   on public.subscriptions
-  for all
+  for select
   to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id );
 
+create policy "read own stats" on public.user_stats for select to authenticated using ( (select auth.uid()) = user_id );
 
 -- ============================================================
 -- INDEXES

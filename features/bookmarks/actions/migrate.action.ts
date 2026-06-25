@@ -3,10 +3,13 @@
 import { createClient } from "@/lib/supabase/server"
 import { LocalBookmark } from "../services/local-storage"
 
+import { createServiceClient } from "@/lib/supabase/service"
+
 export const migrateLocalBookmarks = async (bookmarks: LocalBookmark[]) => {
     if (!bookmarks.length) return { success: true }
 
     const supabase = await createClient()
+    const supabaseAdmin = createServiceClient()
     const {
         data: { user },
     } = await supabase.auth.getUser()
@@ -14,7 +17,7 @@ export const migrateLocalBookmarks = async (bookmarks: LocalBookmark[]) => {
 
     const externalIds = bookmarks.map((b) => b.id)
 
-    const { data: mangaSources } = await supabase
+    const { data: mangaSources } = await supabaseAdmin
         .from("manga_sources")
         .select("manga_id, external_id")
         .in("external_id", externalIds)
@@ -34,7 +37,7 @@ export const migrateLocalBookmarks = async (bookmarks: LocalBookmark[]) => {
         }
 
         if (!internalId) {
-            const { data: newManga, error } = await supabase
+            const { data: newManga, error } = await supabaseAdmin
                 .from("manga")
                 .insert(mangaData)
                 .select("id")
@@ -46,7 +49,7 @@ export const migrateLocalBookmarks = async (bookmarks: LocalBookmark[]) => {
             }
 
             if (newManga) {
-                await supabase.from("manga_sources").insert({
+                await supabaseAdmin.from("manga_sources").insert({
                     manga_id: newManga.id,
                     source: b.manga.manga_sources[0].source,
                     external_id: b.id,
@@ -54,7 +57,10 @@ export const migrateLocalBookmarks = async (bookmarks: LocalBookmark[]) => {
                 idMap[b.id] = newManga.id
             }
         } else {
-            await supabase.from("manga").update(mangaData).eq("id", internalId)
+            await supabaseAdmin
+                .from("manga")
+                .update(mangaData)
+                .eq("id", internalId)
         }
     }
 

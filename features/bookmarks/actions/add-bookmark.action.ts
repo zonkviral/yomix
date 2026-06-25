@@ -3,12 +3,14 @@
 import { updateTag } from "next/cache"
 
 import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
 
 import { Manga } from "@/lib/supabase/type"
 
 export const addBookmark = async (manga: Manga) => {
     const sourceData = manga.manga_sources[0]
     const supabase = await createClient()
+    const supabaseAdmin = createServiceClient()
     const {
         data: { user },
     } = await supabase.auth.getUser()
@@ -25,7 +27,7 @@ export const addBookmark = async (manga: Manga) => {
     let mangaId = existingSource?.manga_id
 
     if (!mangaId) {
-        const { data: newManga, error: mangaError } = await supabase
+        const { data: newManga, error: mangaError } = await supabaseAdmin
             .from("manga")
             .insert({
                 title: manga.title,
@@ -39,13 +41,13 @@ export const addBookmark = async (manga: Manga) => {
         if (mangaError) return { error: mangaError.message }
         mangaId = newManga.id
 
-        await supabase.from("manga_sources").insert({
+        await supabaseAdmin.from("manga_sources").insert({
             manga_id: mangaId,
             source: sourceData.source,
             external_id: sourceData.external_id,
         })
     } else {
-        await supabase
+        await supabaseAdmin
             .from("manga")
             .update({
                 title: manga.title,
