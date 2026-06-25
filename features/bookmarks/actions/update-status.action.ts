@@ -1,5 +1,7 @@
 "use server"
 
+import { updateTag } from "next/cache"
+
 import { createClient } from "@/lib/supabase/server"
 
 import { ReadStatus } from "@/lib/supabase/type"
@@ -25,5 +27,8 @@ export const updateReadStatus = async (mangaId: string, status: ReadStatus) => {
         .eq("manga_id", mangaId)
 
     if (error) return { error: error.message }
+    updateTag(`status-counts-${user.id}`)
+    updateTag(`continue-reading-${user.id}`)
+    updateTag(`collection-${user.id}`)
     return { success: true }
 }

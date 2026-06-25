@@ -26,5 +26,6 @@ export const toggleCollectionAction = async (
     if (error) return { error: error.message }
 
     updateTag(`collections-${user.id}`)
+    updateTag(`continue-reading-${user.id}`)
     return { success: true }
 }

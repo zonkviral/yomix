@@ -1,5 +1,7 @@
 "use server"
 
+import { updateTag } from "next/cache"
+
 import { createClient } from "@/lib/supabase/server"
 
 import { Manga } from "@/lib/supabase/type"
@@ -78,6 +80,10 @@ export const addBookmark = async (manga: Manga) => {
             return { error: "Already bookmarked" }
         return { error: bookmarkError.message }
     }
+    updateTag(`recently-added-${user.id}`)
+    updateTag(`continue-reading-${user.id}`)
+    updateTag(`collection-${user.id}`)
+    updateTag(`status-counts-${user.id}`)
 
     return { success: true, data: bookmarkData }
 }
