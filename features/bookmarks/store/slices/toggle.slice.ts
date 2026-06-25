@@ -32,6 +32,7 @@ export const createToggleSlice = (set: StoreSet, get: StoreGet) => ({
             } else {
                 await handleAdd({ externalId, manga, isGuest, bookmarks, set })
             }
+            get().mutateBookmarks?.()
         } catch (err) {
             console.error("toggle error:", err)
             set({ bookmarks })
