@@ -6,15 +6,18 @@ create extension if not exists pgcrypto;
 -- ============================================================
 -- PROFILES
 -- ============================================================
-create table if not exists public.profiles (
-  id         uuid references auth.users(id) on delete cascade primary key,
-  username   text unique,
-  avatar_url text,
-  bio        text,
-  banner_url text,
-  is_public  boolean default true,
-  created_at timestamp with time zone default now(),
-  updated_at timestamp with time zone default now()
+create table public.profiles (
+  id          uuid references auth.users(id) on delete cascade primary key,
+  username    text unique,
+  bio         text,
+  banner_url  text,
+  is_public   boolean default true,
+  avatar_type text not null default 'generated'
+                check (avatar_type in ('generated', 'upload')),
+  avatar_seed text not null default substr(replace(gen_random_uuid()::text, '-', ''), 1, 8),
+  avatar_url  text,
+  created_at  timestamp with time zone default now(),
+  updated_at  timestamp with time zone default now()
 );
 
 
@@ -364,9 +367,6 @@ create policy "manga public read"
   to authenticated
   using (true);
 
--- ============================================================
--- MANGA_SOURCES (cache for authenticated)
--- ============================================================
 create policy "manga_sources public read"
   on public.manga_sources
   for select
@@ -379,6 +379,34 @@ create policy "profiles public read"
   for select
   to authenticated
   using (is_public = true);
+
+-- ============================================================
+-- STORAGE (avatars)
+-- ============================================================
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 1048576, array['image/webp','image/jpeg','image/png'])
+on conflict (id) do nothing;
+
+create policy "own avatar upload"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'avatars'
+    and (storage.foldername(name))[1] = (select auth.uid())::text
+  );
+
+create policy "own avatar update"
+  on storage.objects for update
+  to authenticated
+  using (
+    bucket_id = 'avatars'
+    and (storage.foldername(name))[1] = (select auth.uid())::text
+  );
+
+create policy "avatars public read"
+  on storage.objects for select
+  to public
+  using (bucket_id = 'avatars');
 
 -- Own profile read
 create policy "own profile select"

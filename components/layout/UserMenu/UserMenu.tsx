@@ -1,17 +1,17 @@
-import { useAuth } from "@/features/auth/context/AuthContext"
-import { logoutClient } from "@/features/auth/services/auth.service"
+import { UserDropdownMenu } from "./UserDropdownMenu"
+import { NotificationMenu } from "./NotificationMenu"
 
-export const UserMenu = () => {
-    const { username } = useAuth()
-    const handleLogout = async () => {
-        await logoutClient()
-    }
+import { Profile } from "@/lib/supabase/type"
+
+interface UserMenuProps {
+    profile: Profile
+}
+
+export const UserMenu = ({ profile }: UserMenuProps) => {
     return (
-        <div className="ml-auto flex">
-            <div>Welcome, {username}!</div>
-            <button type="button" onClick={handleLogout}>
-                Logout
-            </button>
+        <div className="ml-auto flex gap-3 select-none">
+            <NotificationMenu />
+            <UserDropdownMenu profile={profile} />
         </div>
     )
 }

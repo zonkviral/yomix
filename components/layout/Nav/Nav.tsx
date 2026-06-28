@@ -14,7 +14,7 @@ export const Nav = () => {
             return (
                 <li key={id}>
                     <Link
-                        className="hover:bg-secondary flex items-center gap-3 p-3 pl-6"
+                        className="hover:bg-secondary flex items-center gap-3 p-3 pl-5 text-lg"
                         href={item.href}
                     >
                         <Icon />
@@ -24,7 +24,7 @@ export const Nav = () => {
             )
         })
     return (
-        <nav className="bg-surface border-primary col-start-1 row-start-2 border-r pt-7">
+        <nav className="bg-surface border-primary col-start-1 row-start-2 border-r pt-7 select-none">
             <ul className="list-none items-center text-xl">{navRender()}</ul>
         </nav>
     )

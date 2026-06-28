@@ -1,3 +1,13 @@
+export type Profile = {
+    username: string | null
+    bio: string | null
+    banner_url: string | null
+    is_public: boolean
+    avatar_type: "generated" | "upload"
+    avatar_seed: string
+    avatar_url: string | null
+}
+
 export type ReadStatus =
     | "reading"
     | "on_hold"

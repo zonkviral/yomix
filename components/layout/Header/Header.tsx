@@ -1,17 +1,21 @@
-"use client"
+import Link from "next/link"
+import Image from "next/image"
+
 import { SearchBar } from "@/features/search/SearchBar"
 import { Auth } from "@/features/auth/components/Auth"
 
 import { UserMenu } from "@/components/layout/UserMenu/UserMenu"
 
-import { useAuth } from "@/features/auth/context/AuthContext"
+import type { User } from "@supabase/supabase-js"
 
-import Link from "next/link"
-import Image from "next/image"
+import { Profile } from "@/lib/supabase/type"
 
-export const Header = () => {
-    const { user, username, loading } = useAuth()
+interface HeaderProps {
+    user: User | null
+    profile: Profile | null
+}
 
+export const Header = ({ user, profile }: HeaderProps) => {
     return (
         <header className="bg-surface border-primary col-span-2 row-start-1 flex items-center rounded-t-sm border-b-[0.5px] px-5 py-1">
             <div className="mt-1 mr-10 h-10 w-37.5">
@@ -29,15 +33,7 @@ export const Header = () => {
                 </Link>
             </div>
             <SearchBar />
-            {loading ? (
-                <div className="ml-auto h-8 w-24 animate-pulse rounded bg-neutral-800" />
-            ) : user && username ? (
-                <UserMenu />
-            ) : user && !username ? (
-                <div className="ml-auto h-8 w-24 animate-pulse rounded bg-neutral-800" />
-            ) : (
-                <Auth />
-            )}
+            {user && profile ? <UserMenu profile={profile} /> : <Auth />}
         </header>
     )
 }

@@ -3,7 +3,7 @@ import { BookmarksPageGuest } from "@/features/bookmarks/components/BookmarksPag
 import { BookmarksPageAuth } from "@/features/bookmarks/components/BookmarksPageAuth/BookmarksPageAuth"
 import { BookmarksSkeleton } from "@/features/bookmarks/components/BookmarksSkeleton/BookmarksSkeleton"
 
-import { getBookmarkStatusCounts } from "@/lib/supabase/queries/getBookmarksCounts"
+import { getBookmarkStatusCounts } from "@/lib/supabase/queries/bookmark-status-counts"
 import { getUserCollections } from "@/lib/supabase/queries/collections"
 import { getUserStats } from "@/lib/supabase/queries/stats"
 import { createClient } from "@/lib/supabase/server"
