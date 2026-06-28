@@ -1,5 +1,7 @@
 import { saveProgress } from "../../actions/save-progress.action"
+
 import { updateLocalReadingProgress } from "../../services/local-storage"
+
 import { BookmarksStore, StoreSet } from "../types"
 
 export const createProgressSlice = (
@@ -21,6 +23,25 @@ export const createProgressSlice = (
         )
 
         set((s) => ({
+            continueReading: s.continueReading.map((b) =>
+                b.manga.manga_sources?.some(
+                    (ms) => ms.external_id === externalMangaId,
+                )
+                    ? {
+                          ...b,
+                          manga: {
+                              ...b.manga,
+                              reading_progress: [
+                                  {
+                                      chapter_id: chapterId,
+                                      chapter_number: chapterNumber,
+                                      page_number: pageNumber,
+                                  },
+                              ],
+                          },
+                      }
+                    : b,
+            ),
             bookmarks: s.bookmarks.map((b) =>
                 b.manga.manga_sources?.some(
                     (ms) => ms.external_id === externalMangaId,
@@ -55,7 +76,7 @@ export const createProgressSlice = (
         if (!bookmark?.manga.id) return
 
         const payload = {
-            mangaId: bookmark.manga.id,
+            externalId: externalMangaId,
             chapterId,
             chapterNumber,
             pageNumber,

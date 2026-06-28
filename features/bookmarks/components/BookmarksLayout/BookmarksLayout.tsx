@@ -78,15 +78,18 @@ export const BookmarksLayout = ({
         (col) => filters.collectionId === col.id,
     )
     const totalPages = Math.ceil(totalCount / PAGE_SIZE)
-
+    const totalCounts = Object.values(statusCounts ?? {}).reduce(
+        (a, b) => a + b,
+        0,
+    )
     return (
-        <div className="grid grid-cols-[1fr_17.5rem] gap-8 p-1">
+        <div className="grid grid-cols-[1fr_17.5rem] gap-7 p-1">
             <div className="flex min-w-0 grow flex-col gap-5">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-1">
                         <h1 className="text-2xl font-bold">Закладки</h1>
                         <span className="rounded bg-[#17151a] px-1 py-px text-rose-500/80">
-                            {totalCount}
+                            {totalCounts}
                         </span>
                     </div>
                 </div>
@@ -123,7 +126,7 @@ export const BookmarksLayout = ({
                     {bookmarks.length > 0 ? (
                         <>
                             <List
-                                className="mt-4 mb-6 grid grid-cols-1 gap-2 md:grid-cols-2 2xl:grid-cols-3"
+                                className="mt-4 mb-6 grid grid-cols-1 gap-2 lg:grid-cols-2 2xl:grid-cols-3"
                                 items={bookmarks}
                                 renderItem={(bookmark) => (
                                     <BookmarkRow
