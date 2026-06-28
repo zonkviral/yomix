@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Inter, Nunito } from "next/font/google"
 
-import { AuthProvider } from "@/features/auth/context/AuthContext"
+import { AuthListener } from "@/features/auth/components/AuthListener"
 
 import "./globals.css"
 
@@ -16,9 +16,7 @@ const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito" })
 
 export default function RootLayout({
     children,
-}: Readonly<{
-    children: React.ReactNode
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
     return (
         <html
             lang="en"
@@ -26,7 +24,8 @@ export default function RootLayout({
             suppressHydrationWarning
         >
             <body>
-                <AuthProvider>{children}</AuthProvider>
+                {children}
+                <AuthListener />
             </body>
         </html>
     )

@@ -1,4 +1,4 @@
-import { useReducer } from "react"
+import { useReducer, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { AnimatedBorder } from "@/components/ui/AnimatedBorder/AnimatedBorder"
@@ -20,9 +20,8 @@ import {
     getLocalBookmarks,
 } from "@/features/bookmarks/services/local-storage"
 
-import { useAuth } from "@/features/auth/context/AuthContext"
-
 import { Lock, Mail, User, UserPlus } from "lucide-react"
+import { cn } from "@/utils/cn"
 
 const initialState = {
     showPassword: false,
@@ -57,7 +56,7 @@ export const RegisterForm = ({
 }) => {
     const [state, dispatch] = useReducer(reducer, initialState)
     const { showPassword, showConfirmPassword, passwordFocused } = state
-    const { refreshAuth, loading } = useAuth()
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const router = useRouter()
 
     const {
@@ -77,20 +76,22 @@ export const RegisterForm = ({
     )
 
     const onSubmit = async (data: typeof values) => {
+        setIsSubmitting(true)
         const result = await register({
             email: data.email,
             password: data.password,
             username: data.username,
         })
         if (result.error) {
+            setIsSubmitting(false)
             return setServerError(result.error)
         }
         const migrateResult = await migrateLocalBookmarks(getLocalBookmarks())
         if (migrateResult.error) {
+            setIsSubmitting(false)
             return setServerError(migrateResult.error)
         }
         clearLocalBookmarks()
-        await refreshAuth()
         router.refresh()
     }
 
@@ -245,12 +246,17 @@ export const RegisterForm = ({
                     )}
 
                     <AnimatedBorder
-                        isAnimating={loading}
+                        isAnimating={isSubmitting}
                         className="w-full overflow-hidden rounded-xl p-px"
                     >
                         <button
                             type="submit"
-                            className="relative z-10 flex w-full items-center justify-center rounded-xl bg-rose-600/70 px-4 py-3 text-sm font-medium text-white hover:bg-rose-600/60"
+                            disabled={isSubmitting}
+                            className={cn(
+                                "relative z-10 flex w-full items-center justify-center",
+                                "rounded-xl bg-rose-600/70 px-4 py-3 text-sm font-medium text-white hover:bg-rose-600/60",
+                                "disabled: bg-rose-600/20",
+                            )}
                         >
                             Зарегистрироваться
                         </button>
