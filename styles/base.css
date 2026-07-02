@@ -1,0 +1,52 @@
+@layer base {
+    body {
+        @apply bg-neutral-950 antialiased;
+        margin: 0;
+        color: var(--color-text);
+        font-family: var(--font-inter);
+        background-image: url("@/assets/background.webp");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+
+    h1 {
+        @apply text-3xl font-bold tracking-tight text-white;
+    }
+    h2 {
+        @apply text-xl font-bold tracking-tight text-white md:text-2xl;
+    }
+    h3 {
+        @apply text-base font-semibold text-white md:text-lg;
+    }
+    h4 {
+        @apply text-sm font-semibold tracking-wide text-white/50 uppercase;
+    }
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-nunito);
+    }
+
+    p {
+        @apply text-sm leading-relaxed text-neutral-400;
+    }
+
+    button {
+        @apply cursor-pointer bg-transparent p-0 outline-hidden;
+        font: inherit;
+    }
+
+    input[type="search"] {
+        &::-webkit-search-cancel-button {
+            visibility: hidden;
+        }
+        &:focus,
+        &:focus-visible {
+            outline: none;
+        }
+    }
+}

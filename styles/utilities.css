@@ -1,0 +1,9 @@
+@utility gradient-text {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@utility bg-app {
+    background: var(--color-background);
+}

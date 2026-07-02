@@ -1,0 +1,138 @@
+@keyframes border-spin {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes heartPop {
+    0% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(0.75);
+    }
+    50% {
+        transform: scale(1.4);
+    }
+    75% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes particleFly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-6px);
+    }
+    40% {
+        transform: translateX(6px);
+    }
+    60% {
+        transform: translateX(-4px);
+    }
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in-from-bottom-2 {
+    from {
+        opacity: 0;
+        transform: translateY(0.75rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoom-in-95 {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-shake-once {
+    animation: shake 0.4s ease both;
+}
+
+.animate-shake {
+    animation: shake 0.4s ease;
+}
+
+.fade-in {
+    animation: fade-in 220ms ease-out both;
+}
+
+.slide-in-from-bottom-2 {
+    animation: slide-in-from-bottom-2 220ms ease-out both;
+}
+
+.zoom-in-95 {
+    animation: zoom-in-95 220ms ease-out both;
+}
+
+.search-spin::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 0;
+    width: 300%;
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
+    background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        #ec4899 30%,
+        transparent 40%
+    );
+    animation: border-spin 2s linear infinite;
+}
+
+/* Respect the user's motion preference across every animation above. */
+@media (prefers-reduced-motion: reduce) {
+    .animate-border-spin,
+    .animate-shake-once,
+    .animate-shake,
+    .fade-in,
+    .slide-in-from-bottom-2,
+    .zoom-in-95,
+    .search-spin::before {
+        animation: none;
+    }
+}
