@@ -11,7 +11,6 @@ import { getMangaByName } from "@/lib/Remanga/getMangabyName"
 
 import { createClient } from "@/lib/supabase/server"
 
-import { getFlagUrl } from "@/utils/langToFlag"
 import { getTitle } from "@/utils/getTitle"
 import { htmlTagsRemover } from "@/utils/htmlTagsRemover"
 
@@ -109,9 +108,7 @@ export const MangaPageInfo = async ({
                 status: manga.attributes.status,
                 year: manga.attributes.year,
                 tags: getTags(manga),
-                languages: manga.attributes.availableTranslatedLanguages.map(
-                    (lang) => getFlagUrl(lang),
-                ),
+                languages: manga.attributes.availableTranslatedLanguages,
             }}
         />
     )

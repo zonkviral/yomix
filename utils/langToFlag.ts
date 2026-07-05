@@ -26,9 +26,13 @@ export const langToCountry: Record<string, string> = {
     el: "gr",
     ur: "pk",
     hi: "in",
+    ka: "ge",
+    he: "il",
+    ta: "in",
+    te: "in",
 }
 
 export const getFlagUrl = (lang: string) => {
-    const country = langToCountry[lang] ?? lang
-    return `https://flagcdn.com/24x18/${country}.png`
+    const countryCode = langToCountry[lang.toLowerCase()] || lang
+    return `https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`
 }

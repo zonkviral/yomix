@@ -13,6 +13,7 @@ import { Star } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useMemo } from "react"
+import { getFlagUrl } from "@/utils/langToFlag"
 
 interface MangaOverviewProps {
     id: string
@@ -52,14 +53,24 @@ export const MangaOverview = ({
             {
                 label: "Языки:",
                 value: info.languages.map((lang, index) => (
-                    <div key={index} className="relative h-4.5 w-6">
-                        <Image src={lang} alt="flag" fill sizes="24px" />
+                    <div
+                        key={index}
+                        className="relative h-4.5 w-6"
+                        title={lang}
+                    >
+                        <Image
+                            src={getFlagUrl(lang)}
+                            alt="flag"
+                            fill
+                            sizes="24px"
+                        />
                     </div>
                 )),
             },
         ],
         [info],
     )
+
     return (
         <div className="px-6 py-8">
             <div className="3xl:grid-cols-[33%_1fr] grid grid-cols-1 gap-6 md:grid-cols-[240px_1fr] xl:grid-cols-[24%_1fr] xl:gap-10 2xl:gap-14">
