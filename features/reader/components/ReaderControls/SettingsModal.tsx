@@ -110,6 +110,7 @@ export const SettingsModal = ({ onClose }: Props) => {
                             value={bg.value}
                             name="bg-color"
                             checked={bgColor === bg.value}
+                            className="flex-0"
                             onChange={() =>
                                 setBgColor(bg.value as ReaderBgColor)
                             }

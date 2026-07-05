@@ -1,32 +1,71 @@
-import { Children, ReactNode } from "react"
+"use client"
+
+import { ReactNode, useState, useEffect, useRef } from "react"
 import { cn } from "@/utils/cn"
 
 interface Props {
     children: ReactNode
     activeIndex?: number
     className?: string
+    variant?: "inset" | "fill"
+    indicatorClassName?: string
 }
 
-export const RadioGroup = ({ children, activeIndex, className }: Props) => {
-    const count = Children.count(children)
+export const RadioGroup = ({
+    children,
+    activeIndex,
+    className,
+    variant = "inset",
+    indicatorClassName = "bg-rose-900",
+}: Props) => {
+    const containerRef = useRef<HTMLDivElement>(null)
+    const [dimensions, setDimensions] = useState({ left: 0, width: 0 })
+
+    useEffect(() => {
+        if (activeIndex === undefined || !containerRef.current) return
+        const tabs = containerRef.current.querySelectorAll("[data-radio-tab]")
+        const activeTab = tabs[activeIndex] as HTMLElement
+
+        if (activeTab) {
+            setDimensions({
+                left: activeTab.offsetLeft,
+                width: activeTab.offsetWidth,
+            })
+        }
+    }, [activeIndex, children])
 
     return (
         <div
+            ref={containerRef}
             className={cn(
-                "relative flex items-center rounded-md bg-white/5 p-1",
+                "relative flex w-max items-center rounded-md bg-white/5",
+                variant === "fill" && "overflow-hidden",
                 className,
             )}
         >
             {activeIndex !== undefined && (
                 <span
-                    className="absolute top-1 bottom-1 rounded bg-rose-900 transition-transform duration-300 ease-in-out"
+                    className={cn(
+                        "pointer-events-none absolute top-0 bottom-0 transition-all duration-300 ease-in-out",
+                        variant === "inset" ? "p-1" : "p-0",
+                    )}
                     style={{
-                        width: `calc((100% - 8px) / ${count})`,
-                        transform: `translateX(calc(${activeIndex} * 100%))`,
+                        left: `${dimensions.left}px`,
+                        width: `${dimensions.width}px`,
                     }}
-                />
+                >
+                    <span
+                        className={cn(
+                            "execution-layer block h-full w-full",
+                            variant === "inset" ? "rounded" : "rounded-none",
+                            indicatorClassName,
+                        )}
+                    />
+                </span>
             )}
-            {children}
+            <div className="relative z-10 flex h-full w-full items-center gap-0">
+                {children}
+            </div>
         </div>
     )
 }

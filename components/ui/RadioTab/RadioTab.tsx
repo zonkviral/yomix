@@ -1,3 +1,5 @@
+"use client"
+
 import { ReactNode } from "react"
 import { cn } from "@/utils/cn"
 
@@ -10,7 +12,6 @@ interface Props {
     className?: string
     renderOption?: (checked: boolean) => ReactNode
 }
-
 export const RadioTab = ({
     label,
     value,
@@ -20,7 +21,10 @@ export const RadioTab = ({
     className,
     renderOption,
 }: Props) => (
-    <label className={cn("relative z-10 cursor-pointer", className)}>
+    <label
+        data-radio-tab
+        className={cn("z-10 cursor-pointer text-sm select-none", className)}
+    >
         <input
             type="radio"
             name={name}
@@ -34,7 +38,7 @@ export const RadioTab = ({
         ) : (
             <span
                 className={cn(
-                    "block rounded px-2.5 py-1 text-sm font-medium transition-colors duration-300",
+                    "block rounded px-3 py-1 text-center font-medium transition-colors duration-300",
                     checked
                         ? "text-white"
                         : "text-white/50 hover:text-white/80",
