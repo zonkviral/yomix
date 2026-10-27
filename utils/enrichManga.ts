@@ -43,35 +43,14 @@ export const withCover = (manga: Manga): MangaWithCover => ({
 })
 
 export const withTitle = (manga: Manga): string => {
-    const titleRu = getTitle(
-        manga.attributes.title,
-        manga.attributes.altTitles,
-        "ru",
-    )
-    const titleEn = getTitle(
-        manga.attributes.title,
-        manga.attributes.altTitles,
-        "en",
-    )
-    return (
-        titleRu?.[0] ??
-        titleEn?.[0] ??
-        Object.values(manga.attributes.title)[0] ??
-        ""
-    )
+    const titleRu = getTitle(manga.attributes.title, manga.attributes.altTitles, "ru")
+    const titleEn = getTitle(manga.attributes.title, manga.attributes.altTitles, "en")
+    return titleRu?.[0] ?? titleEn?.[0] ?? Object.values(manga.attributes.title)[0] ?? ""
 }
 
 const getRemangaData = async (manga: Manga): Promise<ReManga | null> => {
-    const titleRu = getTitle(
-        manga.attributes.title,
-        manga.attributes.altTitles,
-        "ru",
-    )
-    const titleEn = getTitle(
-        manga.attributes.title,
-        manga.attributes.altTitles,
-        "en",
-    )
+    const titleRu = getTitle(manga.attributes.title, manga.attributes.altTitles, "ru")
+    const titleEn = getTitle(manga.attributes.title, manga.attributes.altTitles, "en")
     if (titleRu && manga.attributes.description["ru"]) return null
     const searchResults = await cachedSearchManga(titleEn?.[0] ?? "")
     if (!searchResults?.[0]?.dir) return null
@@ -80,11 +59,7 @@ const getRemangaData = async (manga: Manga): Promise<ReManga | null> => {
 
 const enrichOne = async (manga: Manga): Promise<EnrichedManga> => {
     const remanga = await getRemangaData(manga)
-    const titleRu = getTitle(
-        manga.attributes.title,
-        manga.attributes.altTitles,
-        "ru",
-    )
+    const titleRu = getTitle(manga.attributes.title, manga.attributes.altTitles, "ru")
     const originalTitle = Object.values(manga.attributes.title)[0]
 
     const description = htmlTagsRemover(

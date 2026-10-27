@@ -352,7 +352,7 @@ $$;
 GRANT EXECUTE ON FUNCTION public.resolve_manga_titles(uuid[], text) TO authenticated, service_role;
 
 -- get continue reading
-CREATE OR REPLACE FUNCTION public.get_continue_reading(p_user_id uuid)
+CREATE OR REPLACE FUNCTION public.get_continue_reading(p_user_id uuid, p_system_lang text DEFAULT 'en')
     RETURNS TABLE(
         id uuid,
         read_status text,
@@ -379,23 +379,22 @@ CREATE OR REPLACE FUNCTION public.get_continue_reading(p_user_id uuid)
         b.read_status,
         b.created_at,
         b.updated_at,
-        m.id AS manga_id,
-        public.resolve_manga_title(m.id, p.system_lang) AS manga_title,
-        m.cover_url AS manga_cover_url,
-        m.total_chapters AS manga_total_chapters,
-        m.author AS manga_author,
+        m.id,
+        public.resolve_manga_title(m.id, p_system_lang),
+        m.cover_url,
+        m.total_chapters,
+        m.author,
         m.external_id,
-        rp.source AS reading_source,
+        rp.source,
         rp.chapter_id,
         rp.chapter_number,
         rp.page_number,
-        rp.updated_at AS progress_updated_at
+        rp.updated_at
     FROM
         public.bookmarks b
         INNER JOIN public.manga m ON m.id = b.manga_id
         INNER JOIN public.reading_progress rp ON rp.manga_id = b.manga_id
             AND rp.user_id = b.user_id
-        INNER JOIN public.profiles p ON p.id = p_user_id
     WHERE
         b.user_id = p_user_id
     ORDER BY
@@ -403,9 +402,9 @@ CREATE OR REPLACE FUNCTION public.get_continue_reading(p_user_id uuid)
     LIMIT 10;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.get_continue_reading(uuid) TO service_role;
+GRANT EXECUTE ON FUNCTION public.get_continue_reading(uuid, text) TO service_role;
 
-GRANT EXECUTE ON FUNCTION public.get_continue_reading(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_continue_reading(uuid, text) TO authenticated;
 
 -- total_chapters, recomputed from chapter_reads, scoped to manga
 CREATE OR REPLACE FUNCTION public.update_stats_on_chapter_read()
@@ -852,11 +851,6 @@ CREATE POLICY "manga public read" ON public.manga
     FOR SELECT TO authenticated
     USING (TRUE);
 
--- Public read (only if is_public = true)
-CREATE POLICY "profiles public read" ON public.profiles
-    FOR SELECT TO authenticated
-    USING (is_public = TRUE);
-
 CREATE POLICY "public collections read" ON public.collections
     FOR SELECT TO authenticated
     USING (is_public = TRUE);
@@ -872,10 +866,12 @@ CREATE POLICY "public collection items read" ON public.collection_items
             c.id = collection_id
             AND c.is_public = TRUE));
 
--- Own profile read
-CREATE POLICY "own profile select" ON public.profiles
+CREATE POLICY "profiles read" ON public.profiles
     FOR SELECT TO authenticated
-    USING (auth.uid() = id);
+    USING (is_public
+        OR (
+            SELECT
+                auth.uid()) = id);
 
 -- Own profile insert
 CREATE POLICY "own profile insert" ON public.profiles
