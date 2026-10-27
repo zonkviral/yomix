@@ -1,3 +1,5 @@
+import { formatDate } from "./formatDate"
+
 export const formatRelativeDate = (date: Date) => {
     const now = new Date()
     const diffInMs = now.getTime() - date.getTime()
@@ -17,9 +19,5 @@ export const formatRelativeDate = (date: Date) => {
     if (diffInDays < 7) {
         return `${diffInDays} дн. назад`
     }
-    return date.toLocaleDateString("ru-RU", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    })
+    return formatDate(date)
 }

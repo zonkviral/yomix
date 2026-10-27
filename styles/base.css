@@ -1,6 +1,6 @@
 @layer base {
     body {
-        @apply bg-neutral-950 antialiased;
+        @apply bg-neutral-950 text-neutral-200 antialiased selection:bg-rose-500/30 selection:text-white;
         margin: 0;
         color: var(--color-text);
         font-family: var(--font-inter);
@@ -8,21 +8,33 @@
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        background-attachment: fixed;
+
+        background-attachment: scroll;
+        @media (min-width: 1024px) {
+            background-attachment: fixed;
+        }
     }
 
     h1 {
-        @apply text-3xl font-bold tracking-tight text-white;
+        @apply text-2xl leading-tight font-bold tracking-tight text-white;
+        @apply sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl;
     }
+
     h2 {
-        @apply text-xl font-bold tracking-tight text-white md:text-2xl;
+        @apply text-xl leading-snug font-bold tracking-tight text-white;
+        @apply md:text-2xl lg:text-3xl;
     }
+
     h3 {
-        @apply text-base font-semibold text-white md:text-lg;
+        @apply text-base leading-normal font-semibold text-white;
+        @apply md:text-lg lg:text-xl;
     }
+
     h4 {
-        @apply text-sm font-semibold tracking-wide text-white/50 uppercase;
+        @apply text-xs font-bold tracking-wider text-white/40 uppercase;
+        @apply md:text-sm;
     }
+
     h2,
     h3,
     h4,
@@ -32,11 +44,12 @@
     }
 
     p {
-        @apply text-sm leading-relaxed text-neutral-400;
+        @apply text-xs leading-relaxed text-neutral-400;
+        @apply sm:text-sm md:text-base;
     }
 
     button {
-        @apply cursor-pointer bg-transparent p-0 outline-hidden;
+        @apply cursor-pointer bg-transparent p-0 outline-hidden transition-all duration-200;
         font: inherit;
     }
 
