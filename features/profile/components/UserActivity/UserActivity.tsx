@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { SectionWrapper } from "../SectionWrapper"
+import { SectionCard } from "@/components/ui/SectionCard/SectionCard"
+
 import { ActivityTabs } from "./ActivityTabs"
 import { ActivityStats } from "./ActivityStats"
 import { ActivityChart } from "./ActivityChart/ActivityChart"
@@ -60,16 +61,14 @@ export const UserActivity = () => {
     const { bars, stats } = DATA[period]
 
     return (
-        <SectionWrapper
+        <SectionCard
             title="Активность"
             action={<ActivityTabs period={period} setPeriod={setPeriod} />}
         >
             <ActivityChart bars={bars} />
             <ActivityStats stats={stats} />
             <div>
-                <h4 className="mb-3 font-semibold tracking-wider text-white/40">
-                    Любимые жанры
-                </h4>
+                <h4 className="mb-3 font-semibold tracking-wider text-white/40">Любимые жанры</h4>
                 <div className="flex flex-wrap gap-2">
                     {GENRES.map((g) => (
                         <div
@@ -77,13 +76,11 @@ export const UserActivity = () => {
                             className="flex items-center gap-1.5 rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-1.5 text-xs font-medium text-violet-200"
                         >
                             {g.name}
-                            <span className="font-semibold text-[#f43f5e]">
-                                {g.pct}%
-                            </span>
+                            <span className="font-semibold text-[#f43f5e]">{g.pct}%</span>
                         </div>
                     ))}
                 </div>
             </div>
-        </SectionWrapper>
+        </SectionCard>
     )
 }

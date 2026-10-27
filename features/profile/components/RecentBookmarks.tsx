@@ -1,9 +1,12 @@
 import Image from "next/image"
-import { SectionWrapper } from "./SectionWrapper"
 import Link from "next/link"
-import { Bookmark, Circle, Star } from "lucide-react"
+
+import { SectionCard } from "@/components/ui/SectionCard/SectionCard"
 import { List } from "@/components/ui/List/List"
+
 import { cn } from "@/utils/cn"
+
+import { Bookmark, Circle, Star } from "lucide-react"
 
 const cover =
     "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimg.freepik.com%2Fpremium-photo%2Fcartoon-anime-style-comic-book-cover-young-beautiful-girl-wallpaper-background_782419-936884.jpg&f=1&nofb=1&ipt=9da9b97949dd92b89bfb1578656cc14dac0f5543e34eff23db2187830a23ae81"
@@ -11,14 +14,10 @@ const cover =
 const BookmarkCard = () => (
     <div
         className={cn(
-            "group relative my-2 grid grid-cols-[auto_1fr_auto] items-stretch gap-3 rounded-lg border-b border-zinc-800/80 py-1 transition-colors last:border-b-0 hover:bg-white/[0.03]",
+            "group relative my-2 grid grid-cols-[auto_1fr_auto] items-stretch gap-3 rounded-lg border-b border-zinc-800/80 py-1 transition-colors last:border-b-0 hover:bg-white/3",
         )}
     >
-        <Link
-            href="#12"
-            className="absolute inset-0 z-10"
-            aria-label="Открыть тайтл"
-        >
+        <Link href="#12" className="absolute inset-0 z-10" aria-label="Открыть тайтл">
             <span className="sr-only">Открыть тайтл</span>
         </Link>
 
@@ -64,7 +63,7 @@ const BookmarkCard = () => (
 )
 
 export const RecentBookmarks = () => (
-    <SectionWrapper
+    <SectionCard
         title="Недавние Закладки"
         action={
             <Link
@@ -76,5 +75,5 @@ export const RecentBookmarks = () => (
         }
     >
         <List items={[0, 1, 2, 3]} renderItem={() => <BookmarkCard />} />
-    </SectionWrapper>
+    </SectionCard>
 )

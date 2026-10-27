@@ -4,8 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { List } from "@/components/ui/List/List"
-
-import { SectionWrapper } from "./SectionWrapper"
+import { SectionCard } from "@/components/ui/SectionCard/SectionCard"
 
 import { cn } from "@/utils/cn"
 
@@ -27,7 +26,7 @@ export const ProfileHeader = () => {
     const copy = () => navigator.clipboard.writeText(username)
 
     return (
-        <SectionWrapper className="col-span-2 px-12">
+        <SectionCard className="col-span-2 px-12">
             {/* <ProfileBanner
         bannerUrl={profile.banner_url}
         isOwnProfile={currentUser?.id === profile.id} */}
@@ -54,9 +53,8 @@ export const ProfileHeader = () => {
                             @username
                         </span>
                         <p className="text-sm text-gray-500">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit, sed do eiusmod tempor incididunt ut labore et
-                            dolore magna
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                            tempor incididunt ut labore et dolore magna
                         </p>
                         <div className="mt-2 flex items-center">
                             <CalendarMinus2Icon className="w-4 text-rose-800/80" />
@@ -122,15 +120,11 @@ export const ProfileHeader = () => {
                 keyExtractor={(item) => item.label}
                 renderItem={(item) => (
                     <>
-                        <span className="text-xl text-[#f43f5e]">
-                            {item.value}
-                        </span>
-                        <span className="text-lg text-gray-600">
-                            {item.label}
-                        </span>
+                        <span className="text-xl text-[#f43f5e]">{item.value}</span>
+                        <span className="text-lg text-gray-600">{item.label}</span>
                     </>
                 )}
             />
-        </SectionWrapper>
+        </SectionCard>
     )
 }

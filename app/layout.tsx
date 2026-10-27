@@ -14,16 +14,10 @@ export const metadata: Metadata = {
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito" })
 
-export default function RootLayout({
-    children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
-        <html
-            lang="en"
-            className={`${inter.variable} ${nunito.variable}`}
-            suppressHydrationWarning
-        >
-            <body>
+        <html lang="en" className={`${inter.variable} ${nunito.variable}`} suppressHydrationWarning>
+            <body suppressHydrationWarning>
                 {children}
                 <AuthListener />
             </body>
