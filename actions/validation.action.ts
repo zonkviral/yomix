@@ -1,34 +1,29 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { cookies } from "next/headers"
 
-export const register = async (formData: {
-    email: string
-    password: string
-    username: string
-}) => {
+export const register = async (formData: { email: string; password: string; username: string }) => {
     const { email, password, username } = formData
 
     if (!username || username.trim().length < 3)
         return { error: "Имя пользователя слишком короткое" }
 
-    if (!/^[a-zA-Z0-9_-]+$/.test(username.trim()))
-        return { error: "Только буквы, цифры, - и _" }
+    if (!/^[a-zA-Z0-9_-]+$/.test(username.trim())) return { error: "Только буквы, цифры, - и _" }
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-        return { error: "Некорректный email" }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Некорректный email" }
 
-    if (!password || password.length < 6)
-        return { error: "Пароль слишком короткий" }
+    if (!password || password.length < 6) return { error: "Пароль слишком короткий" }
 
     const supabase = await createClient()
+    const systemLang = (await cookies()).get("system_lang")?.value ?? "en"
 
     // Create auth user
     const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
         options: {
-            data: { username: username.trim() },
+            data: { username: username.trim(), system_lang: systemLang },
         },
     })
 
@@ -41,7 +36,6 @@ export const register = async (formData: {
         .upsert({ id: authData.user.id, username: username.trim() })
         .select()
 
-    if (profileError)
-        return { error: `Profile creation failed: ${profileError.message}` }
+    if (profileError) return { error: `Profile creation failed: ${profileError.message}` }
     return { success: true }
 }

@@ -36,17 +36,13 @@ export const CollectionsSection = ({
 
     const handleStatusClick = (value: string) => {
         onFilterChange?.({
-            status: value === "all" ? "" : value,
+            status: value,
             collection: "",
         })
     }
 
     return (
-        <SideSectionWrapper
-            title="Коллекции"
-            isEditable={isAuth}
-            onEdit={() => setEdit(!edit)}
-        >
+        <SideSectionWrapper title="Коллекции" isEditable={isAuth} onEdit={() => setEdit(!edit)}>
             <List
                 className="mt-4 flex flex-col gap-1"
                 items={defaultCollections}
@@ -56,18 +52,13 @@ export const CollectionsSection = ({
                         !activeCollectionId &&
                         (activeStatus === collectionValue ||
                             (collectionValue === "all" && !activeStatus))
-                    const totalCount = Object.values(statusCounts ?? {}).reduce(
-                        (a, b) => a + b,
-                        0,
-                    )
+                    const totalCount = Object.values(statusCounts ?? {}).reduce((a, b) => a + b, 0)
                     return (
                         <CollectionButton
                             isActive={isActive}
                             icon={
                                 collection.icon && (
-                                    <collection.icon
-                                        className={`w-4 ${collection.color}`}
-                                    />
+                                    <collection.icon className={`w-4 ${collection.color}`} />
                                 )
                             }
                             label={collection.label}

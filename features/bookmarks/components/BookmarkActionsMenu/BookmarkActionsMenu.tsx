@@ -33,8 +33,7 @@ export const BookmarkActionsMenu = ({
     const router = useRouter()
     const pathname = usePathname()
 
-    const mangaId = bookmark.manga.id
-    const externalId = bookmark.manga.manga_sources?.[0]?.external_id ?? ""
+    const externalId = bookmark.manga.external_id
 
     const handleAction = useCallback(
         async (itemId: string) => {
@@ -68,9 +67,9 @@ export const BookmarkActionsMenu = ({
 
     const handleStatusChange = useCallback(
         async (status: ReadStatus) => {
-            await updateStatus(mangaId, status)
+            await updateStatus(externalId, status)
         },
-        [updateStatus, mangaId],
+        [updateStatus, externalId],
     )
 
     return (
@@ -95,19 +94,13 @@ export const BookmarkActionsMenu = ({
                         items={menuItems}
                         keyExtractor={(item) => item.label}
                         renderItem={(item) => {
-                            if (
-                                item.id === "add-to-collection" &&
-                                collections.length === 0
-                            )
-                                return
+                            if (item.id === "add-to-collection" && collections.length === 0) return
                             const Icon = item.icon
                             if (item.options) {
                                 return (
                                     <DropdownMenu.Sub>
                                         <DropdownMenu.SubTrigger className="flex w-full cursor-pointer items-center rounded px-2 py-1.5 text-white/80 transition-colors outline-none hover:bg-neutral-700/50 hover:text-white data-[state=open]:bg-neutral-700/50 data-[state=open]:text-white">
-                                            {Icon && (
-                                                <Icon className="mr-2 h-4 w-4" />
-                                            )}
+                                            {Icon && <Icon className="mr-2 h-4 w-4" />}
                                             <span>{item.label}</span>
                                             <ChevronRight className="ml-auto w-4 text-white/70" />
                                         </DropdownMenu.SubTrigger>
@@ -119,18 +112,14 @@ export const BookmarkActionsMenu = ({
                                                 className="z-50 w-48 rounded bg-neutral-800 p-1 text-sm text-white shadow"
                                             >
                                                 {item.options.map((option) => {
-                                                    const OptionIcon =
-                                                        option.icon
+                                                    const OptionIcon = option.icon
                                                     const isActive =
-                                                        bookmark.read_status ===
-                                                        option.value
+                                                        bookmark.read_status === option.value
                                                     return (
                                                         <DropdownMenu.Item
                                                             key={option.value}
                                                             onSelect={() =>
-                                                                handleStatusChange(
-                                                                    option.value,
-                                                                )
+                                                                handleStatusChange(option.value)
                                                             }
                                                             className="flex w-full cursor-pointer items-center rounded px-2 py-1.5 transition-colors outline-none hover:bg-neutral-700/50 hover:text-white"
                                                         >
@@ -139,9 +128,7 @@ export const BookmarkActionsMenu = ({
                                                                     className={`mr-2 w-4 ${option.color}`}
                                                                 />
                                                             )}
-                                                            <span>
-                                                                {option.label}
-                                                            </span>
+                                                            <span>{option.label}</span>
                                                             {isActive && (
                                                                 <Check className="ml-auto w-3" />
                                                             )}

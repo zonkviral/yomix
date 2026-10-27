@@ -15,13 +15,10 @@ interface RecentlySectionProps {
     bookmarks: Bookmark[]
 }
 const renderRecentlyItem = (bookmark: Bookmark) => {
-    const externalId = bookmark.manga.manga_sources?.[0]?.external_id
+    const externalId = bookmark.manga.external_id
     const totalChapters = bookmark.manga.total_chapters
     return (
-        <Link
-            href={`/manga/${externalId}`}
-            className="flex gap-4 rounded p-1 hover:bg-neutral-800"
-        >
+        <Link href={`/manga/${externalId}`} className="flex gap-4 rounded p-1 hover:bg-neutral-800">
             <div className="relative h-24 w-16 shrink-0">
                 <Image
                     loading="lazy"
@@ -38,9 +35,7 @@ const renderRecentlyItem = (bookmark: Bookmark) => {
                         {bookmark.manga.title}
                     </h3>
                     {totalChapters !== 0 && totalChapters && (
-                        <span className="mt-1 text-sm font-semibold">
-                            Глава {totalChapters}
-                        </span>
+                        <span className="mt-1 text-sm font-semibold">Глава {totalChapters}</span>
                     )}
                 </div>
                 <span className="mb-0.5 text-sm text-gray-500">

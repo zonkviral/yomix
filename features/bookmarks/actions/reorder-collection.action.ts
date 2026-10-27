@@ -4,9 +4,7 @@ import { updateTag } from "next/cache"
 
 import { createClient } from "@/lib/supabase/server"
 
-export const reorderCollectionsAction = async (
-    items: { id: string; position: number }[],
-) => {
+export const reorderCollectionsAction = async (items: { id: string; position: number }[]) => {
     const supabase = await createClient()
     const {
         data: { user },
@@ -15,11 +13,7 @@ export const reorderCollectionsAction = async (
 
     const results = await Promise.all(
         items.map(({ id, position }) =>
-            supabase
-                .from("lists")
-                .update({ position })
-                .eq("id", id)
-                .eq("user_id", user.id),
+            supabase.from("collections").update({ position }).eq("id", id).eq("user_id", user.id),
         ),
     )
 

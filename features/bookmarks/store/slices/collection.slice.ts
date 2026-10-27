@@ -10,12 +10,7 @@ import { Collection } from "@/lib/supabase/type"
 import { isInCollectionHandler } from "../helpers"
 
 export const collectionSlice = (set: StoreSet, get: StoreGet) => ({
-    createCollection: async (
-        name: string,
-        icon: string,
-        color: string,
-        isPublic?: boolean,
-    ) => {
+    createCollection: async (name: string, icon: string, color: string, isPublic?: boolean) => {
         const result = await createCollection(name, icon, color, isPublic)
         if (result.error) return result
 
@@ -74,36 +69,28 @@ export const collectionSlice = (set: StoreSet, get: StoreGet) => ({
         return result
     },
 
-    toggleCollection: async (collectionId: string, mangaId: string) => {
+    toggleCollection: async (collectionId: string, externalId: string) => {
         const previous = get().collections
-        const collection = get().collections.find((c) => c.id === collectionId)
+        const collection = previous.find((c) => c.id === collectionId)
         if (!collection) return { error: "Collection not found" }
 
-        const isInCollection = isInCollectionHandler(collection, mangaId)
+        const add = !isInCollectionHandler(collection, externalId)
 
         set((state) => ({
             collections: state.collections.map((c) =>
                 c.id === collectionId
                     ? {
                           ...c,
-                          manga_ids: isInCollection
-                              ? c.manga_ids?.filter((id) => id !== mangaId)
-                              : [...(c.manga_ids ?? []), mangaId],
+                          manga_ids: add
+                              ? [...(c.manga_ids ?? []), externalId]
+                              : (c.manga_ids ?? []).filter((id) => id !== externalId),
                       }
                     : c,
             ),
         }))
 
-        const result = await toggleCollectionAction(
-            collectionId,
-            mangaId,
-            isInCollection,
-        )
-
-        if (result.error) {
-            set({ collections: previous })
-        }
-
+        const result = await toggleCollectionAction(collectionId, externalId, add)
+        if (result.error) set({ collections: previous })
         return result
     },
 

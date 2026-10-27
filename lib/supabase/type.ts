@@ -1,3 +1,6 @@
+import { TitleInput } from "@/features/manga/service/titles"
+import { ChapterSource } from "../chapters/types"
+
 export type Profile = {
     username: string | null
     bio: string | null
@@ -8,12 +11,7 @@ export type Profile = {
     avatar_url: string | null
 }
 
-export type ReadStatus =
-    | "reading"
-    | "on_hold"
-    | "completed"
-    | "dropped"
-    | "plan_to_read"
+export type ReadStatus = "reading" | "on_hold" | "completed" | "dropped" | "plan_to_read"
 
 export interface UserStats {
     total_chapters?: number
@@ -24,7 +22,8 @@ export interface UserStats {
 export interface Manga {
     id: string
     title: string
-    manga_sources: MangaSource[]
+    titles?: TitleInput[]
+    external_id: string
     cover_url?: string
     cached_at?: string
     author?: string
@@ -41,6 +40,8 @@ export interface Collection {
     is_public: boolean
     position: number
     manga_ids?: string[]
+    created_at: string
+    updated_at: string
 }
 
 export interface ReadingProgress {
@@ -49,6 +50,7 @@ export interface ReadingProgress {
     page_number?: number
     read_at?: string
     updated_at?: string
+    source: ChapterSource
 }
 
 export interface Bookmark {
@@ -68,11 +70,4 @@ export interface MangaInfo {
     year: number | null
     tags: string[]
     languages: string[]
-}
-
-export interface MangaSource {
-    id: string
-    manga_id: string
-    source: string
-    external_id: string
 }

@@ -1,11 +1,16 @@
 "use client"
+
 import { useEffect, useRef, useState } from "react"
 
 import { useBookmark } from "../../hooks/useBookmark"
 
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+
 import { Manga } from "@/lib/supabase/type"
 
-import { Heart } from "lucide-react"
+import { cn } from "@/utils/cn"
+
+import { Bookmark, ChevronDown } from "lucide-react"
 
 const PARTICLE_COLORS = ["#fb7185", "#f43f5e", "#fda4af", "#fbbf24", "#fb923c"]
 const ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]
@@ -31,8 +36,7 @@ export const BookmarkButton = ({ mangaId, manga }: BookmarkButtonProps) => {
         if (heart) {
             heart.style.animation = "none"
             void heart.getBoundingClientRect()
-            heart.style.animation =
-                "heartPop 0.45s cubic-bezier(.36,.07,.19,.97) forwards"
+            heart.style.animation = "heartPop 0.45s cubic-bezier(.36,.07,.19,.97) forwards"
         }
 
         if (!isBookmarked && btnRef.current) {
@@ -66,22 +70,50 @@ export const BookmarkButton = ({ mangaId, manga }: BookmarkButtonProps) => {
 
     return (
         <>
-            {!hasMounted && (
-                <div className="w-10 animate-pulse rounded bg-gray-700 px-2 py-1" />
-            )}
-            {hasMounted && (
+            <div
+                className={cn(
+                    "flex items-stretch rounded-xl bg-neutral-900",
+                    "shadow-md shadow-neutral-900/50 transition",
+                    "disabled:cursor-not-allowed disabled:opacity-50",
+                )}
+            >
                 <button
                     ref={btnRef}
                     onClick={handleClick}
                     disabled={isToggling || !hasMounted}
-                    className="relative cursor-pointer rounded bg-gray-700 px-2 py-1 shadow-md shadow-gray-900/50 transition hover:bg-gray-600 hover:shadow-lg hover:shadow-gray-900/70 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-l-xl px-3 hover:bg-neutral-800 hover:shadow-lg hover:shadow-neutral-900/70"
                 >
-                    <Heart
+                    <Bookmark
                         ref={heartRef}
-                        className={`all inline w-6 stroke-rose-600 stroke-1 transition ${isBookmarked ? "fill-rose-500" : ""}`}
+                        className={cn("all inline w-6 stroke-rose-600 stroke-1 transition", {
+                            "fill-rose-500": isBookmarked,
+                        })}
                     />
+                    <span className="pl-2">{isBookmarked ? "В закладках" : "В закладки"}</span>
                 </button>
-            )}
+                <span className="h-full w-px bg-zinc-800/80" />
+                <DropdownMenu.Root modal={false}>
+                    <DropdownMenu.Trigger
+                        className={cn(
+                            "group relative rounded-r-xl px-2 transition",
+                            "hover:bg-neutral-800",
+                        )}
+                    >
+                        <ChevronDown className="w-5 text-white/50 transition-all group-data-[state=open]:rotate-180" />
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content className="z-50 rounded bg-neutral-800 p-2 text-sm text-white shadow-md">
+                        <DropdownMenu.Item className="cursor-pointer rounded px-2 py-1 hover:bg-neutral-700">
+                            Читаю
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item className="cursor-pointer rounded px-2 py-1 hover:bg-neutral-700">
+                            Прочитано
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item className="cursor-pointer rounded px-2 py-1 hover:bg-neutral-700">
+                            Запланировано
+                        </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                </DropdownMenu.Root>
+            </div>
         </>
     )
 }

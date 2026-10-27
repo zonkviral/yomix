@@ -1,4 +1,3 @@
-// hooks/useBookmark.ts
 "use client"
 
 import { useBookmarksStore } from "../store/bookmarks.store"

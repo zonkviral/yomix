@@ -51,9 +51,7 @@ export const BookmarksLayout = ({
     onPageChange,
 }: BookmarksLayoutProps) => {
     const { open, close, isOpen } = useModal()
-    const [selectedBookmark, setSelectedBookmark] = useState<Bookmark>(
-        {} as Bookmark,
-    )
+    const [selectedBookmark, setSelectedBookmark] = useState<Bookmark | null>(null)
 
     const handleOpenAddToCollection = useCallback(
         (bookmark: Bookmark) => {
@@ -74,14 +72,9 @@ export const BookmarksLayout = ({
         (filters.status && filters.status !== "all") ||
         filters.collectionId
     )
-    const currentCollection = storeCollections?.find(
-        (col) => filters.collectionId === col.id,
-    )
+    const currentCollection = storeCollections?.find((col) => filters.collectionId === col.id)
     const totalPages = Math.ceil(totalCount / PAGE_SIZE)
-    const totalCounts = Object.values(statusCounts ?? {}).reduce(
-        (a, b) => a + b,
-        0,
-    )
+    const totalCounts = Object.values(statusCounts ?? {}).reduce((a, b) => a + b, 0)
     return (
         <div className="grid grid-cols-[1fr_17.5rem] gap-7 p-1">
             <div className="flex min-w-0 grow flex-col gap-5">
@@ -160,14 +153,11 @@ export const BookmarksLayout = ({
                 {showSavePrompt && (
                     <SideSectionWrapper
                         title="Перенесите библиотеку"
-                        icon={
-                            <BookAlert className="float-left mt-0.5 mr-1 w-5" />
-                        }
+                        icon={<BookAlert className="float-left mt-0.5 mr-1 w-5" />}
                     >
                         <p className="mt-2 text-sm text-gray-500">
-                            Войдите в аккаунт, чтобы ваши закладки были доступны
-                            везде. Без аккаунта данные могут удалиться при
-                            очистке кеша.
+                            Войдите в аккаунт, чтобы ваши закладки были доступны везде. Без аккаунта
+                            данные могут удалиться при очистке кеша.
                         </p>
                     </SideSectionWrapper>
                 )}
@@ -191,11 +181,7 @@ export const BookmarksLayout = ({
                     <RecentlySection bookmarks={recentlyAdded} />
                 )}
             </div>
-            <AddToCollectionModal
-                isOpen={isOpen}
-                close={close}
-                bookmark={selectedBookmark}
-            />
+            <AddToCollectionModal isOpen={isOpen} close={close} bookmark={selectedBookmark} />
         </div>
     )
 }

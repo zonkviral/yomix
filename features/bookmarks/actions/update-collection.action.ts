@@ -17,7 +17,7 @@ export const updateCollection = async (
     } = await supabase.auth.getUser()
     if (!user) return { error: "Not authenticated" }
     const { error } = await supabase
-        .from("lists")
+        .from("collections")
         .update({ name, icon, color, is_public: isPublic })
         .eq("id", id)
 

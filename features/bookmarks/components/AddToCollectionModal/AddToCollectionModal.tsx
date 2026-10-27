@@ -22,14 +22,10 @@ import { Check } from "lucide-react"
 interface AddtoCollectionModalProps {
     isOpen: boolean
     close: () => void
-    bookmark: Bookmark
+    bookmark: Bookmark | null
 }
 
-export const AddToCollectionModal = ({
-    isOpen,
-    close,
-    bookmark,
-}: AddtoCollectionModalProps) => {
+export const AddToCollectionModal = ({ isOpen, close, bookmark }: AddtoCollectionModalProps) => {
     const { collections, toggleCollection } = useBookmarksStore()
     const [loadingId, setLoadingId] = useState<string | null>(null)
 
@@ -37,10 +33,7 @@ export const AddToCollectionModal = ({
     const { mutate } = useSWRConfig()
     const apiUrl = `/api/bookmarks?${searchParams.toString()}`
 
-    const toggleCollectionHandler = async (
-        collectionId: string,
-        mangaId: string,
-    ) => {
+    const toggleCollectionHandler = async (collectionId: string, mangaId: string) => {
         setLoadingId(collectionId)
         await toggleCollection(collectionId, mangaId)
         setLoadingId(null)
@@ -50,6 +43,9 @@ export const AddToCollectionModal = ({
             mutate(apiUrl)
         }
     }
+    if (!bookmark) return null
+
+    const externalId = bookmark.manga.external_id
 
     return (
         <Modal
@@ -60,12 +56,8 @@ export const AddToCollectionModal = ({
         >
             <div className="md:min-w-80">
                 <div className="px-4">
-                    <h3 className="text-xl font-bold text-white">
-                        Добавить в коллекцию
-                    </h3>
-                    <h4 className="mt-2 text-lg text-gray-400">
-                        Мои коллекции
-                    </h4>
+                    <h3 className="text-xl font-bold text-white">Добавить в коллекцию</h3>
+                    <h4 className="mt-2 text-lg text-gray-400">Мои коллекции</h4>
                 </div>
                 <List
                     className={cn(
@@ -75,10 +67,7 @@ export const AddToCollectionModal = ({
                     renderItem={(col) => {
                         const Icon = iconMap[col.icon]
                         const color = colorsMap[col.color]
-                        const isInCollection = isInCollectionHandler(
-                            col,
-                            bookmark.manga.id,
-                        )
+                        const isInCollection = isInCollectionHandler(col, externalId)
                         return (
                             <label
                                 className={cn(
@@ -87,8 +76,7 @@ export const AddToCollectionModal = ({
                                     "rounded-lg shadow-xs/20 inset-ring-2 inset-ring-neutral-950/50",
                                     "flex items-center justify-between",
                                     "hover:bg-secondary w-full cursor-pointer px-2 py-3 text-white",
-                                    loadingId === col.id &&
-                                        "pointer-events-none opacity-50",
+                                    loadingId === col.id && "pointer-events-none opacity-50",
                                 )}
                             >
                                 <input
@@ -96,19 +84,13 @@ export const AddToCollectionModal = ({
                                     className="sr-only"
                                     checked={isInCollection}
                                     disabled={loadingId === col.id}
-                                    onChange={() =>
-                                        toggleCollectionHandler(
-                                            col.id,
-                                            bookmark.manga.id,
-                                        )
-                                    }
+                                    onChange={() => toggleCollectionHandler(col.id, externalId)}
                                 />
                                 <span
                                     className={cn(
                                         "relative mr-2 flex h-5 w-5 items-center justify-center rounded border-2 border-neutral-500",
                                         "group-focus-within/checkbox:border-rose-500/45 group-hover/checkbox:border-rose-500/45",
-                                        isInCollection &&
-                                            "border-0 bg-rose-600/65",
+                                        isInCollection && "border-0 bg-rose-600/65",
                                     )}
                                 >
                                     {isInCollection && (
@@ -123,9 +105,7 @@ export const AddToCollectionModal = ({
                                         )}
                                     />
                                 )}
-                                <span className="flex-1 pl-2 text-base">
-                                    {col.name}
-                                </span>
+                                <span className="flex-1 pl-2 text-base">{col.name}</span>
                                 <span className="ml-auto pr-1 pl-4 text-sm text-gray-400">
                                     {col.manga_ids?.length ?? 0}
                                 </span>

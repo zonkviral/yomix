@@ -1,3 +1,4 @@
+import { getSystemLang } from "@/lib/i18n/getSystemLang"
 import { getUserBookmarks } from "@/lib/supabase/queries/bookmarks"
 import { createClient } from "@/lib/supabase/server"
 
@@ -17,6 +18,6 @@ export async function GET(request: Request) {
         page: Number(searchParams.get("page") ?? 0),
     }
 
-    const { data, count } = await getUserBookmarks(user.id, filters)
+    const { data, count } = await getUserBookmarks(user.id, filters, await getSystemLang())
     return Response.json({ bookmarks: data, total: count })
 }

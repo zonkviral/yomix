@@ -9,8 +9,6 @@ export const getLastPage = (bookmark: Bookmark) =>
 export const getLastChapterId = (bookmark: Bookmark) =>
     bookmark.manga?.reading_progress?.[0]?.chapter_id || null
 
-export const getExternalId = (bookmark: Bookmark) =>
-    bookmark.manga?.manga_sources?.[0]?.external_id || null
+export const getExternalId = (bookmark: Bookmark) => bookmark.manga?.external_id ?? null
 
-export const getTotalChapters = (bookmark: Bookmark) =>
-    bookmark.manga?.total_chapters || 0
+export const getTotalChapters = (bookmark: Bookmark) => bookmark.manga?.total_chapters || 0

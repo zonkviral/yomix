@@ -1,8 +1,8 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
-
 import { updateTag } from "next/cache"
+
+import { createClient } from "@/lib/supabase/server"
 
 export const removeCollection = async (collectionId: string) => {
     const supabase = await createClient()
@@ -12,7 +12,7 @@ export const removeCollection = async (collectionId: string) => {
     if (!user) return { error: "Not authenticated" }
 
     const { error } = await supabase
-        .from("lists")
+        .from("collections")
         .delete()
         .eq("id", collectionId)
         .eq("user_id", user.id)

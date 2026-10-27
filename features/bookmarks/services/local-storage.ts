@@ -1,3 +1,4 @@
+import { ChapterSource } from "@/lib/chapters/types"
 import { Bookmark, Manga } from "@/lib/supabase/type"
 
 const KEY = "local_bookmarks"
@@ -14,21 +15,19 @@ export const getLocalBookmarks = (): LocalBookmark[] => {
 
 export const addLocalBookmark = (manga: Manga) => {
     const bookmarks = getLocalBookmarks()
-    if (bookmarks.find((b) => b.id === manga.id)) return
-    const score = bookmarks.find((b) =>
-        b.manga.manga_sources?.some((ms) => ms.external_id === manga.id),
-    )?.score
+    if (bookmarks.some((b) => b.manga.external_id === manga.external_id)) return
 
     const newBookmark: LocalBookmark = {
-        id: manga.id,
+        id: manga.external_id,
         read_status: "plan_to_read",
-        score: score ?? undefined,
+        score: undefined,
         updated_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
         manga: {
             id: manga.id,
+            external_id: manga.external_id,
             title: manga.title,
-            manga_sources: manga.manga_sources,
+            titles: manga.titles,
             author: manga.author ?? undefined,
             cover_url: manga.cover_url,
             total_chapters: manga.total_chapters ?? undefined,
@@ -39,28 +38,27 @@ export const addLocalBookmark = (manga: Manga) => {
         KEY,
         JSON.stringify(
             [...bookmarks, newBookmark].sort(
-                (a, b) =>
-                    new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime(),
+                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
             ),
         ),
     )
 }
 
-export const removeLocalBookmark = (mangaId: string) => {
-    const bookmarks = getLocalBookmarks().filter((b) => b.id !== mangaId)
+export const removeLocalBookmark = (externalId: string) => {
+    const bookmarks = getLocalBookmarks().filter((b) => b.manga.external_id !== externalId)
     localStorage.setItem(KEY, JSON.stringify(bookmarks))
 }
 
 export const updateLocalReadingProgress = (
-    mangaId: string,
+    externalId: string,
     chapterId: string,
     chapterNumber: number,
     pageNumber: number,
+    source: ChapterSource,
 ) => {
     const bookmarks = getLocalBookmarks()
     const updated = bookmarks.map((b) => {
-        if (b.id !== mangaId) return b
+        if (b.manga.external_id !== externalId) return b
 
         return {
             ...b,
@@ -72,6 +70,7 @@ export const updateLocalReadingProgress = (
                         chapter_number: chapterNumber,
                         chapter_id: chapterId,
                         page_number: pageNumber,
+                        source,
                     },
                 ],
             },
@@ -80,10 +79,10 @@ export const updateLocalReadingProgress = (
     localStorage.setItem(KEY, JSON.stringify(updated))
 }
 
-export const updateLocalReadStatus = (mangaId: string, status: string) => {
+export const updateLocalReadStatus = (externalId: string, status: string) => {
     const bookmarks = getLocalBookmarks()
     const updated = bookmarks.map((b) => {
-        if (b.id !== mangaId) return b
+        if (b.manga.external_id !== externalId) return b
         return {
             ...b,
             updated_at: new Date().toISOString(),

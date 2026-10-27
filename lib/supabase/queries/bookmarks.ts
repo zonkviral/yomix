@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { Bookmark } from "../type"
 import { PAGE_SIZE } from "./bookmarks.constants"
+import { resolveTitles } from "./resolve-titles"
 
 export interface BookmarkFilters {
     q?: string
@@ -18,14 +19,9 @@ export interface BookmarksResult {
 export const getUserBookmarks = async (
     userId: string,
     filters: BookmarkFilters = {},
+    systemLang = "en",
 ): Promise<BookmarksResult> => {
-    const {
-        q,
-        status,
-        sort = "created_at:desc",
-        collectionId,
-        page = 0,
-    } = filters
+    const { q, status, sort = "created_at:desc", collectionId, page = 0 } = filters
 
     const supabase = await createClient()
     const [sortBy, sortDir] = sort.split(":") as [string, "asc" | "desc"]
@@ -33,7 +29,7 @@ export const getUserBookmarks = async (
     let collectionMangaIds: string[] | null = null
     if (collectionId) {
         const { data } = await supabase
-            .from("list_items")
+            .from("collection_items")
             .select("manga_id")
             .eq("list_id", collectionId)
         collectionMangaIds = data?.map((i) => i.manga_id) ?? []
@@ -46,9 +42,8 @@ export const getUserBookmarks = async (
             `
             id, read_status, score, updated_at, created_at, completed_at, started_at,
             manga (
-                id, title, cover_url, total_chapters, author,
-                manga_sources (id, source, external_id),
-                reading_progress (chapter_id, chapter_number, page_number)
+                id, cover_url, total_chapters, author, external_id,
+                reading_progress (chapter_id, chapter_number, page_number, source)
             )
         `,
             { count: "exact" },
@@ -62,13 +57,15 @@ export const getUserBookmarks = async (
         query = query.in("manga_id", collectionMangaIds)
     }
 
-    if (q) {
-        const { data: mangaData } = await supabase
-            .from("manga")
-            .select("id")
-            .ilike("title", `%${q.trim()}%`)
-
-        const ids = mangaData?.map((m) => m.id) ?? []
+    const searchText = q?.trim()
+    if (searchText) {
+        const { data: matches } = await supabase.rpc("search_manga_titles", {
+            p_query: searchText,
+            p_system_lang: systemLang,
+            p_limit: 100,
+            p_user_id: userId,
+        })
+        const ids = ((matches ?? []) as { manga_id: string }[]).map((m) => m.manga_id)
         if (ids.length === 0) return { data: [], count: 0 }
         query = query.in("manga_id", ids)
     }
@@ -81,11 +78,20 @@ export const getUserBookmarks = async (
     const { data, error, count } = await query
     if (error) console.error("getUserBookmarks error:", error.message)
 
-    let result = (data ?? []) as unknown as Bookmark[]
+    const rows = (data ?? []) as unknown as Bookmark[]
+    const titles = await resolveTitles(
+        supabase,
+        rows.map((r) => r.manga.id),
+        systemLang,
+    )
+
+    let result = rows.map((r) => ({
+        ...r,
+        manga: { ...r.manga, title: titles.get(r.manga.id) ?? "" },
+    }))
+
     if (sortBy === "title") {
-        result = result.sort((a, b) =>
-            a.manga.title.localeCompare(b.manga.title, "ru"),
-        )
+        result = result.sort((a, b) => a.manga.title.localeCompare(b.manga.title, systemLang))
     }
 
     return { data: result, count: count ?? 0 }

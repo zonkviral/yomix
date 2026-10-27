@@ -1,15 +1,10 @@
 import { Bookmark, Collection } from "@/lib/supabase/type"
 
 export const findByExternalId = (bookmarks: Bookmark[], externalId: string) =>
-    bookmarks?.find((b) =>
-        b.manga.manga_sources?.some((ms) => ms.external_id === externalId),
-    )
+    bookmarks?.find((b) => b.manga.external_id === externalId)
 
 export const filterByExternalId = (bookmarks: Bookmark[], externalId: string) =>
-    bookmarks.filter(
-        (b) =>
-            !b.manga.manga_sources?.some((ms) => ms.external_id === externalId),
-    )
+    bookmarks.filter((b) => b.manga.external_id !== externalId)
 
 export const addToToggling = (set: Set<string>, id: string) => {
     const next = new Set(set)
@@ -23,7 +18,5 @@ export const removeFromToggling = (set: Set<string>, id: string) => {
     return next
 }
 
-export const isInCollectionHandler = (
-    collection: Collection,
-    mangaId: string,
-) => collection.manga_ids?.includes(mangaId) ?? false
+export const isInCollectionHandler = (collection: Collection, externalId: string) =>
+    collection.manga_ids?.includes(externalId) ?? false

@@ -17,7 +17,7 @@ export const createCollection = async (
     if (!user) return { error: "Not authenticated" }
 
     const { data: existing } = await supabase
-        .from("lists")
+        .from("collections")
         .select("position")
         .eq("user_id", user.id)
         .order("position", { ascending: false })
@@ -27,7 +27,7 @@ export const createCollection = async (
     const nextPosition = (existing?.position ?? -1) + 1
 
     const { data, error } = await supabase
-        .from("lists")
+        .from("collections")
         .insert({
             user_id: user.id,
             name,

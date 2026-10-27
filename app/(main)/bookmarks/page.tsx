@@ -18,14 +18,13 @@ const BookmarksContent = async () => {
 
     if (!user) return <BookmarksPageGuest />
 
-    const [continueReading, recentlyAdded, stats, collections, statusCounts] =
-        await Promise.all([
-            getContinueReading(user.id),
-            getRecentlyAdded(user.id),
-            getUserStats(user.id),
-            getUserCollections(user.id),
-            getBookmarkStatusCounts(user.id),
-        ])
+    const [continueReading, recentlyAdded, stats, collections, statusCounts] = await Promise.all([
+        getContinueReading(user.id, user.user_metadata?.systemLang ?? "en"),
+        getRecentlyAdded(user.id, user.user_metadata?.systemLang ?? "en"),
+        getUserStats(user.id),
+        getUserCollections(user.id),
+        getBookmarkStatusCounts(user.id),
+    ])
     return (
         <BookmarksPageAuth
             continueReading={continueReading}

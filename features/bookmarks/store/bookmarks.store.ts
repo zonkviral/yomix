@@ -12,21 +12,32 @@ import { findByExternalId } from "./helpers"
 
 export const useBookmarksStore = create<BookmarksStore>((set, get) => ({
     bookmarks: [],
+    activeBookmark: null,
     collections: [],
     continueReading: [],
     recentlyAdded: [],
     statusCounts: {},
     mutateBookmarks: null,
+    hydrateActiveBookmark: (bookmark) => set({ activeBookmark: bookmark }),
     setMutateBookmarks: (fn) => set({ mutateBookmarks: fn }),
     stats: null,
     isGuest: false,
     toggling: new Set(),
 
-    isBookmarked: (externalId) =>
-        !!findByExternalId(get().bookmarks ?? [], externalId),
-
-    getByExternalId: (externalId) =>
-        findByExternalId(get().bookmarks ?? [], externalId),
+    isBookmarked: (externalId) => {
+        const { bookmarks, activeBookmark } = get()
+        return (
+            !!findByExternalId(bookmarks, externalId) ||
+            activeBookmark?.manga.external_id === externalId
+        )
+    },
+    getByExternalId: (externalId) => {
+        const { bookmarks, activeBookmark } = get()
+        return (
+            findByExternalId(bookmarks, externalId) ??
+            (activeBookmark?.manga.external_id === externalId ? activeBookmark : undefined)
+        )
+    },
 
     ...createInitSlice(set),
     ...createToggleSlice(set, get),

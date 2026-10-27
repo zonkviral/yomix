@@ -14,12 +14,6 @@ import { PasswordRulesIndicator } from "./PasswordRulesIndicator"
 
 import { register } from "@/actions/validation.action"
 
-import { migrateLocalBookmarks } from "@/features/bookmarks/actions/migrate.action"
-import {
-    clearLocalBookmarks,
-    getLocalBookmarks,
-} from "@/features/bookmarks/services/local-storage"
-
 import { Lock, Mail, User, UserPlus } from "lucide-react"
 import { cn } from "@/utils/cn"
 
@@ -49,11 +43,7 @@ export const reducer = (state: State, action: Action): State => {
     }
 }
 
-export const RegisterForm = ({
-    onSwitchToLogin,
-}: {
-    onSwitchToLogin: () => void
-}) => {
+export const RegisterForm = ({ onSwitchToLogin }: { onSwitchToLogin: () => void }) => {
     const [state, dispatch] = useReducer(reducer, initialState)
     const { showPassword, showConfirmPassword, passwordFocused } = state
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -86,12 +76,6 @@ export const RegisterForm = ({
             setIsSubmitting(false)
             return setServerError(result.error)
         }
-        const migrateResult = await migrateLocalBookmarks(getLocalBookmarks())
-        if (migrateResult.error) {
-            setIsSubmitting(false)
-            return setServerError(migrateResult.error)
-        }
-        clearLocalBookmarks()
         router.refresh()
     }
 
@@ -108,9 +92,7 @@ export const RegisterForm = ({
                     <UserPlus className="mb-1" />
                     <h2>Регистрация</h2>
                 </div>
-                <p className="mb-2 text-sm text-rose-50/70">
-                    Создайте аккаунт, чтобы начать.
-                </p>
+                <p className="mb-2 text-sm text-rose-50/70">Создайте аккаунт, чтобы начать.</p>
 
                 <OAuthButtons label="Register" />
                 <Divider />
@@ -123,60 +105,41 @@ export const RegisterForm = ({
                     )}
                     <ShakeWrapper shakeKey={shakeCounters.get("username") ?? 0}>
                         <InputField
-                            icon={
-                                <User className="w-4 shrink-0 text-rose-50/50" />
-                            }
+                            icon={<User className="w-4 shrink-0 text-rose-50/50" />}
                             placeholder="Имя пользователя"
                             type="text"
                             id="register-username"
                             value={values.username}
-                            onChange={(e) =>
-                                handleChange("username", e.target.value)
-                            }
+                            onChange={(e) => handleChange("username", e.target.value)}
                             onBlur={() => handleBlur("username")}
                             autoFocus
                         />
                         {touched.username && errors.username && (
-                            <p className="pt-1 pl-2 text-xs text-rose-500">
-                                {errors.username}
-                            </p>
+                            <p className="pt-1 pl-2 text-xs text-rose-500">{errors.username}</p>
                         )}
                     </ShakeWrapper>
 
                     <ShakeWrapper shakeKey={shakeCounters.get("email") ?? 0}>
                         <InputField
-                            icon={
-                                <Mail className="w-4 shrink-0 text-rose-50/50" />
-                            }
+                            icon={<Mail className="w-4 shrink-0 text-rose-50/50" />}
                             placeholder="mail@example.com"
                             type="email"
                             id="register-mail"
                             value={values.email}
-                            onChange={(e) =>
-                                handleChange("email", e.target.value)
-                            }
+                            onChange={(e) => handleChange("email", e.target.value)}
                             onBlur={() => handleBlur("email")}
-                            rightSlot={
-                                <EmailIcon
-                                    touched={!!touched.email}
-                                    valid={emailValid}
-                                />
-                            }
+                            rightSlot={<EmailIcon touched={!!touched.email} valid={emailValid} />}
                         />
                     </ShakeWrapper>
 
                     <ShakeWrapper shakeKey={shakeCounters.get("password") ?? 0}>
                         <InputField
-                            icon={
-                                <Lock className="w-4 shrink-0 text-rose-50/50" />
-                            }
+                            icon={<Lock className="w-4 shrink-0 text-rose-50/50" />}
                             placeholder="Пароль"
                             type={showPassword ? "text" : "password"}
                             id="register-password"
                             value={values.password}
-                            onChange={(e) =>
-                                handleChange("password", e.target.value)
-                            }
+                            onChange={(e) => handleChange("password", e.target.value)}
                             onBlur={() => {
                                 handleBlur("password")
                                 dispatch({
@@ -205,26 +168,17 @@ export const RegisterForm = ({
 
                     <PasswordRulesIndicator
                         rules={passwordRules}
-                        visible={
-                            passwordFocused ||
-                            (!!touched.password && !!errors.password)
-                        }
+                        visible={passwordFocused || (!!touched.password && !!errors.password)}
                     />
 
-                    <ShakeWrapper
-                        shakeKey={shakeCounters.get("confirmPassword") ?? 0}
-                    >
+                    <ShakeWrapper shakeKey={shakeCounters.get("confirmPassword") ?? 0}>
                         <InputField
-                            icon={
-                                <Lock className="w-4 shrink-0 text-rose-50/50" />
-                            }
+                            icon={<Lock className="w-4 shrink-0 text-rose-50/50" />}
                             placeholder="Подтвердите пароль"
                             type={showConfirmPassword ? "text" : "password"}
                             id="register-confirm-password"
                             value={values.confirmPassword}
-                            onChange={(e) =>
-                                handleChange("confirmPassword", e.target.value)
-                            }
+                            onChange={(e) => handleChange("confirmPassword", e.target.value)}
                             onBlur={() => handleBlur("confirmPassword")}
                             rightSlot={
                                 <PasswordToggle
@@ -240,9 +194,7 @@ export const RegisterForm = ({
                     </ShakeWrapper>
 
                     {touched.confirmPassword && errors.confirmPassword && (
-                        <p className="pl-2 text-xs text-rose-500">
-                            {errors.confirmPassword}
-                        </p>
+                        <p className="pl-2 text-xs text-rose-500">{errors.confirmPassword}</p>
                     )}
 
                     <AnimatedBorder
@@ -255,7 +207,7 @@ export const RegisterForm = ({
                             className={cn(
                                 "relative z-10 flex w-full items-center justify-center",
                                 "rounded-xl bg-rose-600/70 px-4 py-3 text-sm font-medium text-white hover:bg-rose-600/60",
-                                "disabled: bg-rose-600/20",
+                                "disabled:bg-rose-600/20",
                             )}
                         >
                             Зарегистрироваться

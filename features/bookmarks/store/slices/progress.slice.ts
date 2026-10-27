@@ -1,91 +1,79 @@
-import { saveProgress } from "../../actions/save-progress.action"
-
+import { ChapterSource } from "@/lib/chapters/types"
+import { saveProgress as saveProgressAction } from "../../actions/save-progress.action"
 import { updateLocalReadingProgress } from "../../services/local-storage"
-
 import { BookmarksStore, StoreSet } from "../types"
+import type { Bookmark, ReadingProgress } from "@/lib/supabase/type"
 
-export const createProgressSlice = (
-    set: StoreSet,
-    get: () => BookmarksStore,
-) => ({
-    saveProgress: async (
-        externalMangaId: string,
-        chapterId: string,
-        chapterNumber: number,
-        pageNumber: number,
-    ) => {
-        const { isGuest, bookmarks } = get()
+const patchProgress = (
+    bookmark: Bookmark,
+    externalMangaId: string,
+    progress: ReadingProgress,
+): Bookmark =>
+    bookmark.manga.external_id === externalMangaId
+        ? { ...bookmark, manga: { ...bookmark.manga, reading_progress: [progress] } }
+        : bookmark
 
-        const bookmark = bookmarks.find((b) =>
-            b.manga.manga_sources?.some(
-                (ms) => ms.external_id === externalMangaId,
-            ),
-        )
+export const createProgressSlice = (set: StoreSet, get: () => BookmarksStore) => {
+    const saveTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
-        set((s) => ({
-            continueReading: s.continueReading.map((b) =>
-                b.manga.manga_sources?.some(
-                    (ms) => ms.external_id === externalMangaId,
+    return {
+        saveProgress: async (
+            externalMangaId: string,
+            chapterId: string,
+            chapterNumber: number,
+            pageNumber: number,
+            source: ChapterSource,
+        ) => {
+            const { bookmarks, continueReading, isGuest } = get()
+            const previousBookmarks = bookmarks
+            const previousContinueReading = continueReading
+
+            const progress: ReadingProgress = {
+                chapter_id: chapterId,
+                chapter_number: chapterNumber,
+                page_number: pageNumber,
+                source,
+            }
+
+            set((s) => ({
+                bookmarks: s.bookmarks.map((b) => patchProgress(b, externalMangaId, progress)),
+                continueReading: s.continueReading.map((b) =>
+                    patchProgress(b, externalMangaId, progress),
+                ),
+            }))
+
+            if (isGuest) {
+                updateLocalReadingProgress(
+                    externalMangaId,
+                    chapterId,
+                    chapterNumber,
+                    pageNumber,
+                    source,
                 )
-                    ? {
-                          ...b,
-                          manga: {
-                              ...b.manga,
-                              reading_progress: [
-                                  {
-                                      chapter_id: chapterId,
-                                      chapter_number: chapterNumber,
-                                      page_number: pageNumber,
-                                  },
-                              ],
-                          },
-                      }
-                    : b,
-            ),
-            bookmarks: s.bookmarks.map((b) =>
-                b.manga.manga_sources?.some(
-                    (ms) => ms.external_id === externalMangaId,
-                )
-                    ? {
-                          ...b,
-                          manga: {
-                              ...b.manga,
-                              reading_progress: [
-                                  {
-                                      chapter_id: chapterId,
-                                      chapter_number: chapterNumber,
-                                      page_number: pageNumber,
-                                  },
-                              ],
-                          },
-                      }
-                    : b,
-            ),
-        }))
+                return
+            }
 
-        if (isGuest) {
-            updateLocalReadingProgress(
+            clearTimeout(saveTimers.get(externalMangaId))
+            saveTimers.set(
                 externalMangaId,
-                chapterId,
-                chapterNumber,
-                pageNumber,
+                setTimeout(async () => {
+                    saveTimers.delete(externalMangaId)
+                    const result = await saveProgressAction({
+                        externalId: externalMangaId,
+                        chapterId,
+                        chapterNumber,
+                        pageNumber,
+                        source,
+                    })
+                    if (result.error) {
+                        console.error("Failed to save progress:", result.error)
+                        set({
+                            continueReading: previousContinueReading,
+                            bookmarks: previousBookmarks,
+                        })
+                    }
+                }, 800),
             )
-            return
-        }
-
-        if (!bookmark?.manga.id) return
-
-        const payload = {
-            externalId: externalMangaId,
-            chapterId,
-            chapterNumber,
-            pageNumber,
-        }
-
-        const result = await saveProgress(payload)
-
-        if (result.error) {
-            console.error("Failed to save progress:", result.error)
-        }
-    },
-})
+        },
+    }
+}
